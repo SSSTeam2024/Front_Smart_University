@@ -101,9 +101,9 @@ const AddSection = () => {
                     </div>
                   </Col>
 
-                  {/* <Col lg={4}>
+                  <Col lg={4}>
                     <div className="mb-3">
-                      <Form.Label htmlFor="name_section_ar"> Nom Section (FR)</Form.Label>
+                      <Form.Label htmlFor="name_section_ar"> Nom Section (AR)</Form.Label>
                       <Form.Control
                         type="text"
                         id="name_section_ar"
@@ -113,7 +113,7 @@ const AddSection = () => {
                         value={formData.name_section_ar}
                       />
                     </div>
-                  </Col>  */}
+                  </Col> 
                   <Col lg={4}>
                     <div className="mb-3">
                       <Form.Label htmlFor="abreviation">Abréviation</Form.Label>

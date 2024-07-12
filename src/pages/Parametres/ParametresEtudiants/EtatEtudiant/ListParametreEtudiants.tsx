@@ -15,9 +15,9 @@ import TableContainer from "Common/TableContainer";
 import Swal from "sweetalert2";
 import {
   EtatEtudiant,
+  useDeleteEtatEtudiantMutation,
   useFetchEtatsEtudiantQuery,
 } from "features/etatEtudiants/etatEtudiant";
-import { useDeleteEtatEnseignantMutation } from "features/etatEnseignant/etatEnseignant";
 
 const ListParametresEtudiants = () => {
   document.title = "Liste états comptes des étudiants | Smart University";
@@ -34,7 +34,7 @@ const ListParametresEtudiants = () => {
     navigate("/parametre/add-etat-etudiant");
   }
   const { data = [] } = useFetchEtatsEtudiantQuery();
-  const [deleteEtatEtudiant] = useDeleteEtatEnseignantMutation();
+  const [deleteEtatEtudiant] = useDeleteEtatEtudiantMutation();
 
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {

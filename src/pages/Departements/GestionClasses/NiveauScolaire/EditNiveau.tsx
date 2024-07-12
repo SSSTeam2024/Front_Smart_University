@@ -20,6 +20,7 @@ const EditNiveau = () => {
     name_niveau_ar: "",
     name_niveau_fr: "",
     abreviation: "",
+    sections:[]
   });
 
   useEffect(() => {
@@ -29,6 +30,7 @@ const EditNiveau = () => {
         name_niveau_ar: niveau.name_niveau_ar,
         name_niveau_fr: niveau.name_niveau_fr,
         abreviation: niveau.abreviation,
+         sections: niveau.sections
       });
     }
   }, [niveau]);

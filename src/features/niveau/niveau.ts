@@ -1,10 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { Section } from "features/section/section";
 
 export interface Niveau {
   _id: string;
   name_niveau_ar: string,
   name_niveau_fr: string,
   abreviation: string,
+  sections: Section[];
+  
 }
 export const niveauSlice = createApi({
   reducerPath: "Niveau",
@@ -46,13 +49,22 @@ export const niveauSlice = createApi({
         }),
         invalidatesTags: ["Niveau"],
       }),
+      fetchSectionsByNiveauId: builder.query<Niveau, string>({
+        query: (niveauClasseId) => ({
+          url: `${niveauClasseId}/sections`,
+          method: "GET",
+        }),
+        providesTags: (result, error, id) => [{ type: "Niveau", id }],
+      }),
     };
   },
+  
 });
 
 export const {
    useAddNiveauMutation,
    useDeleteNiveauMutation,
    useFetchNiveauxQuery,
-   useUpdateNiveauMutation
+   useUpdateNiveauMutation,
+   useFetchSectionsByNiveauIdQuery
 } = niveauSlice;

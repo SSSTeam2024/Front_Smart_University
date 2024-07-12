@@ -1,14 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { Matiere } from "features/matiere/matiere";
+import { Niveau } from "features/niveau/niveau";
+import { Section } from "features/section/section";
 
-export interface Matiere {
-  _id: string;
-  code_matiere: string;
-  matiere: string;
-  type: string;
-  semestre: string;
-  volume: string;
-  nbr_elimination: string;
-}
 
 export interface Classe {
   _id: string;
@@ -25,18 +19,7 @@ export interface Classe {
     SignatureFileBase64String: string;
     signature: string;
   };
-  niveau_classe: {
-    _id: string;
-    name_niveau_ar: string;
-    name_niveau_fr: string;
-    abreviation: string;
-  };
-  section_classe: {
-    _id: string;
-    name_section_fr: string;
-    name_section_ar: string;
-    abreviation: string;
-  };
+  niveau_classe: Niveau;
   matieres: Matiere[];
 }
 

@@ -122,6 +122,7 @@ const ListEnseignants = () => {
           }
         },
       },
+      
       {
         Header: "Action",
         disableFilters: true,

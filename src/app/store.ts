@@ -26,6 +26,7 @@ import { departementSlice } from "features/departement/departement";
 import { salleSlice } from "features/salles/salles";
 import { sectionSlice } from "features/section/section";
 import { classeSlice } from "features/classe/classe";
+import { etudiantSlice } from "features/etudiant/etudiant";
 
 
 
@@ -49,6 +50,7 @@ export const store = configureStore({
     [salleSlice.reducerPath]: salleSlice.reducer,
     [sectionSlice.reducerPath]: sectionSlice.reducer,
     [classeSlice.reducerPath]: classeSlice.reducer,
+    [etudiantSlice.reducerPath]: etudiantSlice.reducer,
 
     auth: authSlice,
     Layout: LayoutReducer,
@@ -75,7 +77,8 @@ export const store = configureStore({
       departementSlice.middleware,
       salleSlice.middleware,
       sectionSlice.middleware,
-      classeSlice.middleware
+      classeSlice.middleware,
+      etudiantSlice.middleware
     ]);
   },
 });

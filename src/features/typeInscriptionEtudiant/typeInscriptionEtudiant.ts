@@ -5,6 +5,7 @@ export interface TypeInscriptionEtudiant {
   value_type_inscription: string;
   type_ar: string;
   type_fr: string;
+  files_type_inscription: { name_ar: string; name_fr: string }[];
 }
 export const typeInscriptionEtudiantSlice = createApi({
   reducerPath: "TypeInscriptionEtudiant",

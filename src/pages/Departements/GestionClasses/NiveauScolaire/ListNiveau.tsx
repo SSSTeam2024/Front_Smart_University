@@ -94,8 +94,12 @@ const ListNiveau = () => {
             disableFilters: true,
             filterable: true,
         },
-       
-   
+        {
+          Header: "Sections",
+          accessor: (row: any) => row?.sections?.length! || "",
+          disableFilters: true,
+          filterable: true,
+        },
         {
             Header: "Action",
             disableFilters: true,
