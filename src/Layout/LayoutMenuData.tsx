@@ -155,7 +155,11 @@ const Navdata = () => {
    "/departement/gestion-classes",
    "/departement/gestion-salles/liste-salles",
    "/departement/gestion-salles",
-   ""
+   "/ListePersonnels",
+   '/AjouterPersonnel',
+   "/Gestion Personnels",
+   "/gestion-departements/liste-departements",
+   "/departements"
   
 
   ];
@@ -239,7 +243,7 @@ const Navdata = () => {
     {
       id: "Gestion-Personnel",
       label: "Gestion Personnels",
-      link: "/#",
+      link: "/Gestion Personnels",
       icon: "bi bi-person-fill-gear",
       click: function (e: any) {
         e.preventDefault();
@@ -478,7 +482,7 @@ const Navdata = () => {
           id: "departements",
           label: "Départements",
           icon: "bi bi-house-gear-fill",
-          link: "",
+          link: "/departements",
           isChildItem: true,
           click: function (e: any) {
             e.preventDefault();

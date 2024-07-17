@@ -10,8 +10,6 @@ import {
 } from "react-bootstrap";
 import Breadcrumb from "Common/BreadCrumb";
 import { Link, useNavigate } from "react-router-dom";
-
-import { sellerList } from "Common/data";
 import Swal from "sweetalert2";
 import TableContainer from "Common/TableContainer";
 import { Classe, useDeleteClasseMutation, useFetchClassesQuery } from "features/classe/classe";

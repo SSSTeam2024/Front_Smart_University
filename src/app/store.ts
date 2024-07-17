@@ -27,6 +27,8 @@ import { salleSlice } from "features/salles/salles";
 import { sectionSlice } from "features/section/section";
 import { classeSlice } from "features/classe/classe";
 import { etudiantSlice } from "features/etudiant/etudiant";
+import { enseignantSlice } from "features/enseignant/enseignant";
+import { personnelSlice } from "features/personnel/personnel";
 
 
 
@@ -51,6 +53,8 @@ export const store = configureStore({
     [sectionSlice.reducerPath]: sectionSlice.reducer,
     [classeSlice.reducerPath]: classeSlice.reducer,
     [etudiantSlice.reducerPath]: etudiantSlice.reducer,
+    [enseignantSlice.reducerPath]: enseignantSlice.reducer,
+    [personnelSlice.reducerPath]: personnelSlice.reducer,
 
     auth: authSlice,
     Layout: LayoutReducer,
@@ -78,7 +82,9 @@ export const store = configureStore({
       salleSlice.middleware,
       sectionSlice.middleware,
       classeSlice.middleware,
-      etudiantSlice.middleware
+      etudiantSlice.middleware,
+      enseignantSlice.middleware,
+      personnelSlice.middleware
     ]);
   },
 });

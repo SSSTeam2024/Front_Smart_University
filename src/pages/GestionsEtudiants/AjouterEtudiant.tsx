@@ -50,6 +50,7 @@ interface Etudiant {
     section_classe: string ;
     matieres: [string];
   };
+  
   state: string;
   dependence: string;
   code_postale: string;
@@ -80,6 +81,9 @@ interface Etudiant {
   FichePaiementFileBase64String: string;
   FichePaiementFileExtension: string;
   files: string[];
+  photo_profil: string;
+  PhotoProfilFileExtension: string;
+  PhotoProfilFileBase64String: string;
 }
 
 
@@ -611,6 +615,9 @@ const AjouterEtudiant = () => {
     FichePaiementFileBase64String: "",
     FichePaiementFileExtension: "",
     files: [],
+    photo_profil: "",
+    PhotoProfilFileExtension: "",
+    PhotoProfilFileBase64String: "",
   });
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -777,7 +784,26 @@ const AjouterEtudiant = () => {
       });
     }
   };
-
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = (
+      document.getElementById("PhotoProfilFileBase64String") as HTMLFormElement
+    ).files[0];
+    if (file) {
+      const { base64Data, extension } = await convertToBase64(file);
+      console.log(base64Data);
+      console.log(extension);
+      const newFile = base64Data + "." + extension;
+      console.log(newFile);
+      setFormData({
+        ...formData,
+        photo_profil: newFile,
+        PhotoProfilFileBase64String: base64Data,
+        PhotoProfilFileExtension: extension,
+      });
+    }
+  };
   return (
     <React.Fragment>
       <div className="page-content">
@@ -810,18 +836,18 @@ const AjouterEtudiant = () => {
                     >
                       <input type="hidden" id="id-field" />
                       <Row>
-                        <div className="text-center mb-3">
+                      <div className="text-center mb-3">
                           <div
                             className="position-relative d-inline-block"
                             style={{ marginBottom: "30px" }}
                           >
                             <div className="position-absolute top-100 start-100 translate-middle">
                               <label
-                                htmlFor="photosBase64String"
+                                htmlFor="PhotoProfilFileBase64String"
                                 className="mb-0"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="right"
-                                title="Select Employee Picture"
+                                title="Choisir Photo Etudiant"
                               >
                                 <span className="avatar-xs d-inline-block">
                                   <span className="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
@@ -832,16 +858,18 @@ const AjouterEtudiant = () => {
                               <input
                                 className="d-none"
                                 type="file"
-                                name="photosBase64String"
-                                id="photosBase64String"
+                                name="PhotoProfilFileBase64String"
+                                id="PhotoProfilFileBase64String"
                                 accept="image/*"
+                                onChange={(e) => handleFileUpload(e)}
                               />
                             </div>
                             <div className="avatar-xl">
                               <div className="avatar-title bg-light rounded-4">
                                 <img
-                                  // alt={formData.firstName}
-                                  id="photosBase64String"
+                                  src={`data:image/${formData.PhotoProfilFileExtension};base64,${formData.PhotoProfilFileBase64String}`}
+                                  alt={formData.prenom_fr}
+                                  id="PhotoProfilFileBase64String"
                                   className="avatar-xl h-auto rounded-4 object-fit-cover"
                                 />
                               </div>
@@ -1410,7 +1438,7 @@ const AjouterEtudiant = () => {
                                   }}
                                 >
                                   <Form.Label
-                                    htmlFor="fullName"
+                                    htmlFor="num_phone"
                                     style={{
                                       direction: "rtl",
                                       textAlign: "right",
@@ -1420,10 +1448,12 @@ const AjouterEtudiant = () => {
                                   </Form.Label>
                                   <Form.Control
                                     type="text"
-                                    id="firstName"
+                                    id="num_phone"
                                     placeholder=""
                                     dir="rtl"
                                     // required
+                                    onChange={onChange}
+                                    value={formData.num_phone}
                                   />
                                 </div>
                               </Col>

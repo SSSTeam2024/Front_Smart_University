@@ -14,7 +14,7 @@ import CountUp from "react-countup";
 import { Link, useNavigate } from "react-router-dom";
 import { sellerList } from "Common/data";
 import TableContainer from "Common/TableContainer";
-import { useFetchEtudiantsQuery } from "features/etudiant/etudiant";
+import { Etudiant, useFetchEtudiantsQuery } from "features/etudiant/etudiant";
 import { format } from 'date-fns';
 
 const ListEtudiants = () => {
@@ -84,31 +84,27 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
   const columns = useMemo(
     () => [
       {
-        Header: (
-          <div className="form-check">
-            {" "}
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="checkAll"
-              value="option"
-            />{" "}
-          </div>
-        ),
-        Cell: (cellProps: any) => {
+        Header: "Nom Etudiant",
+        disableFilters: true,
+        filterable: true,
+        accessor: (etudiants: Etudiant) => {
           return (
-            <div className="form-check">
-              {" "}
-              <input
-                className="form-check-input"
-                type="checkbox"
-                name="chk_child"
-                defaultValue="option1"
-              />{" "}
+            <div className="d-flex align-items-center gap-2">
+              <div className="flex-shrink-0">
+                <img
+                src={`http://localhost:5000/files/etudiantFiles/PhotoProfil/${etudiants.photo_profil}`}
+                  alt="etudiant-img"
+                  id="photo_profil"
+                  className="avatar-xs rounded-circle user-profile-img "
+                 
+                />
+              </div>
+              <div className="flex-grow-1 user_name">
+                {etudiants.nom_fr} {etudiants.prenom_fr}
+              </div>
             </div>
           );
         },
-        id: "#",
       },
       {
         Header: "CIN",

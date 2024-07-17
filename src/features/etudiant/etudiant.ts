@@ -67,6 +67,9 @@ export interface Etudiant {
   FichePaiementFileBase64String: string;
   FichePaiementFileExtension: string;
   files: string[];
+  photo_profil: string;
+  PhotoProfilFileExtension: string;
+  PhotoProfilFileBase64String: string;
 }
 export const etudiantSlice = createApi({
   reducerPath: "Etudiant",
