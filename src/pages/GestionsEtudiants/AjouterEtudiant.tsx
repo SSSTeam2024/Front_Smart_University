@@ -17,8 +17,18 @@ import Swal from "sweetalert2";
 import "flatpickr/dist/flatpickr.min.css";
 import { useAddEtudiantMutation } from "features/etudiant/etudiant";
 import { useFetchEtatsEtudiantQuery } from "features/etatEtudiants/etatEtudiant";
-import { TypeInscriptionEtudiant, useFetchTypeInscriptionsEtudiantQuery } from "features/typeInscriptionEtudiant/typeInscriptionEtudiant";
+import {
+  TypeInscriptionEtudiant,
+  useFetchTypeInscriptionsEtudiantQuery,
+} from "features/typeInscriptionEtudiant/typeInscriptionEtudiant";
 import { useFetchClassesQuery } from "features/classe/classe";
+interface FileDetail {
+  name_ar: string;
+  name_fr: string;
+  file?: string;
+  base64String?: string;
+  extension?: string;
+}
 interface Etudiant {
   _id: string;
   nom_fr: string;
@@ -45,12 +55,12 @@ interface Etudiant {
     _id: string;
     nom_classe_fr: string;
     nom_classe_ar: string;
-    departement: string ;
+    departement: string;
     niveau_classe: string;
-    section_classe: string ;
+    section_classe: string;
     matieres: [string];
   };
-  
+
   state: string;
   dependence: string;
   code_postale: string;
@@ -80,12 +90,11 @@ interface Etudiant {
   Face2CINFileExtension: string;
   FichePaiementFileBase64String: string;
   FichePaiementFileExtension: string;
-  files: string[];
+  files: FileDetail[];
   photo_profil: string;
   PhotoProfilFileExtension: string;
   PhotoProfilFileBase64String: string;
 }
-
 
 type Wilaya =
   | "اريانة"
@@ -452,19 +461,21 @@ const delegationOptions: DelegationOptions = {
 const AjouterEtudiant = () => {
   document.title = " Ajouter Etudiant | Application Smart Institute";
   const navigate = useNavigate();
-  const [selectedFiles, setselectedFiles] = useState([]);
+  const [selectedFiles, setselectedFiles] = useState<any>([]);
   const [seletedCountry, setseletedCountry] = useState<any>({});
   const [seletedCountry1, setseletedCountry1] = useState<any>({});
- 
+
   const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">("");
   const [selectedDelegation, setSelectedDelegation] = useState<string>("");
   const [fileInputs, setFileInputs] = useState<{ [key: string]: string[] }>({});
   const [selectedOption, setSelectedOption] = useState<string>("");
 
- 
-  const handleCheckboxChange = (option: string, type_inscription: TypeInscriptionEtudiant[]) => {
+  const handleCheckboxChange = (
+    option: string,
+    type_inscription: TypeInscriptionEtudiant[]
+  ) => {
     setSelectedOption(option);
-  
+
     // Find the selected type_inscription or provide a default empty object
     const selectedInscription = type_inscription.find(
       (inscription) => inscription.type_ar === option
@@ -475,17 +486,21 @@ const AjouterEtudiant = () => {
       type_fr: "",
       files_type_inscription: [],
     };
-  
-    // Convert selectedInscription.files_type_inscription to string[]
-    const files = selectedInscription.files_type_inscription.map(file => `${file.name_ar} - ${file.name_fr}`);
-  
+    console.log("selectedInscription",selectedInscription)
+    const files = selectedInscription.files_type_inscription.map(
+      (file) => `${file.name_fr}`
+    );
+
     // Update fileInputs state to reflect selected files for the option
-    setFileInputs(prevState => ({
+    setFileInputs((prevState) => ({
       ...prevState,
       [option]: files,
     }));
-  
-    // Update formData using setFormData
+    setselectedFiles(files)
+//     // Convert selectedInscription.files_type_inscription to string[]
+    
+// console.log("files", files);
+    // // Update formData using setFormData
     setFormData((prevData: Etudiant) => ({
       ...prevData,
       type_inscription: {
@@ -495,11 +510,10 @@ const AjouterEtudiant = () => {
         type_fr: selectedInscription.type_fr,
         files_type_inscription: files, // Assign the files array directly
       },
-      files: files, // Update the files array in formData
+     
     }));
   };
-  
-
+  // console.log("selectedInscription", selectedOption);
   // change state
   const handleWilayaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const wilaya = event.target.value as Wilaya;
@@ -614,7 +628,9 @@ const AjouterEtudiant = () => {
     Face2CINFileExtension: "",
     FichePaiementFileBase64String: "",
     FichePaiementFileExtension: "",
-    files: [],
+    files: [
+      { name_ar: "", name_fr: "", file: "", base64String: "", extension: "" },
+    ],
     photo_profil: "",
     PhotoProfilFileExtension: "",
     PhotoProfilFileBase64String: "",
@@ -804,6 +820,33 @@ const AjouterEtudiant = () => {
       });
     }
   };
+  
+  const [newArray, setNewArray] = useState<any>([]);
+  const handleFileTypeInscriptionUpload = async (event: any, index: number) => {
+    const file = event.target.files[0];
+    if (file) {
+      const { base64Data, extension } = await convertToBase64(file);
+      const newFile = base64Data + "." + extension;
+
+      let newObj = {
+        name_ar: "",
+        name_fr: selectedFiles[index],
+        file: newFile,
+        base64String: base64Data,
+        extension: extension,
+      };
+
+      let prevArray:any = []
+        const updatedArray = [...prevArray];
+        updatedArray[index] = newObj;
+       setNewArray(updatedArray);
+       console.log(newArray);
+       setFormData({
+        ...formData,
+        files: newArray
+      });
+    }
+  };
   return (
     <React.Fragment>
       <div className="page-content">
@@ -836,7 +879,7 @@ const AjouterEtudiant = () => {
                     >
                       <input type="hidden" id="id-field" />
                       <Row>
-                      <div className="text-center mb-3">
+                        <div className="text-center mb-3">
                           <div
                             className="position-relative d-inline-block"
                             style={{ marginBottom: "30px" }}
@@ -1795,51 +1838,69 @@ const AjouterEtudiant = () => {
                               </div>
                             </Card.Header>
                             <Card.Body>
-                            <Row style={{ direction: "rtl", textAlign: "right" }}>
-  <Col lg={12}>
-    <div>
-      {type_inscription.map((inscription) => (
-        <div className="form-switch mb-2" key={inscription._id}>
-          <input
-            className="form-check-input"
-            type="checkbox"
-            role="switch"
-            id={inscription.type_ar}
-            checked={selectedOption === inscription.type_ar}
-            onChange={() => handleCheckboxChange(inscription.type_ar, type_inscription)}
-          />
-          <label
-            className="form-check-label"
-            htmlFor={inscription.type_ar}
-            style={{ marginRight: "50px" }}
-          >
-            {inscription.type_ar}
-          </label>
-        </div>
-      ))}
-    </div>
-    <Row>
-      {fileInputs[selectedOption]?.map((fileLabel, index) => (
-        <Col lg={3} key={index}>
-          <div className="mb-3">
-            <label htmlFor={`fileInput${index}`} className="form-label">
-              {fileLabel}
-            </label>
-            <Form.Control
-              name={`fileInput${index}`}
-              type="file"
-              id={`fileInput${index}`}
-              accept=".pdf"
-              placeholder="Choose File"
-              className="text-muted"
-            />
-          </div>
-        </Col>
-      ))}
-    </Row>
-  </Col>
-</Row>
-
+                              <Row
+                                style={{ direction: "rtl", textAlign: "right" }}
+                              >
+                                <Col lg={12}>
+                                  <div>
+                                    {type_inscription.map((inscription) => (
+                                      <div
+                                        className="form-switch mb-2"
+                                        key={inscription._id}
+                                      >
+                                        <input
+                                          className="form-check-input"
+                                          type="checkbox"
+                                          role="switch"
+                                          id={inscription.type_ar}
+                                          checked={
+                                            selectedOption ===
+                                            inscription.type_ar
+                                          }
+                                          onChange={() =>
+                                            handleCheckboxChange(
+                                              inscription.type_ar,
+                                              type_inscription
+                                            )
+                                          }
+                                        />
+                                        <label
+                                          className="form-check-label"
+                                          htmlFor={inscription.type_ar}
+                                          style={{ marginRight: "50px" }}
+                                        >
+                                          {inscription.type_ar}
+                                        </label>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <Row>
+                                    {fileInputs[selectedOption]?.map(
+                                      (fileLabel, index) => (
+                                        <Col lg={3} key={index}>
+                                          <div className="mb-3">
+                                            <label
+                                              htmlFor={`fileInput${index}`}
+                                              className="form-label"
+                                            >
+                                              {fileLabel}
+                                            </label>
+                                            <Form.Control
+                                              name={`fileInput${index}`}
+                                              type="file"
+                                              id={`fileInputs${index}`}
+                                              accept=".pdf"
+                                              placeholder="Choose File"
+                                              className="text-muted"
+                                              onChange={(event)=>handleFileTypeInscriptionUpload(event, index)}
+                                            />
+                                          </div>
+                                        </Col>
+                                      )
+                                    )}
+                                  </Row>
+                                </Col>
+                              </Row>
                             </Card.Body>
                           </Card>
                         </Col>

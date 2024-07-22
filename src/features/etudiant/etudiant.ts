@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export interface FileDetail {
   name_ar: string;
   name_fr: string;
-  file?: File | null;
+  file?: string;
   base64String?: string;
   extension?: string;
 }
@@ -66,7 +66,7 @@ export interface Etudiant {
   Face2CINFileExtension: string;
   FichePaiementFileBase64String: string;
   FichePaiementFileExtension: string;
-  files: string[];
+  files: FileDetail[];
   photo_profil: string;
   PhotoProfilFileExtension: string;
   PhotoProfilFileBase64String: string;
