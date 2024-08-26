@@ -4,19 +4,18 @@ import {
   Card,
   Col,
   Container,
-  Dropdown,
-  Form,
+ Form,
   Modal,
   Row,
 } from "react-bootstrap";
 import Breadcrumb from "Common/BreadCrumb";
 import { Link, useNavigate } from "react-router-dom";
-import TableContainer from "Common/TableContainer";
 import Swal from "sweetalert2";
-import { Departement, useDeleteDepartementMutation, useFetchDepartementsQuery } from "features/departement/departement";
+import TableContainer from "Common/TableContainer";
+import { Classe, useDeleteClasseMutation, useFetchClassesQuery } from "features/classe/classe";
 
-const ListDepartement = () => {
-  document.title = "Liste Des Départements | Smart University";
+const ListeEmploisClasse = () => {
+  document.title = "Liste emplois des classes | Smart University";
 
   const navigate = useNavigate();
 
@@ -26,11 +25,13 @@ const ListDepartement = () => {
     setmodal_AddParametreModals(!modal_AddParametreModals);
   }
 
-  function tog_AddNiveau() {
-    navigate("/gestion-departements/departements/add-departement");
+  function tog_AddClasse() {
+    navigate("/departement/gestion-classes/add-classe");
   }
-  const { data = [] } = useFetchDepartementsQuery();
-  const [deleteDepartement] = useDeleteDepartementMutation();
+  const { data = [] } = useFetchClassesQuery();
+  console.log("classe data ", data)
+  const [deleteClasse] = useDeleteClasseMutation();
+  console.log(data)
 
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
@@ -52,152 +53,141 @@ const ListDepartement = () => {
       })
       .then((result) => {
         if (result.isConfirmed) {
-          deleteDepartement(_id);
+          deleteClasse(_id);
           swalWithBootstrapButtons.fire(
             "Supprimé!",
-            "Departement a été supprimé.",
+            "Classe a été supprimé.",
             "success"
           );
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           swalWithBootstrapButtons.fire(
             "Annulé",
-            "Departement est en sécurité :)",
+            "Classe est en sécurité :)",
             "error"
           );
         }
       });
   };
+
+
+
+
+
   const columns = useMemo(
     () => [
-      {
-        Header: (
-          <div className="form-check">
-          <input
-              className="form-check-input"
-              type="checkbox"
-              id="checkAll"
-              value="option"
-            />
-          </div>
-        ),
-        Cell: (cellProps: any) => {
-          return (
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                name="chk_child"
-                defaultValue="option1"
-              />
-            </div>
-          );
+        {
+            Header: (<div className="form-check"> <input className="form-check-input" type="checkbox" id="checkAll" value="option" /> </div>),
+            Cell: (cellProps: any) => {
+                return (<div className="form-check"> <input className="form-check-input" type="checkbox" name="chk_child" defaultValue="option1" /> </div>);
+            },
+            id: '#',
         },
-        id: "#",
-      },
+       
+        {
+            Header: "Nom Classe (FR)",
+            accessor: "nom_classe_fr",
+            disableFilters: true,
+            filterable: true,
+        },
+      //   {
+      //     Header: "Nom Classe (FR)",
+      //     accessor: "nom_classe_ar",
+      //     disableFilters: true,
+      //     filterable: true,
+      // },
       {
-        Header: "ID",
-        accessor: "_id",
+        Header: "Departement",
+        accessor: (row: any) => row.departement?.name_fr || "",
         disableFilters: true,
         filterable: true,
       },
-      {
-        Header: "Nom Département",
-        accessor: "name_fr",
-        disableFilters: true,
-        filterable: true,
-      },
-      {
-        Header: "إسم القسم",
-        accessor: "name_ar",
-        disableFilters: true,
-        filterable: true,
+        {
+            Header: "Niveau",
+            accessor: (row: any) => row.niveau_classe?.abreviation || "",
+            disableFilters: true,
+            filterable: true,
+        },
+        {
+          Header: "Section",
+          accessor: (row: any) => row.niveau_classe?.sections[0]?.abreviation! || "",
+          disableFilters: true,
+          filterable: true,
       },
    
-      {
-        Header: "Nom chéf Dép.",
-        accessor: "nom_chef_dep",
-        disableFilters: true,
-        filterable: true,
-      },
-      {
-        Header: "Signature chéf Dép.",
-        accessor: "signature",
-        disableFilters: true,
-        filterable: true,
-        Cell: ({ cell: { value } }: any) => (
-          <a href={`http://localhost:5000/files/departementFiles/${value}`} target="_blank" rel="noopener noreferrer">
-            <i className="bi bi-image" style={{ cursor: "pointer", fontSize: "1.5em", marginLeft:"30px" }}></i>
-          </a>
-        ),
-      },
 
-      {
-        Header: "Action",
-        disableFilters: true,
-        filterable: true,
-        accessor: (departement: Departement) => {
-          return (
-            <ul className="hstack gap-2 list-unstyled mb-0">
-              <li>
-                <Link
-                  to="/gestion-departements/departements/edit-departement"
-                  state={departement}
-                  className="badge bg-primary-subtle text-primary edit-item-btn"
-                >
-                  <i
-                    className="ph ph-pencil-line"
-                    style={{
-                      transition: "transform 0.3s ease-in-out",
-                      cursor: "pointer",
-                      fontSize: "1.5em",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.transform = "scale(1.2)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.transform = "scale(1)")
-                    }
-                  ></i>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#"
-                  className="badge bg-danger-subtle text-danger remove-item-btn"
-                >
-                  <i
-                    className="ph ph-trash"
-                    style={{
-                      transition: "transform 0.3s ease-in-out",
-                      cursor: "pointer",
-                      fontSize: "1.5em",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.transform = "scale(1.2)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.transform = "scale(1)")
-                    }
-                    onClick={() => AlertDelete(departement?._id!)}
-                  ></i>
-                </Link>
-              </li>
-            </ul>
-          );
+        {
+            Header: "Emploi",
+            disableFilters: true,
+            filterable: true,
+            accessor: (classe: Classe) => {
+                return (
+                    <ul className="hstack gap-2 list-unstyled mb-0">
+                     
+                      <li>
+                        <Link
+                          to="/gestion-emplois-classe/gestion-emplois-classe"
+                          className="badge bg-primary-subtle text-primary edit-item-btn"
+                          state={{ classe, semestre: '1' }}
+                    
+                        >
+                          {/* <i
+                            className="ph ph-pencil-line"
+                            style={{
+                              transition: "transform 0.3s ease-in-out",
+                              cursor: "pointer",
+                              fontSize: "1.5em",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.transform = "scale(1.2)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                          ></i> */}
+                          S1 
+                        </Link>
+                      </li>
+                      |
+                      <li>
+                        <Link
+                            to="/gestion-emplois-classe/gestion-emplois-classe"
+                          className="badge bg-info-subtle text-info remove-item-btn"
+                          state={{ classe, semestre: '2' }}
+                        >
+                          {/* <i
+                            className="ph ph-trash"
+                            style={{
+                              transition: "transform 0.3s ease-in-out",
+                              cursor: "pointer",
+                              fontSize: "1.5em",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.transform = "scale(1.2)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                            onClick={() => AlertDelete(classe?._id!)}
+                          ></i> */}
+                          S2
+                        </Link>
+                      </li>
+                    </ul>
+                  );
+            },
         },
-      },
     ],
     []
-  );
+);
+
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid={true}>
           <Breadcrumb
-            title="Gestion Des Départements"
-            pageTitle="Liste Des Départements"
+            title="Gestion des départements"
+            pageTitle="Liste emplois des classes"
           />
-          
 
           <Row id="sellersList">
             <Col lg={12}>
@@ -226,17 +216,16 @@ const ListDepartement = () => {
                         <option value="Inactive">Desactivé</option>
                       </select>
                     </Col>
-                  
+
                     <Col className="col-lg-auto ms-auto">
                       <div className="hstack gap-2">
                         <Button
                           variant="primary"
                           className="add-btn"
-                          onClick={() => tog_AddNiveau()}
+                          onClick={() => tog_AddClasse()}
                         >
-                          Ajouter département
+                          Ajouter classe
                         </Button>
-                      
                       </div>
                     </Col>
                   </Row>
@@ -253,7 +242,7 @@ const ListDepartement = () => {
               >
                 <Modal.Header className="px-4 pt-4" closeButton>
                   <h5 className="modal-title" id="exampleModalLabel">
-                    Ajouter Un Département
+                    Ajouter une classe
                   </h5>
                 </Modal.Header>
                 <Form className="tablelist-form">
@@ -266,7 +255,29 @@ const ListDepartement = () => {
 
                     <div className="mb-3">
                       <Form.Label htmlFor="item-stock-field">
-                        Nom département
+                        Nom Classe (AR)
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        id="item-stock-field"
+                        placeholder=""
+                        required
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <Form.Label htmlFor="item-stock-field">
+                        Nom Classe (FR)
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        id="item-stock-field"
+                        placeholder=""
+                        required
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <Form.Label htmlFor="item-stock-field">
+                        Abréviation
                       </Form.Label>
                       <Form.Control
                         type="text"
@@ -277,6 +288,41 @@ const ListDepartement = () => {
                     </div>
 
                     <div className="mb-3">
+                      <Form.Label htmlFor="civilStatus">Niveau</Form.Label>
+                      <select
+                        className="form-select text-muted"
+                        name="civilStatus"
+                        id="civilStatus"
+                        // required
+                      >
+                        <option value="">Saisir niveau</option>
+                        <option value="Etudiant">
+                          1ere Licence Informatique
+                        </option>
+                        <option value="Enseignant">
+                          2éme Licence Informatique
+                        </option>
+                        <option value="Personnel">
+                          3éme Licence Informatique
+                        </option>
+                      </select>
+                    </div>
+                    <div className="mb-3">
+                      <Form.Label htmlFor="civilStatus">Section</Form.Label>
+                      <select
+                        className="form-select text-muted"
+                        name="civilStatus"
+                        id="civilStatus"
+                        // required
+                      >
+                        <option value="">Saisir section</option>
+                        <option value="Etudiant">Informqtiaue</option>
+                        <option value="Enseignant">Mathématiaue</option>
+                        <option value="Personnel">Mécanique</option>
+                      </select>
+                    </div>
+
+                    {/* <div className="mb-3">
                       <Form.Label htmlFor="phone-field">
                         Volume Horaire
                       </Form.Label>
@@ -307,7 +353,9 @@ const ListDepartement = () => {
                           required
                         />
                       </div>
-                      <div className="mb-3">
+                      <div
+                        className="mb-3"
+                      >
                         <label
                           htmlFor="legalcardBase64String"
                           className="form-label"
@@ -323,7 +371,7 @@ const ListDepartement = () => {
                           className="text-muted"
                         />
                       </div>
-                    </div>
+                    </div> */}
                   </Modal.Body>
                   <div className="modal-footer">
                     <div className="hstack gap-2 justify-content-end">
@@ -350,18 +398,20 @@ const ListDepartement = () => {
                     className="table align-middle table-nowrap"
                     id="customerTable"
                   >
-                    <TableContainer
-                      columns={columns || []}
-                      data={data || []}
-                      // isGlobalFilter={false}
-                      iscustomPageSize={false}
-                      isBordered={false}
-                      customPageSize={10}
-                      className="custom-header-css table align-middle table-nowrap"
-                      tableClass="table-centered align-middle table-nowrap mb-0"
-                      theadClass="text-muted table-light"
-                      SearchPlaceholder="Search Products..."
-                    />
+                 <React.Fragment>
+            <TableContainer
+                columns={(columns || [])}
+                data={(data || [])}
+                // isGlobalFilter={false}
+                iscustomPageSize={false}
+                isBordered={false}
+                customPageSize={10}
+                className="custom-header-css table align-middle table-nowrap"
+                tableClass="table-centered align-middle table-nowrap mb-0"
+                theadClass="text-muted table-light"
+                SearchPlaceholder='Search Products...'
+            />
+        </React.Fragment>
                   </table>
                   <div className="noresult" style={{ display: "none" }}>
                     <div className="text-center py-4">
@@ -388,4 +438,4 @@ const ListDepartement = () => {
   );
 };
 
-export default ListDepartement;
+export default ListeEmploisClasse;

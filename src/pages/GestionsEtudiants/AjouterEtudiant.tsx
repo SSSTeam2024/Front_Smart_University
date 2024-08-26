@@ -22,6 +22,7 @@ import {
   useFetchTypeInscriptionsEtudiantQuery,
 } from "features/typeInscriptionEtudiant/typeInscriptionEtudiant";
 import { useFetchClassesQuery } from "features/classe/classe";
+import { format } from "date-fns";
 interface FileDetail {
   name_ar: string;
   name_fr: string;
@@ -58,7 +59,7 @@ interface Etudiant {
     departement: string;
     niveau_classe: string;
     section_classe: string;
-    matieres: [string];
+    matieres: string[];
   };
 
   state: string;
@@ -228,7 +229,6 @@ const delegationOptions: DelegationOptions = {
     "المظيلة",
     "القطار",
     "بالخير",
-    "زنوش",
     "زنوش",
   ],
   جندوبة: [
@@ -486,7 +486,7 @@ const AjouterEtudiant = () => {
       type_fr: "",
       files_type_inscription: [],
     };
-    console.log("selectedInscription",selectedInscription)
+    console.log("selectedInscription", selectedInscription);
     const files = selectedInscription.files_type_inscription.map(
       (file) => `${file.name_fr}`
     );
@@ -496,10 +496,10 @@ const AjouterEtudiant = () => {
       ...prevState,
       [option]: files,
     }));
-    setselectedFiles(files)
-//     // Convert selectedInscription.files_type_inscription to string[]
-    
-// console.log("files", files);
+    setselectedFiles(files);
+    //     // Convert selectedInscription.files_type_inscription to string[]
+
+    // console.log("files", files);
     // // Update formData using setFormData
     setFormData((prevData: Etudiant) => ({
       ...prevData,
@@ -510,7 +510,6 @@ const AjouterEtudiant = () => {
         type_fr: selectedInscription.type_fr,
         files_type_inscription: files, // Assign the files array directly
       },
-     
     }));
   };
   // console.log("selectedInscription", selectedOption);
@@ -543,10 +542,18 @@ const AjouterEtudiant = () => {
   const handleDateChange = (selectedDates: Date[]) => {
     const selectedDate = selectedDates[0];
     setSelectedDate(selectedDate);
-    setFormData((prevState) => ({
-      ...prevState,
-      date_naissance: selectedDate ? selectedDate.toISOString() : "", // Convert date to ISO string
-    }));
+    if (selectedDate) {
+      const formattedDate = format(selectedDate, "yyyy-MM-dd");
+      setFormData((prevState) => ({
+        ...prevState,
+        date_naissance: formattedDate,
+      }));
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        date_naissance: "",
+      }));
+    }
   };
 
   // change date bac
@@ -555,12 +562,22 @@ const AjouterEtudiant = () => {
   const handleDateChangeBac = (selectedDates: Date[]) => {
     const selectedDate = selectedDates[0];
     setSelectedDateBac(selectedDate);
-    setFormData((prevState) => ({
-      ...prevState,
-      annee_scolaire: selectedDateBac ? selectedDateBac.toISOString() : "",
-    }));
-  };
 
+    if (selectedDate) {
+      // Format the date to "yyyy-MM-dd - HH:mm"
+      const formattedDate = format(selectedDate, "yyyy");
+      // Update the formData with the formatted date string
+      setFormData((prevState) => ({
+        ...prevState,
+        annee_scolaire: formattedDate,
+      }));
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        annee_scolaire: "",
+      }));
+    }
+  };
   const [createEtudiant] = useAddEtudiantMutation();
   const { data: etat_compte = [] } = useFetchEtatsEtudiantQuery();
   const { data: type_inscription = [] } =
@@ -597,7 +614,7 @@ const AjouterEtudiant = () => {
       departement: "",
       niveau_classe: "",
       section_classe: "",
-      matieres: [""],
+      matieres: [],
     },
     state: "",
     dependence: "",
@@ -645,10 +662,32 @@ const AjouterEtudiant = () => {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+
+    if (name === "groupe_classe") {
+      const selectedClass = groupe_classe.find((cls) => cls._id === value);
+
+      if (selectedClass) {
+        setFormData((prev) => ({
+          ...prev,
+          groupe_classe: {
+            _id: selectedClass._id,
+            nom_classe_fr: selectedClass.nom_classe_fr,
+            nom_classe_ar: selectedClass.nom_classe_ar,
+            departement: selectedClass.departement.name_fr,
+            niveau_classe: selectedClass.niveau_classe.name_niveau_fr,
+            section_classe: selectedClass.niveau_classe.sections
+              .map((section) => section.name_section_fr)
+              .join(", "),
+            matieres: selectedClass.matieres.map((matiere) => matiere.matiere),
+          },
+        }));
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   //change civil status
@@ -661,6 +700,21 @@ const AjouterEtudiant = () => {
       etat_civil: value,
     }));
     setSelectedStatus(value);
+  };
+
+  //change niveau scolaire
+  const [selectedNiveauScolaire, setSelectedNiveauScolaire] =
+    useState<string>("");
+
+  const selectChangeNiveauScolaire = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = event.target.value;
+    setFormData((prevState) => ({
+      ...prevState,
+      niveau_scolaire: value,
+    }));
+    setSelectedNiveauScolaire(value);
   };
 
   //change gender
@@ -698,6 +752,7 @@ const AjouterEtudiant = () => {
   };
 
   const onSubmitEtudiant = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log(formData);
     e.preventDefault();
     try {
       await createEtudiant(formData).unwrap();
@@ -721,7 +776,7 @@ const AjouterEtudiant = () => {
     Swal.fire({
       position: "center",
       icon: "success",
-      title: "Etudiant a été crée avec succés",
+      title: "Le compte étudiant a été créé avec succès",
       showConfirmButton: false,
       timer: 2000,
     });
@@ -820,8 +875,7 @@ const AjouterEtudiant = () => {
       });
     }
   };
-  
-  const [newArray, setNewArray] = useState<any>([]);
+  const [newArray, setNewArray] = useState<any[]>([]);
   const handleFileTypeInscriptionUpload = async (event: any, index: number) => {
     const file = event.target.files[0];
     if (file) {
@@ -836,17 +890,20 @@ const AjouterEtudiant = () => {
         extension: extension,
       };
 
-      let prevArray:any = []
+      setNewArray((prevArray) => {
         const updatedArray = [...prevArray];
         updatedArray[index] = newObj;
-       setNewArray(updatedArray);
-       console.log(newArray);
-       setFormData({
-        ...formData,
-        files: newArray
+        return updatedArray;
       });
     }
   };
+
+  useEffect(() => {
+    setFormData({
+      ...formData,
+      files: newArray,
+    });
+  }, [newArray]);
   return (
     <React.Fragment>
       <div className="page-content">
@@ -890,7 +947,7 @@ const AjouterEtudiant = () => {
                                 className="mb-0"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="right"
-                                title="Choisir Photo Etudiant"
+                                title="Choisir Photo Enseignant"
                               >
                                 <span className="avatar-xs d-inline-block">
                                   <span className="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
@@ -1687,14 +1744,25 @@ const AjouterEtudiant = () => {
                           </Card.Header>
                           <Card.Body>
                             <Row>
-                              <Col lg={4}>
-                                <div
-                                  className="mb-3"
-                                  style={{
-                                    direction: "rtl",
-                                    textAlign: "right",
-                                  }}
-                                >
+                              <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="annee_scolaire">
+                                    السنة الدراسية
+                                  </Form.Label>
+                                  <Flatpickr
+                                    value={selectedDateBac!}
+                                    onChange={handleDateChangeBac}
+                                    className="form-control flatpickr-input"
+                                    placeholder="اختر التاريخ"
+                                    options={{
+                                      dateFormat: "d M, Y",
+                                    }}
+                                    id="annee_scolaire"
+                                  />
+                                </div>
+                              </Col>
+                              <Col lg={3}>
+                                <div className="mb-3">
                                   <label
                                     htmlFor="الشعبة"
                                     className="form-label"
@@ -1730,14 +1798,8 @@ const AjouterEtudiant = () => {
                                   </select>
                                 </div>
                               </Col>
-                              <Col lg={4}>
-                                <div
-                                  className="mb-3"
-                                  style={{
-                                    direction: "rtl",
-                                    textAlign: "right",
-                                  }}
-                                >
+                              <Col lg={3}>
+                                <div className="mb-3">
                                   <label
                                     htmlFor="الدورة"
                                     className="form-label"
@@ -1762,21 +1824,9 @@ const AjouterEtudiant = () => {
                                 </div>
                               </Col>
 
-                              <Col lg={4}>
-                                <div
-                                  className="mb-3"
-                                  style={{
-                                    direction: "rtl",
-                                    textAlign: "right",
-                                  }}
-                                >
-                                  <Form.Label
-                                    htmlFor="moyen"
-                                    style={{
-                                      direction: "rtl",
-                                      textAlign: "right",
-                                    }}
-                                  >
+                              <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="moyen">
                                     المعدل
                                   </Form.Label>
                                   <Form.Control
@@ -1790,31 +1840,6 @@ const AjouterEtudiant = () => {
                                   />
                                 </div>
                               </Col>
-                              <Row>
-                                <Col lg={4}>
-                                  <div
-                                    className="mb-3"
-                                    style={{
-                                      direction: "rtl",
-                                      textAlign: "right",
-                                    }}
-                                  >
-                                    <Form.Label htmlFor="annee_scolaire">
-                                      السنة
-                                    </Form.Label>
-                                    <Flatpickr
-                                      value={selectedDateBac!}
-                                      onChange={handleDateChangeBac}
-                                      className="form-control flatpickr-input"
-                                      placeholder="السنة"
-                                      options={{
-                                        dateFormat: "d M, Y",
-                                      }}
-                                      id="annee_scolaire"
-                                    />
-                                  </div>
-                                </Col>
-                              </Row>
                             </Row>
                           </Card.Body>
                         </Col>
@@ -1892,7 +1917,12 @@ const AjouterEtudiant = () => {
                                               accept=".pdf"
                                               placeholder="Choose File"
                                               className="text-muted"
-                                              onChange={(event)=>handleFileTypeInscriptionUpload(event, index)}
+                                              onChange={(event) =>
+                                                handleFileTypeInscriptionUpload(
+                                                  event,
+                                                  index
+                                                )
+                                              }
                                             />
                                           </div>
                                         </Col>
@@ -1969,7 +1999,37 @@ const AjouterEtudiant = () => {
                           </Card.Header>
                           <Card.Body>
                             <Row>
-                              <Col lg={4}>
+                              {formData.groupe_classe.niveau_classe && (
+                                <Col lg={4}>
+                                  <div className="mb-3">
+                                    <Form.Label htmlFor="niveau_classe">
+                                      Niveau
+                                    </Form.Label>
+                                    <p
+                                      className="form-control-plaintext"
+                                      id="niveau_classe"
+                                    >
+                                      {formData.groupe_classe.niveau_classe}
+                                    </p>
+                                  </div>
+                                </Col>
+                              )}
+                              {formData.groupe_classe.section_classe && (
+                                <Col lg={4}>
+                                  <div className="mb-3">
+                                    <Form.Label htmlFor="section_classe">
+                                      Section
+                                    </Form.Label>
+                                    <p
+                                      className="form-control-plaintext"
+                                      id="section_classe"
+                                    >
+                                      {formData.groupe_classe.section_classe}
+                                    </p>
+                                  </div>
+                                </Col>
+                              )}
+                              <Col lg={4} className="">
                                 <div className="mb-3">
                                   <Form.Label htmlFor="groupe_classe">
                                     مجموعة الطالب / Classe Etudiant
@@ -1978,9 +2038,7 @@ const AjouterEtudiant = () => {
                                     className="form-select text-muted"
                                     name="groupe_classe"
                                     id="groupe_classe"
-                                    value={
-                                      formData?.groupe_classe?.nom_classe_fr
-                                    }
+                                    value={formData?.groupe_classe?._id}
                                     onChange={handleChange}
                                   >
                                     <option value="">
@@ -1997,60 +2055,6 @@ const AjouterEtudiant = () => {
                                   </select>
                                 </div>
                               </Col>
-                              {/* <Col lg={4}>
-                                <div
-                                  className="mb-3"
-                                  style={{
-                                    direction: "rtl",
-                                    textAlign: "right",
-                                  }}
-                                >
-                                  <label
-                                    htmlFor="الشعبة"
-                                    className="form-label"
-                                  >
-                                    الشعبة
-                                  </label>
-                                  <select
-                                    className="form-select text-muted"
-                                    name="الشعبة"
-                                    id="الشعبة"
-                                  >
-                                    <option value="">إختر الشعبة</option>
-                                    <option value="سنة أولى إجازة">
-                                      سنة أولى إجازة
-                                    </option>
-                                  </select>
-                                </div>
-                              </Col>
-                              <Col lg={4}>
-                                <div
-                                  className="mb-3"
-                                  style={{
-                                    direction: "rtl",
-                                    textAlign: "right",
-                                  }}
-                                >
-                                  <label
-                                    htmlFor="المستوى الدراسي"
-                                    className="form-label"
-                                  >
-                                    المستوى الدراسي
-                                  </label>
-                                  <select
-                                    className="form-select text-muted"
-                                    name="المستوى الدراسي"
-                                    id="المستوى الدراسي"
-                                  >
-                                    <option value="">
-                                      إختر المستوى الدراسي
-                                    </option>
-                                    <option value="سنة أولى إجازة">
-                                      سنة أولى إجازة
-                                    </option>
-                                  </select>
-                                </div>
-                              </Col> */}
                             </Row>
                           </Card.Body>
                         </Col>

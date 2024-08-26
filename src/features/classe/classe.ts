@@ -67,14 +67,14 @@ export const classeSlice = createApi({
         }),
         invalidatesTags: ["Classe"],
       }),
-      fetchClasseById: builder.mutation<void, Classe>({
-        query: ({ _id, ...rest }) => ({
+      fetchClasseById: builder.query<Classe,string | void>({
+        query: (_id) => ({
           url: `/get-classe/${_id}`,
-          method: "GET",
-          body: rest,
+          method: "GET"
         }),
-        invalidatesTags: ["Classe"],
+        providesTags: ["Classe"],
       }),
+      
       assignMatiereToClasse: builder.mutation<void, AssignMatieresPayload>({
         query: (payload) => ({
           url: `/assign-matieres-to-classe/${payload._id}`,
@@ -104,7 +104,7 @@ useFetchClassesQuery,
 useAddClasseMutation,
 useDeleteClasseMutation,
 useUpdateClasseMutation, 
-useFetchClasseByIdMutation,
+useFetchClasseByIdQuery,
 useAssignMatiereToClasseMutation,
 useDeleteAssignedMatiereFromClasseMutation,
 useGetAssignedMatieresQuery

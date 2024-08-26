@@ -5,6 +5,7 @@ export interface Section {
   name_section_fr: string,
   name_section_ar: string,
   abreviation: string,
+  departements: string[]
 }
 export const sectionSlice = createApi({
   reducerPath: "Section",

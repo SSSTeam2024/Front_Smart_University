@@ -29,6 +29,7 @@ const ListClasses = () => {
     navigate("/departement/gestion-classes/add-classe");
   }
   const { data = [] } = useFetchClassesQuery();
+  console.log(data);
   const [deleteClasse] = useDeleteClasseMutation();
   console.log(data)
 
@@ -39,6 +40,7 @@ const ListClasses = () => {
     },
     buttonsStyling: false,
   });
+  
   const AlertDelete = async (_id: string) => {
     swalWithBootstrapButtons
       .fire({
@@ -108,7 +110,7 @@ const ListClasses = () => {
         },
         {
           Header: "Section",
-          accessor: (row: any) => row.section_classe?.abreviation || "",
+          accessor: (row: any) => row.niveau_classe?.sections[0]?.abreviation! || "",
           disableFilters: true,
           filterable: true,
       },

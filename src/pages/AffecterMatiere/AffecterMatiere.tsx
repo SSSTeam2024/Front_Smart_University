@@ -26,6 +26,7 @@ const AffecterMatiere = () => {
   const [selectedMatieres, setSelectedMatieres] = useState<Matiere[]>([]);
   const navigate = useNavigate();
   const { data: allMatieres = [], error, refetch } = useFetchMatiereQuery();
+  console.log("allMatieres",allMatieres)
   const [assignMatiereToClasse, { isLoading: isAssigningMatiere, isError: assignMatiereError }] =
     useAssignMatiereToClasseMutation();
   const [deleteAssignedMatiereFromClasse, { isLoading: isDeletingMatiere, isError: deleteMatiereError }] =
@@ -52,8 +53,19 @@ const AffecterMatiere = () => {
       volume: option.volume,
       nbr_elimination: option.nbr_elimination,
     }));
-    setSelectedMatieres(matieres);
+
+    const uniqueMatieres = [...selectedMatieres, ...matieres].reduce((acc, current) => {
+      const x = acc.find(item => item._id === current._id);
+      if (!x) {
+        return acc.concat([current]);
+      } else {
+        return acc;
+      }
+    }, [] as Matiere[]);
+
+    setSelectedMatieres(uniqueMatieres);
   };
+
 
   const handleDeleteClick = async (matiereId: string) => {
     try {
@@ -301,7 +313,7 @@ const AffecterMatiere = () => {
                           onClick={handleSubmit}
                           disabled={!canSubmit}
                         >
-                          Submit
+                          Affecter
                         </Button>
                         {(isDeletingMatiere ||
                           isAssigningMatiere) && (
@@ -312,14 +324,13 @@ const AffecterMatiere = () => {
                         {(deleteMatiereError ||
                           assignMatiereError) && (
                           <div className="text-danger">
-                            Error assigning matieres to
-                            classe.
+                          Erreur lors de l'attribution de(s) matière(s).
                           </div>
                         )}
                         {selectedMatieres.length ===
                           0 && (
                           <div className="text-warning">
-                            Select matieres to assign.
+                        Affecter matière(s)
                           </div>
                         )}
                       </div>

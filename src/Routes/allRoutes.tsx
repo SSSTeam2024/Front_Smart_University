@@ -166,6 +166,14 @@ import EditSalle from "pages/Departements/GestionSalles/EditSalle";
 import AddSection from "pages/Departements/GestionClasses/Section/AddSection";
 import AddClasse from "pages/Departements/GestionClasses/AjouterClasse";
 import EditSection from "pages/Departements/GestionClasses/Section/EditSection";
+import AddFicheVoeux from "pages/Departements/FicheVoeux/AddFicheVoeux";
+import ListFicheVoeux from "pages/Departements/FicheVoeux/ListeFicheVoeux";
+import ListeEmploisClasse from "pages/Departements/Emploi/ListeEmploisClasse";
+import GestionEmploiClasse from "pages/Departements/Emploi/GestionEmploiClasse";
+import ProfilPersonnel from "pages/GestionsPersonnels/ProfilPersonnel";
+import EditProfilPersonnel from "pages/GestionsPersonnels/EditProfilPersonnel";
+import EditProfilEnseignant from "pages/GestionsEnseignants/EditProfilEnseignant";
+import EditProfilEtudiant from "pages/GestionsEtudiants/EditProfilEtudiant";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
@@ -179,7 +187,8 @@ const authProtectedRoutes = [
   { path: "/SingleAvisEtudiant", component: <SingleAvisEtudiant /> },
   //Ajouter Etudiant
   { path: "/AjouterEtudiant", component: <AjouterEtudiant /> },
-
+  //edit profil  Etudiant
+  { path: "/modifierProfilEtudiant", component: <EditProfilEtudiant /> },
   //Profil Etudiant
   { path: "/profil-etudiant", component: <Profil /> },
   //Liste Etudiant
@@ -189,11 +198,20 @@ const authProtectedRoutes = [
   { path: "/AjouterEnseignant", component: <AjouterEnseignant /> },
   //Liste Enseignant
   { path: "/ListeEnseignants", component: <ListEnseignants /> },
+    //modifier Enseignant
+    { path: "/modfierProfilEnseignant", component: <EditProfilEnseignant /> },
 
   //Ajouter Personnel
   { path: "/AjouterPersonnel", component: <AjouterPersonnels /> },
   //Liste Personnels
   { path: "/ListePersonnels", component: <ListPersonnels /> },
+
+  //View Personnel
+  { path: "/accountPersonnel", component: <ProfilPersonnel /> },
+
+  //Edit Profile Personnel
+
+  { path: "/EditProfilePersonnel", component: <EditProfilPersonnel /> },
 
   //Liste Etat Etudiants
   { path: "/parametre/etat-etudiants", component: <ListParametresEtudiants /> },
@@ -370,7 +388,10 @@ const authProtectedRoutes = [
     { path: "/departement/gestion-salles/edit-salle", component: <EditSalle /> },
 
 
-
+  // Liste Des emplois classes
+  { path: "/gestion-emplois-classe/liste-emplois-classe", component: <ListeEmploisClasse /> },
+    // add emplois classes
+    { path: "/gestion-emplois-classe/gestion-emplois-classe", component: <GestionEmploiClasse /> },
 
   // Liste Des Departements
   {
@@ -389,6 +410,10 @@ const authProtectedRoutes = [
 },
 
 
+// add fiche voeux 
+{ path: "/gestion-fiche-voeux/add-fiche-voeux", component: <AddFicheVoeux /> },
+  // Liste Des fiches des voeux
+  { path: "/gestion-fiche-voeux/liste-fiche-voeux", component: <ListFicheVoeux /> },
 
 
   // Liste Des classes

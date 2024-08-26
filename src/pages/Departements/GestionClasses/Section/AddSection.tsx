@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Badge, Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "flatpickr/dist/flatpickr.min.css";
 import Swal from "sweetalert2";
 import { useAddMatiereMutation } from "features/matiere/matiere";
 import { useAddNiveauMutation } from "features/niveau/niveau";
 import { useAddSectionMutation } from "features/section/section";
+import { useFetchDepartementsQuery } from "features/departement/departement";
 
 const AddSection = () => {
   document.title = " Ajouter Section | Application Smart Institute";
@@ -16,12 +17,14 @@ const AddSection = () => {
   }
 
   const [createSection] = useAddSectionMutation();
+  const { data: departements = [] } = useFetchDepartementsQuery();
 
   const [formData, setFormData] = useState({
     _id: "",
     name_section_ar: "",
     name_section_fr: "",
     abreviation: "",
+    departements: [] as string[],
   });
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevState) => ({
@@ -72,6 +75,21 @@ const AddSection = () => {
       timer: 2000,
     });
   };
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { options } = e.target;
+    const value: string[] = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        value.push(options[i].value);
+      }
+    }
+    setFormData((prevData) => ({
+      ...prevData,
+      departements: value,
+    }));
+  };
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -103,7 +121,10 @@ const AddSection = () => {
 
                   <Col lg={4}>
                     <div className="mb-3">
-                      <Form.Label htmlFor="name_section_ar"> Nom Section (AR)</Form.Label>
+                      <Form.Label htmlFor="name_section_ar">
+                        {" "}
+                        Nom Section (AR)
+                      </Form.Label>
                       <Form.Control
                         type="text"
                         id="name_section_ar"
@@ -113,7 +134,7 @@ const AddSection = () => {
                         value={formData.name_section_ar}
                       />
                     </div>
-                  </Col> 
+                  </Col>
                   <Col lg={4}>
                     <div className="mb-3">
                       <Form.Label htmlFor="abreviation">Abréviation</Form.Label>
@@ -127,7 +148,50 @@ const AddSection = () => {
                       />
                     </div>
                   </Col>
-                 
+                  <Col lg={5}>
+                    <div className="mb-3">
+                      <Form.Label htmlFor="departements">
+                        Départements
+                      </Form.Label>
+                      <select
+                        className="form-select text-muted"
+                        name="departements"
+                        id="departements"
+                        multiple
+                        value={formData.departements}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>
+                          Sélectionner Départements
+                        </option>
+                        {departements.map((departement) => (
+                          <option key={departement._id} value={departement._id}>
+                            {departement.name_fr}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="mt-3">
+                      <Form.Label>Départements Sélectionnés</Form.Label>
+                      <div className="d-flex flex-wrap">
+                        {formData.departements.map((departementId) => {
+                          const departement = departements.find(
+                            (d) => d._id === departementId
+                          );
+                          return departement ? (
+                            <Badge
+                              key={departement._id}
+                              pill
+                              bg="secondary"
+                              className="me-2 mb-2"
+                            >
+                              {departement.name_fr}
+                            </Badge>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  </Col>
                 </Row>
 
                 <div className="modal-footer">

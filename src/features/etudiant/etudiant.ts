@@ -35,7 +35,7 @@ export interface Etudiant {
     departement: string ,
     niveau_classe: string,
     section_classe: string ,
-    matieres: [string]
+    matieres: string[];
   },
   state: string;
   dependence: string;
@@ -96,23 +96,23 @@ export const etudiantSlice = createApi({
         },
         invalidatesTags: ["Etudiant"],
       }),
-      //   updateEtatEtudiant: builder.mutation<void, EtatEtudiant>({
-      //     query: ({ _id, ...rest }) => ({
-      //       url: `/update-etat-etudiant/${_id}`,
-      //       method: "PUT",
-      //       body: rest,
-      //     }),
-      //     invalidatesTags: ["EtatEtudiant"],
-      //   }),
-      //   deleteEtatEtudiant: builder.mutation<void, string>({
-      //     query: (_id) => ({
-      //       url: `delete-etat-etudiant/${_id}`,
-      //       method: "DELETE",
-      //     }),
-      //     invalidatesTags: ["EtatEtudiant"],
-      //   }),
+        updateEtudiant: builder.mutation<void, Etudiant>({
+          query: ({ _id, ...rest }) => ({
+            url: `/update-etudiant/${_id}`,
+            method: "PUT",
+            body: rest,
+          }),
+          invalidatesTags: ["Etudiant"],
+        }),
+        deleteEtudiant: builder.mutation<void, string>({
+          query: (_id) => ({
+            url: `/delete-etudiant/${_id}`,
+            method: "DELETE",
+          }),
+          invalidatesTags: ["Etudiant"],
+        }),
     };
   },
 });
 
-export const { useAddEtudiantMutation, useFetchEtudiantsQuery } = etudiantSlice;
+export const { useAddEtudiantMutation, useFetchEtudiantsQuery, useDeleteEtudiantMutation, useUpdateEtudiantMutation } = etudiantSlice;

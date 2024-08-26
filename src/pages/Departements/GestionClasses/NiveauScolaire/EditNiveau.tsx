@@ -3,10 +3,7 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 import "flatpickr/dist/flatpickr.min.css";
 import Swal from "sweetalert2";
-import {
-  useAddMatiereMutation,
-  useUpdateMatiereMutation,
-} from "features/matiere/matiere";
+
 import { useUpdateNiveauMutation } from "features/niveau/niveau";
 
 const EditNiveau = () => {

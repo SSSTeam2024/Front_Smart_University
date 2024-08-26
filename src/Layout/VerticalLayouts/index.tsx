@@ -19,7 +19,7 @@ import { RootState } from "app/store";
 
 const VerticalLayout = (props: any) => {
   const user: any = useSelector((state: RootState) => selectCurrentUser(state));
-  console.log("user2",user);
+  //console.log("user2",user);
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton: "btn btn-success",

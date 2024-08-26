@@ -176,8 +176,8 @@ const EditDepartement = () => {
                         onChange={handlePDFUpload}
                         type="file"
                         id="SignatureFileBase64String"
-                        accept=".pdf"
-                        placeholder="Choose File"
+                        accept=".jpg, .jpeg, .png"
+                        placeholder="Choisir Image"
                         className="text-muted"
                       />
                     </div>

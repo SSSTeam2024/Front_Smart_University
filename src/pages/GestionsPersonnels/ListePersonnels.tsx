@@ -1,17 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import Breadcrumb from "Common/BreadCrumb";
 import CountUp from "react-countup";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "Common/TableContainer";
 import Swal from "sweetalert2";
-import { Personnel, useDeletePersonnelMutation, useFetchPersonnelsQuery } from "features/personnel/personnel";
+import userImage from "../../assets/images/userImage.jpg";
+import {
+  Personnel,
+  useDeletePersonnelMutation,
+  useFetchPersonnelsQuery,
+} from "features/personnel/personnel";
 
 const ListPersonnels = () => {
   document.title = "Liste des personnels | Smart University";
@@ -24,7 +23,6 @@ const ListPersonnels = () => {
     navigate("/AjouterPersonnel");
   }
 
-
   function tog_AddPersonnel() {
     navigate("/AjouterPersonnel");
   }
@@ -36,7 +34,6 @@ const ListPersonnels = () => {
       setPersonnelCount(data.length);
     }
   }, [data]);
-
 
   const [deletePersonnel] = useDeletePersonnelMutation();
   const swalWithBootstrapButtons = Swal.mixin({
@@ -74,8 +71,12 @@ const ListPersonnels = () => {
         }
       });
   };
-  const activatedPersonnelsCount = data.filter(personnel => personnel.etat_compte?.etat_fr === "Compte Activé").length;
-  const deactivatedPersonnelsCount = data.filter(personnel => personnel.etat_compte?.etat_fr === "Compte désactivé").length;
+  const activatedPersonnelsCount = data.filter(
+    (personnel) => personnel.etat_compte?.etat_fr === "Compte Activé"
+  ).length;
+  const deactivatedPersonnelsCount = data.filter(
+    (personnel) => personnel.etat_compte?.etat_fr === "Compte désactivé"
+  ).length;
 
   const columns = useMemo(
     () => [
@@ -88,11 +89,14 @@ const ListPersonnels = () => {
             <div className="d-flex align-items-center gap-2">
               <div className="flex-shrink-0">
                 <img
-                src={`http://localhost:5000/files/personnelFiles/PhotoProfil/${personnels.photo_profil}`}
-                  alt="personnel-img"
+                style={{borderRadius:"50%"}}
+                  src={`http://localhost:5000/files/personnelFiles/PhotoProfil/${personnels.photo_profil}`}
+                  alt="etudiant-img"
                   id="photo_profil"
-                  className="avatar-xs rounded-circle user-profile-img "
-                 
+                  className="avatar-xs rounded-circle user-profile-img"
+                  onError={(e) => {
+                    e.currentTarget.src = userImage;
+                  }}
                 />
               </div>
               <div className="flex-grow-1 user_name">
@@ -110,7 +114,7 @@ const ListPersonnels = () => {
       },
       {
         Header: "Nom et Prénom",
-        accessor: (row:any) => `${row.prenom_fr} ${row.nom_fr}`,
+        accessor: (row: any) => `${row.prenom_fr} ${row.nom_fr}`,
         disableFilters: true,
         filterable: true,
       },
@@ -183,8 +187,9 @@ const ListPersonnels = () => {
             <ul className="hstack gap-2 list-unstyled mb-0">
               <li>
                 <Link
-                  to="#"
+                  to="/accountPersonnel"
                   className="badge bg-info-subtle text-info view-item-btn"
+                  state={personnel}
                 >
                   <i
                     className="ph ph-eye"
@@ -204,8 +209,9 @@ const ListPersonnels = () => {
               </li>
               <li>
                 <Link
-                  to="#"
+                  to="/EditProfilePersonnel"
                   className="badge bg-primary-subtle text-primary edit-item-btn"
+                  state={personnel}
                 >
                   <i
                     className="ph ph-pencil-line"
@@ -402,10 +408,10 @@ const ListPersonnels = () => {
                 <Card.Body className="p-4 z-1 position-relative">
                   <h4 className="fs-22 fw-semibold mb-3">
                     <CountUp
-                       start={0}
-                       end={personnelCount} 
-                       duration={3}
-                       decimals={0}
+                      start={0}
+                      end={personnelCount}
+                      duration={3}
+                      decimals={0}
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">
@@ -554,10 +560,10 @@ const ListPersonnels = () => {
                 <Card.Body className="p-4 z-1 position-relative">
                   <h4 className="fs-22 fw-semibold mb-3">
                     <CountUp
-                       start={0}
-                       end={activatedPersonnelsCount} 
-                       duration={3}
-                       decimals={0}
+                      start={0}
+                      end={activatedPersonnelsCount}
+                      duration={3}
+                      decimals={0}
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">
@@ -706,10 +712,10 @@ const ListPersonnels = () => {
                 <Card.Body className="p-4 z-1 position-relative">
                   <h4 className="fs-22 fw-semibold mb-3">
                     <CountUp
-                     start={0}
-                     end={deactivatedPersonnelsCount} 
-                     duration={3}
-                     decimals={0}
+                      start={0}
+                      end={deactivatedPersonnelsCount}
+                      duration={3}
+                      decimals={0}
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">
@@ -761,7 +767,6 @@ const ListPersonnels = () => {
                   </Row>
                 </Card.Body>
               </Card>
-    
 
               <Card>
                 <Card.Body className="p-0">

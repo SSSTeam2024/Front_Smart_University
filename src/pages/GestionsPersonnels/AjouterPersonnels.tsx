@@ -24,6 +24,7 @@ import { useFetchPostesPersonnelQuery } from "features/postePersonnel/postePerso
 import { useFetchGradesPersonnelQuery } from "features/gradePersonnel/gradePersonnel";
 import { useFetchCategoriesPersonnelQuery } from "features/categoriePersonnel/categoriePersonnel";
 import { useFetchServicesPersonnelQuery } from "features/servicePersonnel/servicePersonnel";
+import { format } from "date-fns";
 
 type Wilaya =
   | "اريانة"
@@ -157,7 +158,6 @@ const delegationOptions: DelegationOptions = {
     "المظيلة",
     "القطار",
     "بالخير",
-    "زنوش",
     "زنوش",
   ],
   جندوبة: [
@@ -404,7 +404,7 @@ const AjouterPersonnels = () => {
     useState<Date | null>(null);
   const [selectedDateDesignation, setSelectedDateDesignation] =
     useState<Date | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
 
   const [createPersonnel] = useAddPersonnelMutation();
   const { data: etat_compte = [] } = useFetchEtatsPersonnelQuery();
@@ -517,47 +517,73 @@ const AjouterPersonnels = () => {
   };
   // change date affectation
   const handleDateChangeAffectation = (selectedDates: Date[]) => {
-    const selectedDateAffectation = selectedDates[0];
-    setSelectedDateAffectation(selectedDateAffectation);
-    setFormData((prevState) => ({
-      ...prevState,
-      date_affectation: selectedDateAffectation
-        ? selectedDateAffectation.toISOString()
-        : "",
-    }));
+    const selectedDate = selectedDates[0];
+    setSelectedDate(selectedDate);
+    if (selectedDate) {
+      const formattedDate = format(selectedDate, "yyyy-MM-dd");
+      setFormData((prevState) => ({
+        ...prevState,
+        date_affectation: formattedDate,
+      }));
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        date_affectation: "",
+      }));
+    }
   };
 
   // change date naissance
   const handleDateChangeNaissance = (selectedDates: Date[]) => {
     const selectedDate = selectedDates[0];
     setSelectedDate(selectedDate);
-    setFormData((prevState) => ({
-      ...prevState,
-      date_naissance: selectedDate ? selectedDate.toISOString() : "",
-    }));
+    if (selectedDate) {
+      const formattedDate = format(selectedDate, "yyyy-MM-dd");
+      setFormData((prevState) => ({
+        ...prevState,
+        date_naissance: formattedDate,
+      }));
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        date_naissance: "",
+      }));
+    }
   };
   // change date delivrance
   const handleDateChangeDelivrance = (selectedDates: Date[]) => {
-    const selectedDateDelivrance = selectedDates[0];
-    setSelectedDateDelivrance(selectedDateDelivrance);
-    setFormData((prevState) => ({
-      ...prevState,
-      date_delivrance: selectedDateDelivrance
-        ? selectedDateDelivrance.toISOString()
-        : "",
-    }));
+    const selectedDate = selectedDates[0];
+    setSelectedDate(selectedDate);
+    if (selectedDate) {
+      const formattedDate = format(selectedDate, "yyyy-MM-dd");
+      setFormData((prevState) => ({
+        ...prevState,
+        date_delivrance: formattedDate,
+      }));
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        date_delivrance: "",
+      }));
+    }
   };
 
   // change date designation grade /categorie
   const handleDateChangeDesignation = (selectedDates: Date[]) => {
-    const selectedDateDesignation = selectedDates[0];
-    setSelectedDateDesignation(selectedDateDesignation);
-    setFormData((prevState) => ({
-      ...prevState,
-      date_designation: selectedDateDesignation
-        ? selectedDateDesignation.toISOString()
-        : "",
-    }));
+    const selectedDate = selectedDates[0];
+    setSelectedDate(selectedDate);
+    if (selectedDate) {
+      const formattedDate = format(selectedDate, "yyyy-MM-dd");
+      setFormData((prevState) => ({
+        ...prevState,
+        date_designation: formattedDate,
+      }));
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        date_designation: "",
+      }));
+    }
   };
   //change civil status
 
@@ -604,7 +630,7 @@ const AjouterPersonnels = () => {
     Swal.fire({
       position: "center",
       icon: "success",
-      title: "Account has been created successfully",
+      title: "Le compte personnel a été créé avec succès",
       showConfirmButton: false,
       timer: 2000,
     });
@@ -680,7 +706,7 @@ const AjouterPersonnels = () => {
                     >
                       <input type="hidden" id="id-field" />
                       <Row>
-                      <div className="text-center mb-3">
+                        <div className="text-center mb-3">
                           <div
                             className="position-relative d-inline-block"
                             style={{ marginBottom: "30px" }}
@@ -968,8 +994,8 @@ const AjouterPersonnels = () => {
                                 onChange={selectChangeGender}
                               >
                                 <option value="">الجنس</option>
-                              <option value="ذكر">ذكر</option>
-                              <option value="أنثى">أنثى</option>
+                                <option value="ذكر">ذكر</option>
+                                <option value="أنثى">أنثى</option>
                               </select>
                             </div>
                           </Col>
@@ -1136,7 +1162,10 @@ const AjouterPersonnels = () => {
                                       Séléctionner la Catégorie / اختر الصنف
                                     </option>
                                     {categorie.map((categorie) => (
-                                      <option key={categorie._id} value={categorie._id}>
+                                      <option
+                                        key={categorie._id}
+                                        value={categorie._id}
+                                      >
                                         {categorie.categorie_fr}
                                       </option>
                                     ))}
@@ -1155,8 +1184,8 @@ const AjouterPersonnels = () => {
                                     تاريخ التسمية في الرتبة أو الصنف
                                   </Form.Label>
                                   <Flatpickr
-                                     value={selectedDateDesignation!}
-                                     onChange={handleDateChangeDesignation}
+                                    value={selectedDateDesignation!}
+                                    onChange={handleDateChangeDesignation}
                                     className="form-control flatpickr-input"
                                     placeholder="اختر التاريخ"
                                     options={{
@@ -1189,7 +1218,10 @@ const AjouterPersonnels = () => {
                                       Séléctionner la Service / اختر الخدمة
                                     </option>
                                     {service.map((service) => (
-                                      <option key={service._id} value={service._id}>
+                                      <option
+                                        key={service._id}
+                                        value={service._id}
+                                      >
                                         {service.service_fr}
                                       </option>
                                     ))}
@@ -1230,8 +1262,8 @@ const AjouterPersonnels = () => {
                                     تاريخ إصدار بطاقة التعريف الوطنية
                                   </Form.Label>
                                   <Flatpickr
-                                     value={selectedDateDelivrance!}
-                                     onChange={handleDateChangeDelivrance}
+                                    value={selectedDateDelivrance!}
+                                    onChange={handleDateChangeDelivrance}
                                     className="form-control flatpickr-input"
                                     placeholder="اختر التاريخ"
                                     options={{
@@ -1248,7 +1280,10 @@ const AjouterPersonnels = () => {
                                     textAlign: "right",
                                   }}
                                 >
-                                  <label htmlFor="num_cin" className="form-label">
+                                  <label
+                                    htmlFor="num_cin"
+                                    className="form-label"
+                                  >
                                     رقم بطاقة التعريف الوطنية
                                   </label>
                                   <Form.Control
@@ -1270,7 +1305,10 @@ const AjouterPersonnels = () => {
                                     textAlign: "right",
                                   }}
                                 >
-                                  <label htmlFor="identifinat_unique" className="form-label">
+                                  <label
+                                    htmlFor="identifinat_unique"
+                                    className="form-label"
+                                  >
                                     المعرف الوحيد
                                   </label>
                                   <Form.Control
@@ -1278,7 +1316,7 @@ const AjouterPersonnels = () => {
                                     id="identifinat_unique"
                                     placeholder=""
                                     onChange={onChange}
-                                    value={formData.identifinat_unique}    
+                                    value={formData.identifinat_unique}
                                     // required
                                   />
                                 </div>
@@ -1290,7 +1328,10 @@ const AjouterPersonnels = () => {
                                     textAlign: "right",
                                   }}
                                 >
-                                  <label htmlFor="compte_courant" className="form-label">
+                                  <label
+                                    htmlFor="compte_courant"
+                                    className="form-label"
+                                  >
                                     الحساب الجاري للعامل
                                   </label>
                                   <Form.Control

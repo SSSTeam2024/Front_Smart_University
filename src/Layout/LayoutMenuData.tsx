@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 
 const Navdata = () => {
   const user: any = useSelector((state: RootState) => selectCurrentUser(state));
-  console.log("user", user);
 
   //state data
   const [isEcommerce, setIsEcommerce] = useState(false);
@@ -31,6 +30,8 @@ const Navdata = () => {
   const [isLevel3, setIsLevel3] = useState(false);
   const [isLevel4, setIsLevel4] = useState(false);
   const [isLevel5, setIsLevel5] = useState(false);
+  const [isLevel6, setIsLevel6] = useState(false);
+  const [isLevel7, setIsLevel7] = useState(false);
 
   const [iscurrentState, setIscurrentState] = useState("Dashboard");
 
@@ -159,7 +160,15 @@ const Navdata = () => {
    '/AjouterPersonnel',
    "/Gestion Personnels",
    "/gestion-departements/liste-departements",
-   "/departements"
+   "/departements",
+   "/profil-etudiant",
+   "/accountEnseignant",
+   "/gestion-fiche-voeux/liste-fiche-voeux",
+   "/Fiches-voeux",
+   "/emploi",
+   "/gestion-emplois/liste-emplois",
+   "/gestion-emplois-classe/liste-emplois-classe",
+   "/emploi-classe"
   
 
   ];
@@ -500,10 +509,10 @@ const Navdata = () => {
           ],
         },
         {
-          id: "emplois",
+          id: "emplois-enseignants",
           label: "Emplois de Temps Enseignants",
           icon: "bi bi-calendar-week-fill",
-          link: "",
+          link: "/emploi",
           isChildItem: true,
           click: function (e: any) {
             e.preventDefault();
@@ -520,6 +529,54 @@ const Navdata = () => {
             // { id: 1, label: "Ajouter Un Département", link: "/gestion-departements/Ajout-departement",  icon: "bi bi-person-plus-fill"},
           ],
         },
+        {
+          id: "emplois-classes",
+          label: "Emplois de Temps Classes",
+          icon: "bi bi-calendar-week-fill",
+          link: "/emploi-classe",
+          isChildItem: true,
+          click: function (e: any) {
+            e.preventDefault();
+            setIsLevel6(!isLevel6);
+          },
+          stateVariables: isLevel6,
+          childItems: [
+            {
+              id: 1,
+              label: "Liste Des Emplois",
+              link: "/gestion-emplois-classe/liste-emplois-classe",
+              icon: "bi bi-list-task",
+            },
+            // { id: 1, label: "Ajouter Un Département", link: "/gestion-departements/Ajout-departement",  icon: "bi bi-person-plus-fill"},
+          ],
+        },
+        {
+          id: "ficheVoeux",
+          label: "Fiches des Voeux Enseignants",
+          icon: "bi bi-postcard-heart",
+          link: "/Fiches-voeux",
+          isChildItem: true,
+          click: function (e: any) {
+            e.preventDefault();
+            setIsLevel7(!isLevel7);
+          },
+          stateVariables: isLevel7,
+          childItems: [
+            {
+              id: 1,
+              label: "Liste Des Voeux",
+              link: "/gestion-fiche-voeux/liste-fiche-voeux",
+              icon: "bi bi-list-task",
+            },
+            // {
+            //   id: 1,
+            //   label: "Liste Des Emplois",
+            //   link: "/gestion-fiche-voeux/add-fiche-voeux",
+            //   icon: "bi bi-list-task",
+            // },
+          ],
+        },
+    
       ],
     },
 

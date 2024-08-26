@@ -1,21 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Dropdown,
-  Form,
-  Modal,
-  Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import Breadcrumb from "Common/BreadCrumb";
 import CountUp from "react-countup";
 import { Link, useNavigate } from "react-router-dom";
-import { sellerList } from "Common/data";
 import TableContainer from "Common/TableContainer";
-import { Etudiant, useFetchEtudiantsQuery } from "features/etudiant/etudiant";
-import { format } from 'date-fns';
+import {
+  Etudiant,
+  useDeleteEtudiantMutation,
+  useFetchEtudiantsQuery,
+} from "features/etudiant/etudiant";
+import { format } from "date-fns";
+import userImage from "../../assets/images/userImage.jpg";
+import Swal from "sweetalert2";
 
 const ListEtudiants = () => {
   document.title = "Liste des étudiants | Smart University";
@@ -31,7 +27,7 @@ const ListEtudiants = () => {
     navigate("/AjouterEtudiant");
   }
   const { data = [] } = useFetchEtudiantsQuery();
-  console.log("data",data)
+  console.log("data", data);
   const [studentCount, setStudentCount] = useState(0);
 
   useEffect(() => {
@@ -40,46 +36,49 @@ const ListEtudiants = () => {
     }
   }, [data]);
 
-  // const [deleteEtudiant] = useDeleteEtatEtudiantMutation();
+  const [deleteEtudiant] = useDeleteEtudiantMutation();
 
-  // const swalWithBootstrapButtons = Swal.mixin({
-  //   customClass: {
-  //     confirmButton: "btn btn-success",
-  //     cancelButton: "btn btn-danger",
-  //   },
-  //   buttonsStyling: false,
-  // });
-  // const AlertDelete = async (_id: string) => {
-  //   swalWithBootstrapButtons
-  //     .fire({
-  //       title: "Êtes-vous sûr?",
-  //       text: "Vous ne pourrez pas revenir en arrière!",
-  //       icon: "warning",
-  //       showCancelButton: true,
-  //       confirmButtonText: "Oui, supprimez-le!",
-  //       cancelButtonText: "Non, annuler!",
-  //       reverseButtons: true,
-  //     })
-  //     .then((result) => {
-  //       if (result.isConfirmed) {
-  //         deleteEtatEtudiant(_id);
-  //         swalWithBootstrapButtons.fire(
-  //           "Supprimé!",
-  //           "Etat compte étudiant a été supprimé.",
-  //           "success"
-  //         );
-  //       } else if (result.dismiss === Swal.DismissReason.cancel) {
-  //         swalWithBootstrapButtons.fire(
-  //           "Annulé",
-  //           "Etat compte étudiant est en sécurité :)",
-  //           "error"
-  //         );
-  //       }
-  //     });
-  // };
-  const activatedStudentsCount = data.filter(student => student.etat_compte?.etat_fr === "Inscrit / Activé").length;
-const deactivatedStudentsCount = data.filter(student => student.etat_compte?.etat_fr === "Désactivé").length;
-
+  const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: "btn btn-success",
+      cancelButton: "btn btn-danger",
+    },
+    buttonsStyling: false,
+  });
+  const AlertDelete = async (_id: string) => {
+    swalWithBootstrapButtons
+      .fire({
+        title: "Êtes-vous sûr?",
+        text: "Vous ne pourrez pas revenir en arrière!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Oui, supprimez-le!",
+        cancelButtonText: "Non, annuler!",
+        reverseButtons: true,
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          deleteEtudiant(_id);
+          swalWithBootstrapButtons.fire(
+            "Supprimé!",
+            "Etudiant a été supprimé.",
+            "success"
+          );
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          swalWithBootstrapButtons.fire(
+            "Annulé",
+            "Etudiant est en sécurité :)",
+            "error"
+          );
+        }
+      });
+  };
+  const activatedStudentsCount = data.filter(
+    (student) => student.etat_compte?.etat_fr === "Inscrit / Activé"
+  ).length;
+  const deactivatedStudentsCount = data.filter(
+    (student) => student.etat_compte?.etat_fr === "Désactivé"
+  ).length;
 
   const columns = useMemo(
     () => [
@@ -92,11 +91,13 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
             <div className="d-flex align-items-center gap-2">
               <div className="flex-shrink-0">
                 <img
-                src={`http://localhost:5000/files/etudiantFiles/PhotoProfil/${etudiants.photo_profil}`}
+                  src={`http://localhost:5000/files/etudiantFiles/PhotoProfil/${etudiants.photo_profil}`}
                   alt="etudiant-img"
                   id="photo_profil"
-                  className="avatar-xs rounded-circle user-profile-img "
-                 
+                  className="avatar-xs rounded-circle user-profile-img"
+                  onError={(e) => {
+                    e.currentTarget.src = userImage;
+                  }}
                 />
               </div>
               <div className="flex-grow-1 user_name">
@@ -114,11 +115,11 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
       },
       {
         Header: "Nom et Prénom",
-        accessor: (row:any) => `${row.prenom_fr} ${row.nom_fr}`,
+        accessor: (row: any) => `${row.prenom_fr} ${row.nom_fr}`,
         disableFilters: true,
         filterable: true,
       },
-      
+
       {
         Header: "Groupe Classe",
         accessor: (row: any) => row?.groupe_classe?.nom_classe_fr || "",
@@ -136,7 +137,8 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
         accessor: "createdAt",
         disableFilters: true,
         filterable: true,
-        Cell: ({ value }: { value: string }) => format(new Date(value), 'yyyy-MM-dd - HH:mm'),
+        Cell: ({ value }: { value: string }) =>
+          format(new Date(value), "yyyy-MM-dd - HH:mm"),
       },
       {
         Header: "Activation",
@@ -166,19 +168,19 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
           }
         },
       },
-      
-      
+
       {
         Header: "Action",
         disableFilters: true,
         filterable: true,
-        accessor: (cellProps: any) => {
+        accessor: (students: Etudiant) => {
           return (
             <ul className="hstack gap-2 list-unstyled mb-0">
               <li>
                 <Link
                   to="/profil-etudiant"
                   className="badge bg-info-subtle text-info view-item-btn"
+                  state={students}
                 >
                   <i
                     className="ph ph-eye"
@@ -198,8 +200,9 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
               </li>
               <li>
                 <Link
-                  to="#"
+                  to="/modifierProfilEtudiant"
                   className="badge bg-primary-subtle text-primary edit-item-btn"
+                  state={students}
                 >
                   <i
                     className="ph ph-pencil-line"
@@ -235,6 +238,7 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
+                    onClick={() => AlertDelete(students?._id!)}
                   ></i>
                 </Link>
               </li>
@@ -395,10 +399,9 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
                   <h4 className="fs-22 fw-semibold mb-3">
                     <CountUp
                       start={0}
-                      end={studentCount} 
+                      end={studentCount}
                       duration={3}
                       decimals={0}
-                      
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">
@@ -551,7 +554,6 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
                       end={activatedStudentsCount}
                       duration={3}
                       decimals={0}
-                     
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">
@@ -704,7 +706,6 @@ const deactivatedStudentsCount = data.filter(student => student.etat_compte?.eta
                       end={deactivatedStudentsCount}
                       duration={3}
                       decimals={0}
-                      
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">

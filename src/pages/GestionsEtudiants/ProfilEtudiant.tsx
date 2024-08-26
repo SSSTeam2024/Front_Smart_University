@@ -12,13 +12,9 @@ import {
   Image,
   Modal,
 } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import DemandeTable from "./DemandeTable";
 import ReclamationTable from "./ReclamationTable";
-import img1 from "assets/images/users/avatar-1.jpg";
-import paiement from "assets/images/paiement.png";
-import cin1 from "assets/images/CIN1.png";
-import cin2 from "assets/images/CIN2.png";
 import "./hover.css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -28,30 +24,101 @@ import "swiper/css/scrollbar";
 import "swiper/css/effect-fade";
 import "swiper/css/effect-flip";
 import { Pagination } from "swiper/modules";
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import { pdfjs } from "react-pdf";
+import userImage from "../../assets/images/userImage.jpg";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js`;
+
 
 const MyAccount = () => {
-  // const [enlargedImage, setEnlargedImage] = useState(""); // State to hold the source URL of the enlarged image
-
-  // const handleHover = (event: any, imageUrl: any) => {
-  //   setEnlargedImage(imageUrl); // Set the enlarged image source on hover
-  // };
-
-  // const handleMouseLeave = () => {
-  //   setEnlargedImage(""); // Clear the enlarged image source when mouse leaves
-  // };
-
+  const [clickedFile, setClickedFile] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [clickedImage, setClickedImage] = useState(null);
+  const location = useLocation();
+  const studentDetails = location.state;
 
-  const handleImageClick = (imageSrc: any) => {
-    setClickedImage(imageSrc);
+  // Define the base paths
+  const basePath = "/files/etudiantFiles/";
+  const face1CINPath = `${basePath}Face1CIN/`;
+  const face2CINPath = `${basePath}Face2CIN/`;
+  const fichePaiementPath = `${basePath}FichePaiement/`;
+
+  // Construct the full URLs for the images
+  const files = [
+    `${face1CINPath}${studentDetails?.face_1_CIN}`,
+    `${face2CINPath}${studentDetails?.face_2_CIN}`,
+    `${fichePaiementPath}${studentDetails?.fiche_paiement}`,
+  ];
+
+  const handleFileClick = (fileSrc: string) => {
+    setClickedFile(fileSrc);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setClickedImage(null);
+    setClickedFile(null);
   };
+
+  const renderFile = (fileSrc: string) => {
+    if (fileSrc.endsWith(".pdf")) {
+      return (
+        <div className="pdf-viewer">
+           <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.12.0/build/pdf.worker.min.js`}>
+            <Viewer fileUrl={fileSrc} />
+          </Worker>
+        </div>
+      );
+    } else {
+      return (
+        <img
+          className="gallery-img img-fluid mx-auto"
+          src={fileSrc}
+          alt="Document preview"
+        />
+      );
+    }
+  };
+
+  const groupeClasseDisplay =
+    typeof studentDetails?.groupe_classe! === "object"
+      ? studentDetails?.groupe_classe?.nom_classe_fr!
+      : studentDetails?.groupe_classe!;
+
+  const niveauClasseDisplay =
+    typeof studentDetails?.groupe_classe?.niveau_classe! === "object"
+      ? studentDetails?.groupe_classe?.niveau_classe?.name_niveau_fr!
+      : studentDetails?.groupe_classe?.niveau_classe!;
+
+  const getSectionNames = (studentDetails: any) => {
+    if (
+      Array.isArray(studentDetails?.groupe_classe?.niveau_classe?.sections!)
+    ) {
+      const sectionNames =
+        studentDetails?.groupe_classe?.niveau_classe?.sections.map(
+          (section: any) => section.name_section_fr
+        );
+      return sectionNames;
+    } else {
+      return [];
+    }
+  };
+
+  const sectionNames = getSectionNames(studentDetails);
+  console.log(sectionNames);
+
+  const etatCompteDisplay =
+    typeof studentDetails?.etat_compte! === "object"
+      ? studentDetails?.etat_compte?.etat_fr!
+      : studentDetails?.etat_compte!;
+
+  const typeInscriptionDisplay =
+    typeof studentDetails?.type_inscription! === "object"
+      ? studentDetails?.type_inscription?.type_fr!
+      : studentDetails?.type_inscription!;
+
+  console.log("studentdetails", studentDetails);
 
   return (
     <React.Fragment>
@@ -83,15 +150,26 @@ const MyAccount = () => {
                 <Col md={3}>
                   <img
                     className="rounded-start img-fluid h-100 object-cover"
-                    src={img1}
-                    alt="Card img"
+                    src={
+                      studentDetails.photo_profil
+                        ? `http://localhost:5000/files/etudiantFiles/PhotoProfil/${studentDetails.photo_profil}`
+                        : userImage
+                    }
+                    alt="Photo Profile"
+                    onError={(e) => {
+                      e.currentTarget.src = userImage;
+                    }}
                   />
                 </Col>
                 <Col md={9}>
                   <Card.Header>
                     <div className="flex-grow-1 card-title mb-0">
-                      <h5>Raquel Murillo</h5>
-                      <p className="text-muted mb-0">راكيل موريو</p>
+                      <h5>
+                        {studentDetails.nom_fr} {studentDetails.prenom_fr}
+                      </h5>
+                      <p className="text-muted mb-0">
+                        {studentDetails.nom_ar} {studentDetails.prenom_ar}
+                      </p>
                     </div>
                   </Card.Header>
                   <Card.Body>
@@ -102,15 +180,21 @@ const MyAccount = () => {
                             <tbody>
                               <tr>
                                 <td>Groupe</td>
-                                <td className="fw-medium">LISI2Rx-G1</td>
+                                <td className="fw-medium">
+                                  {groupeClasseDisplay}
+                                </td>
                               </tr>
                               <tr>
                                 <td>Cin</td>
-                                <td className="fw-medium">04957698</td>
+                                <td className="fw-medium">
+                                  {studentDetails.num_CIN}
+                                </td>
                               </tr>
                               <tr>
                                 <td>Téléphone</td>
-                                <td className="fw-medium">54570866</td>
+                                <td className="fw-medium">
+                                  {studentDetails.num_phone}
+                                </td>
                               </tr>
                               <tr>
                                 <td>Compte Verifié</td>
@@ -118,7 +202,7 @@ const MyAccount = () => {
                                   {" "}
                                   <span className="badge badge-label bg-primary">
                                     <i className="mdi mdi-circle-medium"></i>{" "}
-                                    Non
+                                    Oui
                                   </span>
                                 </td>
                               </tr>
@@ -135,7 +219,7 @@ const MyAccount = () => {
                                 <td className="fw-medium">
                                   <span className="badge badge-label bg-warning">
                                     <i className="mdi mdi-circle-medium"></i>{" "}
-                                    Actif
+                                    {etatCompteDisplay}
                                   </span>
                                 </td>
                               </tr>
@@ -144,19 +228,19 @@ const MyAccount = () => {
                                 <td className="fw-medium">
                                   <span className="badge badge-label bg-secondary fs-6">
                                     <i className="mdi mdi-circle-medium"></i>{" "}
-                                    جديد
+                                    {typeInscriptionDisplay}
                                   </span>
                                 </td>
                               </tr>
                               <tr>
                                 <td>Niveau</td>
-                                <td className="fw-medium">سنة أولى إجازة</td>
+                                <td className="fw-medium">
+                                  {niveauClasseDisplay}
+                                </td>
                               </tr>
                               <tr>
                                 <td>Filière</td>
-                                <td className="fw-medium">
-                                  Ingénierie des systèmes informatiques
-                                </td>
+                                <td className="fw-medium">{sectionNames}</td>
                               </tr>
                             </tbody>
                           </Table>
@@ -176,28 +260,37 @@ const MyAccount = () => {
                       <tbody>
                         <tr>
                           <td>Genre</td>
-                          <td className="fw-medium">أنثى</td>
+                          <td className="fw-medium">{studentDetails.sexe}</td>
                         </tr>
 
                         <tr>
                           <td>Etat civil</td>
-                          <td className="fw-medium">أعزب / عزباء</td>
+                          <td className="fw-medium">
+                            {studentDetails.etat_civil}
+                          </td>
                         </tr>
                         <tr>
                           <td>Date naissance </td>
-                          <td className="fw-medium">2002-01-08</td>
+                          <td className="fw-medium">
+                            {studentDetails.date_naissance}
+                          </td>
                         </tr>
                         <tr>
                           <td>Lieu de naissance</td>
-                          <td className="fw-medium">kebili</td>
+                          <td className="fw-medium">
+                            {studentDetails.lieu_naissance_ar} /{" "}
+                            {studentDetails.lieu_naissance_fr}
+                          </td>
                         </tr>
                         <tr>
                           <td>Téléphone Etudiant</td>
-                          <td className="fw-medium">54570866</td>
+                          <td className="fw-medium">
+                            {studentDetails.num_phone}
+                          </td>
                         </tr>
                         <tr>
                           <td>Email</td>
-                          <td className="fw-medium">arwabenaoun21@gmail.com</td>
+                          <td className="fw-medium">{studentDetails.email}</td>
                         </tr>
                       </tbody>
                     </Table>
@@ -210,29 +303,37 @@ const MyAccount = () => {
                       <tbody>
                         <tr>
                           <td>Nationalité </td>
-                          <td className="fw-medium">تونسية</td>
+                          <td className="fw-medium">
+                            {studentDetails.nationalite}
+                          </td>
                         </tr>
                         <tr>
                           <td>Gouvernorat</td>
-                          <td className="fw-medium">قبلي</td>
+                          <td className="fw-medium">{studentDetails.state}</td>
                         </tr>
                         <tr>
                           <td>Municipalité </td>
-                          <td className="fw-medium">قبلي الشمالية</td>
+                          <td className="fw-medium">
+                            {studentDetails.dependence}
+                          </td>
                         </tr>
                         <tr>
                           <td>Adresse Domicile FR</td>
                           <td className="fw-medium">
-                            citée du stade municipal
+                            {studentDetails.adress_fr}
                           </td>
                         </tr>
                         <tr>
                           <td>Adresse Domicile AR</td>
-                          <td className="fw-medium"> حي الملعب البلدي</td>
+                          <td className="fw-medium">
+                            {studentDetails.adress_ar}
+                          </td>
                         </tr>
                         <tr>
                           <td>Code Postal</td>
-                          <td className="fw-medium"> 4200</td>
+                          <td className="fw-medium">
+                            {studentDetails.code_postale}
+                          </td>
                         </tr>
                       </tbody>
                     </Table>
@@ -247,20 +348,28 @@ const MyAccount = () => {
                       <tbody>
                         <tr>
                           <td>Nom et prénom père</td>
-                          <td className="fw-medium">ابراهيم بن عون</td>
+                          <td className="fw-medium">
+                            {studentDetails.nom_pere}
+                          </td>
                         </tr>
 
                         <tr>
                           <td>Profession de père </td>
-                          <td className="fw-medium">متقاعد</td>
+                          <td className="fw-medium">
+                            {studentDetails.job_pere}
+                          </td>
                         </tr>
                         <tr>
                           <td>Nom et prénom mère </td>
-                          <td className="fw-medium">سلوى عباس</td>
+                          <td className="fw-medium">
+                            {studentDetails.nom_mere}
+                          </td>
                         </tr>
                         <tr>
                           <td>Téléphone famille</td>
-                          <td className="fw-medium">98280462</td>
+                          <td className="fw-medium">
+                            {studentDetails.num_phone_tuteur}
+                          </td>
                         </tr>
                       </tbody>
                     </Table>
@@ -273,19 +382,25 @@ const MyAccount = () => {
                       <tbody>
                         <tr>
                           <td>Année </td>
-                          <td className="fw-medium">2022</td>
+                          <td className="fw-medium">
+                            {studentDetails.annee_scolaire}
+                          </td>
                         </tr>
                         <tr>
                           <td>Section</td>
-                          <td className="fw-medium">علوم تجريبية</td>
+                          <td className="fw-medium">
+                            {studentDetails.filiere}
+                          </td>
                         </tr>
                         <tr>
                           <td>Session</td>
-                          <td className="fw-medium">التدارك</td>
+                          <td className="fw-medium">
+                            {studentDetails.session}
+                          </td>
                         </tr>
                         <tr>
                           <td>Moyenne</td>
-                          <td className="fw-medium">10.40</td>
+                          <td className="fw-medium">{studentDetails.moyen}</td>
                         </tr>
                       </tbody>
                     </Table>
@@ -399,78 +514,18 @@ const MyAccount = () => {
                       className="mySwiper swiper responsive-swiper rounded gallery-light pb-4"
                     >
                       <div className="swiper-wrapper">
-                        <SwiperSlide>
-                          <div className="gallery-box card">
-                            <Link className="image-popup" to="#" title="">
-                              <Image
+                        {files.map((src, index) => (
+                          <SwiperSlide key={index}>
+                            <div className="gallery-container">
+                              <img
+                                src={src}
+                                alt={`Document ${index + 1}`}
                                 className="gallery-img img-fluid mx-auto"
-                                src={cin1}
-                                alt=""
-                                onClick={() => handleImageClick(cin1)}
+                                onClick={() => handleFileClick(src)}
                               />
-                            </Link>
-                          </div>
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <div className="gallery-box card mb-0">
-                            <Link className="image-popup" to="#" title="">
-                              <Image
-                                className="gallery-img img-fluid mx-auto"
-                                src={cin2}
-                                alt=""
-                                onClick={() => handleImageClick(cin2)}
-                              />
-                            </Link>
-                          </div>
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <div className="gallery-box card">
-                            <Link className="image-popup" to="#" title="">
-                              <Image
-                                className="gallery-img img-fluid mx-auto"
-                                src={paiement}
-                                alt=""
-                                onClick={() => handleImageClick(paiement)}
-                              />
-                            </Link>
-                          </div>
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <div className="gallery-box card">
-                            <Link className="image-popup" to="#" title="">
-                              <Image
-                                className="gallery-img img-fluid mx-auto"
-                                src={img1}
-                                alt=""
-                                onClick={() => handleImageClick(img1)}
-                              />
-                            </Link>
-                          </div>
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <div className="gallery-box card">
-                            <Link className="image-popup" to="#" title="">
-                              <Image
-                                className="gallery-img img-fluid mx-auto"
-                                src={img1}
-                                alt=""
-                                onClick={() => handleImageClick(img1)}
-                              />
-                            </Link>
-                          </div>
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <div className="gallery-box card">
-                            <Link className="image-popup" to="#" title="">
-                              <Image
-                                className="gallery-img img-fluid mx-auto"
-                                src={img1}
-                                alt=""
-                                onClick={() => handleImageClick(img1)}
-                              />
-                            </Link>
-                          </div>
-                        </SwiperSlide>
+                            </div>
+                          </SwiperSlide>
+                        ))}
                       </div>
                       <div className="swiper-pagination swiper-pagination-dark"></div>
                     </Swiper>
@@ -479,16 +534,11 @@ const MyAccount = () => {
               </Col>
             </Row>
             {/* Modal */}
-            <Modal show={showModal} onHide={handleCloseModal}>
-              <Modal.Body>
-                {clickedImage && (
-                  <Image
-                    className="modal-img img-fluid mx-auto"
-                    src={clickedImage}
-                    alt=""
-                  />
-                )}
-              </Modal.Body>
+            <Modal show={showModal} onHide={handleCloseModal} size="lg">
+              <Modal.Header closeButton>
+                <Modal.Title>Document Viewer</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>{clickedFile && renderFile(clickedFile)}</Modal.Body>
             </Modal>
           </Tab.Pane>
 

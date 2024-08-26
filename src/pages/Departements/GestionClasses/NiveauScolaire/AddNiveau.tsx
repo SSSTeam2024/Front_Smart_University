@@ -3,7 +3,6 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "flatpickr/dist/flatpickr.min.css";
 import Swal from "sweetalert2";
-import { useAddMatiereMutation } from "features/matiere/matiere";
 import { Niveau, useAddNiveauMutation } from "features/niveau/niveau";
 import { Section, useFetchSectionsQuery } from "features/section/section";
 import Select, { MultiValue } from "react-select";
@@ -38,6 +37,7 @@ const AddNiveau = () => {
         name_section_fr: sections.name_section_fr,
         name_section_ar: sections.name_section_ar,
         abreviation: sections.abreviation,
+        
       }));
       setOptions(options);
     }
@@ -116,7 +116,8 @@ const AddNiveau = () => {
         _id: sectionId,
         name_section_fr: "", // Fill in appropriate values if needed
         name_section_ar: "",
-        abreviation: ""
+        abreviation: "",
+        departements: [""] 
       }));
   
       // Update formData to include transformed sections

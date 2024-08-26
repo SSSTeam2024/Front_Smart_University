@@ -11,6 +11,7 @@ import CountUp from "react-countup";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "Common/TableContainer";
 import Swal from "sweetalert2";
+import userImage from "../../assets/images/userImage.jpg";
 import { Enseignant, useDeleteEnseignantMutation, useFetchEnseignantsQuery } from "features/enseignant/enseignant";
 
 const ListEnseignants = () => {
@@ -86,13 +87,15 @@ const ListEnseignants = () => {
           return (
             <div className="d-flex align-items-center gap-2">
               <div className="flex-shrink-0">
-                <img
-                src={`http://localhost:5000/files/enseignantFiles/PhotoProfil/${enseignants.photo_profil}`}
-                  alt="enseignant-img"
-                  id="photo_profil"
-                  className="avatar-xs rounded-circle user-profile-img "
-                 
-                />
+              <img
+            src={`http://localhost:5000/files/enseignantFiles/PhotoProfil/${enseignants.photo_profil}`}
+            alt="etudiant-img"
+            id="photo_profil"
+            className="avatar-xs rounded-circle user-profile-img"
+            onError={(e) => {
+              e.currentTarget.src = userImage;
+            }}
+          />
               </div>
               <div className="flex-grow-1 user_name">
                 {enseignants.nom_fr} {enseignants.prenom_fr}
@@ -116,7 +119,7 @@ const ListEnseignants = () => {
 
       {
         Header: "Spécialité",
-        accessor: (row: any) => row?.specialite?.specialite_fr || "",
+        accessor: (row: any) => row?.specilaite?.specialite_fr || "",
         disableFilters: true,
         filterable: true,
       },
@@ -177,8 +180,9 @@ const ListEnseignants = () => {
             <ul className="hstack gap-2 list-unstyled mb-0">
               <li>
                 <Link
-                  to="#"
+                  to="/accountEnseignant"
                   className="badge bg-info-subtle text-info view-item-btn"
+                  state={enseignant}
                 >
                   <i
                     className="ph ph-eye"
@@ -193,13 +197,15 @@ const ListEnseignants = () => {
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
+                    
                   ></i>
                 </Link>
               </li>
               <li>
                 <Link
-                  to="#"
+                  to="/modfierProfilEnseignant"
                   className="badge bg-primary-subtle text-primary edit-item-btn"
+                  state={enseignant}
                 >
                   <i
                     className="ph ph-pencil-line"

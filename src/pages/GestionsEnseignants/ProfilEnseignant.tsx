@@ -1,48 +1,23 @@
 import React, { useState } from "react";
-import {
-  Card,
-  Form,
-  Nav,
-  Tab,
-  Row,
-  Col,
-  Dropdown,
-  Table,
-  Button,
-  Image,
-  Modal,
-} from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Card, Nav, Tab, Row, Col, Table, Image, Modal } from "react-bootstrap";
+import { Link, useLocation } from "react-router-dom";
 import DemandeTable from "./DemandeTable";
 import ReclamationTable from "./ReclamationTable";
-import img1 from "assets/images/users/avatar-1.jpg";
-import paiement from "assets/images/paiement.png";
-import cin1 from "assets/images/CIN1.png";
-import cin2 from "assets/images/CIN2.png";
 import "./hover.css";
-import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/scrollbar";
 import "swiper/css/effect-fade";
 import "swiper/css/effect-flip";
-import { Pagination } from "swiper/modules";
+import userImage from "../../assets/images/userImage.jpg";
 
 const ProfilEnseignant = () => {
-  // const [enlargedImage, setEnlargedImage] = useState(""); // State to hold the source URL of the enlarged image
-
-  // const handleHover = (event: any, imageUrl: any) => {
-  //   setEnlargedImage(imageUrl); // Set the enlarged image source on hover
-  // };
-
-  // const handleMouseLeave = () => {
-  //   setEnlargedImage(""); // Clear the enlarged image source when mouse leaves
-  // };
-
   const [showModal, setShowModal] = useState(false);
   const [clickedImage, setClickedImage] = useState(null);
-
+  const location = useLocation();
+  const enseignantDetails = location.state;
+  console.log(enseignantDetails);
   const handleImageClick = (imageSrc: any) => {
     setClickedImage(imageSrc);
     setShowModal(true);
@@ -52,7 +27,55 @@ const ProfilEnseignant = () => {
     setShowModal(false);
     setClickedImage(null);
   };
+  //Poste enseignant
+  const posteEnseignantFR =
+    typeof enseignantDetails?.poste! === "object"
+      ? enseignantDetails?.poste?.poste_fr!
+      : enseignantDetails?.poste!;
 
+  const posteEnseignantAR =
+    typeof enseignantDetails?.poste! === "object"
+      ? enseignantDetails?.poste?.poste_ar!
+      : enseignantDetails?.poste!;
+  // etat compte enseignant
+  const etatCompteDisplayFR =
+    typeof enseignantDetails?.etat_compte! === "object"
+      ? enseignantDetails?.etat_compte?.etat_fr!
+      : enseignantDetails?.etat_compte!;
+
+  const etatCompteDisplayAR =
+    typeof enseignantDetails?.etat_compte! === "object"
+      ? enseignantDetails?.etat_compte?.etat_ar!
+      : enseignantDetails?.etat_compte!;
+  //specialite enseignant
+  const specialiteEnseignantFR =
+    typeof enseignantDetails?.specilaite! === "object"
+      ? enseignantDetails?.specilaite?.specialite_fr!
+      : enseignantDetails?.specilaite!;
+  const specialiteEnseignantAR =
+    typeof enseignantDetails?.specilaite! === "object"
+      ? enseignantDetails?.specilaite?.specialite_ar!
+      : enseignantDetails?.specilaite!;
+
+  //grade enseignant
+  const gradeEnseignantFR =
+    typeof enseignantDetails?.grade! === "object"
+      ? enseignantDetails?.grade?.grade_fr!
+      : enseignantDetails?.grade!;
+  const gradeEnseignantAR =
+    typeof enseignantDetails?.grade! === "object"
+      ? enseignantDetails?.grade?.grade_ar!
+      : enseignantDetails?.grade!;
+
+  //departement enseignant
+  const departementEnseignantFR =
+    typeof enseignantDetails?.departements! === "object"
+      ? enseignantDetails?.departements?.name_fr!
+      : enseignantDetails?.departements!;
+  const departementEnseignantAR =
+    typeof enseignantDetails?.departements! === "object"
+      ? enseignantDetails?.departements?.name_ar!
+      : enseignantDetails?.departements!;
   return (
     <React.Fragment>
       <Tab.Container defaultActiveKey="Profil">
@@ -80,18 +103,30 @@ const ProfilEnseignant = () => {
           <Tab.Pane eventKey="Profil">
             <Card>
               <Row className="g-0">
-                <Col md={3}>
+                <Col md={2}>
                   <img
-                    className="rounded-start img-fluid h-100 object-cover"
-                    src={img1}
-                    alt="Card img"
+                    className="rounded-start img-fluid h-70 object-cover"
+                    src={
+                      enseignantDetails.photo_profil
+                        ? `http://localhost:5000/files/enseignantFiles/PhotoProfil/${enseignantDetails.photo_profil}`
+                        : userImage
+                    }
+                    alt="Photo Profile"
+                    onError={(e) => {
+                      e.currentTarget.src = userImage;
+                    }}
                   />
                 </Col>
                 <Col md={9}>
                   <Card.Header>
                     <div className="flex-grow-1 card-title mb-0">
-                      <h5>Maroua Abdedayem</h5>
-                      <p className="text-muted mb-0">مروى عبدالدايم</p>
+                      <h5>
+                        {enseignantDetails.nom_fr} {enseignantDetails.prenom_fr}
+                      </h5>
+                      <p className="text-muted mb-0">
+                        {" "}
+                        {enseignantDetails.nom_ar} {enseignantDetails.prenom_ar}
+                      </p>
                     </div>
                   </Card.Header>
                   <Card.Body>
@@ -102,13 +137,16 @@ const ProfilEnseignant = () => {
                             <tbody>
                               <tr>
                                 <td>Poste</td>
-                                <td className="fw-medium">LISI2Rx-G1</td>
+                                <td className="fw-medium">
+                                  {posteEnseignantFR} / {posteEnseignantAR}
+                                </td>
                               </tr>
                               <tr>
                                 <td>CIN</td>
-                                <td className="fw-medium">2493600925</td>
+                                <td className="fw-medium">
+                                  {enseignantDetails.num_cin}
+                                </td>
                               </tr>
-                             
                             </tbody>
                           </Table>
                         </div>
@@ -117,7 +155,6 @@ const ProfilEnseignant = () => {
                         <div className="table-responsive">
                           <Table className="table-borderless table-sm m-0 p-0 ">
                             <tbody>
-                             
                               <tr>
                                 <td>Matricule</td>
                                 <td className="fw-medium">
@@ -132,11 +169,11 @@ const ProfilEnseignant = () => {
                                 <td className="fw-medium">
                                   <span className="badge badge-label bg-warning">
                                     <i className="mdi mdi-circle-medium"></i>{" "}
-                                    Actif
+                                    {etatCompteDisplayFR} /{" "}
+                                    {etatCompteDisplayAR}
                                   </span>
                                 </td>
                               </tr>
-                             
                             </tbody>
                           </Table>
                         </div>
@@ -147,7 +184,7 @@ const ProfilEnseignant = () => {
               </Row>
             </Card>
             <Card>
-              <Row className="p-2">
+              <Row className="p-4">
                 <Col lg={6} className="border-end">
                   <h5 className="text-muted"> Informations Personnelles</h5>
                   <div className="table-responsive">
@@ -155,37 +192,74 @@ const ProfilEnseignant = () => {
                       <tbody>
                         <tr>
                           <td>Genre:</td>
-                          <td className="fw-medium">أنثى</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.sexe}
+                          </td>
                         </tr>
 
                         <tr>
                           <td>Nationnalité:</td>
-                          <td className="fw-medium"> Tunisienne</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.nationalite}
+                          </td>
                         </tr>
                         <tr>
                           <td>Etat civil:</td>
-                          <td className="fw-medium">célibataire</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.etat_civil}
+                          </td>
                         </tr>
                         <tr>
                           <td>Date de naissance:</td>
-                          <td className="fw-medium">54570866</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.date_naissance}
+                          </td>
                         </tr>
                         <tr>
                           <td>Lieu de naissance:</td>
-                          <td className="fw-medium">kebili</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.lieu_naissance_ar} /{" "}
+                            {enseignantDetails.lieu_naissance_fr}
+                          </td>
+                        </tr>
+
+
+                        <tr>
+                          <td> Adresse:</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.adress_fr} /{" "}
+                            {enseignantDetails.adress_ar}
+                          </td>
                         </tr>
                         <tr>
                           <td>Email:</td>
-                          <td className="fw-medium">arwabenaoun21@gmail.com</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.email}
+                          </td>
                         </tr>
                         <tr>
                           <td>Téléphone 1:</td>
-                          <td className="fw-medium">98225987</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.num_phone1}
+                          </td>
                         </tr>
-                      
+                        <tr>
+                          <td>Téléphone 2:</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.num_phone2}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Compte Courant:</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.compte_courant}
+                          </td>
+                        </tr>
                         <tr>
                           <td>RIB:</td>
-                          <td className="fw-medium">000022252121250</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.identifinat_unique}
+                          </td>
                         </tr>
                       </tbody>
                     </Table>
@@ -197,60 +271,147 @@ const ProfilEnseignant = () => {
                     <Table className="table-borderless table-sm m-0 p-0 ">
                       <tbody>
                         <tr>
-                          <td>Spécialité:  </td>
-                          <td className="fw-medium">رياضيات تطبيقية</td>
-                        </tr>
-                        <tr>
-                          <td>Département:</td>
-                          <td className="fw-medium">Tous les départements</td>
-                        </tr>
-                        <tr>
-                          <td>Diplome: </td>
-                          <td className="fw-medium"> </td>
-                        </tr>
-                        <tr>
-                          <td>Année diplome:</td>
+                          <td>Spécialité: </td>
                           <td className="fw-medium">
-                            
+                            {specialiteEnseignantFR} / {specialiteEnseignantAR}
                           </td>
                         </tr>
                         <tr>
-                          <td>Etablissement diplome:</td>
-                          <td className="fw-medium">   </td>
+                          <td>Grade: </td>
+                          <td className="fw-medium">
+                            {gradeEnseignantFR} / {gradeEnseignantAR}
+                          </td>
                         </tr>
-                       
+                        <tr>
+                          <td>Date d'affectation: </td>
+                          <td className="fw-medium">
+                            {enseignantDetails.date_affectation}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Date délivrance: </td>
+                          <td className="fw-medium">
+                            {enseignantDetails.date_delivrance}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Département:</td>
+                          <td className="fw-medium">
+                            {departementEnseignantFR} /{" "}
+                            {departementEnseignantAR}{" "}
+                          </td>
+                        </tr>
+                        {/* Diplome 1 */}
+                        {enseignantDetails.certif1 && (
+                          <>
+                            <tr>
+                              <td>Diplome 1: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.certif1}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Année diplome 1: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.annee_certif1}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Etablissement diplome 1: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.entreprise1}
+                              </td>
+                            </tr>
+                          </>
+                        )}
+
+                        {/* Diplome 2 */}
+                        {enseignantDetails.certif2 && (
+                          <>
+                            <tr>
+                              <td>Diplome 2: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.certif2}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Année diplome 2: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.annee_certif2}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Etablissement diplome 2: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.entreprise2}
+                              </td>
+                            </tr>
+                          </>
+                        )}
+
+                        {/* Diplome 3 */}
+                        {enseignantDetails.certif3 && (
+                          <>
+                            <tr>
+                              <td>Diplome 3: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.certif3}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Année diplome 3: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.annee_certif3}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Etablissement diplome 3: </td>
+                              <td className="fw-medium">
+                                {" "}
+                                {enseignantDetails.entreprise3}
+                              </td>
+                            </tr>
+                          </>
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                </Col>
+                <Col lg={6} className="mt-0">
+                  <h5 className="text-muted pb-1 pt-2">Conjoint</h5>
+                  <div className="table-responsive">
+                    <Table className="table-borderless table-sm m-0 p-0 ">
+                      <tbody>
+                        <tr>
+                          <td>Nom du conjoint:</td>
+                          <td className="fw-medium">{enseignantDetails.nom_conjoint}</td>
+                        </tr>
+
+                        <tr>
+                          <td>Profession du conjoint:</td>
+                          <td className="fw-medium">{enseignantDetails.job_conjoint
+                          }</td>
+                        </tr>
+                        <tr>
+                          <td>Nombre des enfants:</td>
+                          <td className="fw-medium">{enseignantDetails.nombre_fils}</td>
+                        </tr>
+                     
                       </tbody>
                     </Table>
                   </div>
                 </Col>
               </Row>
               <Row className="p-2">
-                <Col lg={6} className="border-end ">
-                  <h5 className="text-muted pb-1 pt-2 "> Conjoint</h5>
-                  <div className="table-responsive">
-                    <Table className="table-borderless table-sm m-0 p-0 ">
-                      <tbody>
-                        <tr>
-                          <td>Nom du conjoint:</td>
-                          <td className="fw-medium">ابراهيم بن عون</td>
-                        </tr>
-
-                        <tr>
-                          <td>Profession du conjoint:</td>
-                          <td className="fw-medium">متقاعد</td>
-                        </tr>
-                        <tr>
-                          <td>Nombre des enfants:</td>
-                          <td className="fw-medium"></td>
-                        </tr>
-                        <tr>
-                          <td>Téléphone 2:</td>
-                          <td className="fw-medium">98280462</td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </div>
-                </Col>
+             
                 {/* <Col lg={6}>
                   <h5 className="text-muted pb-1 pt-2"> Baccalauréat</h5>
                   <div className="table-responsive">
@@ -300,7 +461,7 @@ const ProfilEnseignant = () => {
                     </div> */}
             {/* </Col> */}
 
-            <h5 className="text-muted "> Documents</h5>
+            {/* <h5 className="text-muted "> Documents</h5> */}
             {/* <Row>
               <Col lg={3} className="d-flex flex-column ">
                 <Image
@@ -354,7 +515,7 @@ const ProfilEnseignant = () => {
               </Col>
               
             </Row> */}
-            <Row>
+            {/* <Row>
               <Col lg={12}>
                 <Card>
                   <Card.Body>
@@ -462,7 +623,7 @@ const ProfilEnseignant = () => {
                   </Card.Body>
                 </Card>
               </Col>
-            </Row>
+            </Row> */}
             {/* Modal */}
             <Modal show={showModal} onHide={handleCloseModal}>
               <Modal.Body>
