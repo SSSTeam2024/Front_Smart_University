@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { FileDetail } from "features/etudiant/etudiant";
 
 export interface TypeInscriptionEtudiant {
   _id: string;
   value_type_inscription: string;
   type_ar: string;
   type_fr: string;
-  files_type_inscription: { name_ar: string; name_fr: string }[];
+  files_type_inscription:FileDetail[];
 }
 export const typeInscriptionEtudiantSlice = createApi({
   reducerPath: "TypeInscriptionEtudiant",

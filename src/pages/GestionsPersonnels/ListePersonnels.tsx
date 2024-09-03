@@ -72,10 +72,10 @@ const ListPersonnels = () => {
       });
   };
   const activatedPersonnelsCount = data.filter(
-    (personnel) => personnel.etat_compte?.etat_fr === "Compte Activé"
+    (personnel) => personnel.etat_compte?.etat_fr === "Activé"
   ).length;
   const deactivatedPersonnelsCount = data.filter(
-    (personnel) => personnel.etat_compte?.etat_fr === "Compte désactivé"
+    (personnel) => personnel.etat_compte?.etat_fr === "Désactivé"
   ).length;
 
   const columns = useMemo(
@@ -157,18 +157,24 @@ const ListPersonnels = () => {
         accessor: (row: any) => row?.etat_compte?.etat_fr || "",
         Cell: ({ value }: { value: string }) => {
           switch (value) {
-            case "Inscrit / Activé":
+            case "Activé":
               return (
                 <span className="badge bg-success-subtle text-success">
                   {value}
                 </span>
               );
-            case "Non inscrit":
+            case "Désactivé":
               return (
                 <span className="badge bg-danger-subtle text-danger">
                   {value}
                 </span>
               );
+              case "Nouveau":
+                return (
+                  <span className="badge bg-secondary-subtle text-secondary">
+                    {value}
+                  </span>
+                );
             default:
               return (
                 <span className="badge bg-success-subtle text-info">
@@ -724,6 +730,7 @@ const ListPersonnels = () => {
                 </Card.Body>
               </Card>
             </Col>
+            
           </Row>
 
           <Row id="sellersList">

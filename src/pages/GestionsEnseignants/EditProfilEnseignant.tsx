@@ -22,7 +22,7 @@ import { useFetchPostesEnseignantQuery } from "features/posteEnseignant/posteEns
 import { useFetchGradesEnseignantQuery } from "features/gradeEnseignant/gradeEnseignant";
 import { useFetchSpecialitesEnseignantQuery } from "features/specialiteEnseignant/specialiteEnseignant";
 import { useFetchDepartementsQuery } from "features/departement/departement";
-import { enseignantSlice, useUpdateEnseignanttMutation } from "features/enseignant/enseignant";
+import { enseignantSlice, useUpdateEnseignantMutation } from "features/enseignant/enseignant";
 type Wilaya =
   | "اريانة"
   | "بن عروس"
@@ -388,7 +388,7 @@ const EditProfilEnseignant = () => {
   document.title = " Modifier Profil Enseignant | Application Smart Institute";
   const navigate = useNavigate();
   const { state: enseignant } = useLocation();
-  const [editEnseignant] = useUpdateEnseignanttMutation();
+  const [editEnseignant] = useUpdateEnseignantMutation();
   const { data: etat_compte = [] } = useFetchEtatsEnseignantQuery();
   const { data: poste = [] } = useFetchPostesEnseignantQuery();
   const { data: grade = [] } = useFetchGradesEnseignantQuery();
@@ -475,7 +475,9 @@ const EditProfilEnseignant = () => {
     PhotoProfilFileBase64String: "",
   });
   const [selectedCountry1, setSelectedCountry1] = useState<any>({});
-  const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">("");
+  const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">(
+    enseignant?.state! || ""
+  );
   const [selectedDelegation, setSelectedDelegation] = useState<string>("");
   const [selectedDateDelivrance, setSelectedDateDelivrance] =
     useState<Date | null>(null);
@@ -616,6 +618,9 @@ const EditProfilEnseignant = () => {
 
         fetchImageData();
       }
+      if (enseignant.state) {
+        setSelectedWilaya(enseignant.state as Wilaya);
+      } 
 
       if (enseignant.date_delivrance) {
         setSelectedDateDelivrance(new Date(enseignant.date_delivrance));
@@ -848,6 +853,14 @@ const EditProfilEnseignant = () => {
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
+      }));
+    }
+    if (name === "state") {
+      setSelectedWilaya(value as Wilaya);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        dependence: "",
+        
       }));
     }
   };
@@ -1250,7 +1263,7 @@ const EditProfilEnseignant = () => {
                                     className="form-select text-muted"
                                     name="etat_civil"
                                     id="etat_civil"
-                                    value={formData?.etat_civil || ""} // Reflect the selected value from formData
+                                    value={formData?.etat_civil || "" }// Reflect the selected value from formData
                                     onChange={handleSelectChange}
                                   >
                                     <option value="">الحالة</option>
@@ -1635,17 +1648,17 @@ const EditProfilEnseignant = () => {
                                       }}
                                     >
                                       <label
-                                        htmlFor="المعتمدية"
+                                        htmlFor="dependence"
                                         className="form-label"
                                       >
                                         المعتمدية
                                       </label>
                                       <select
                                         className="form-select text-muted"
-                                        name="المعتمدية"
-                                        id="المعتمدية"
-                                        value={selectedDelegation}
-                                        onChange={handleDelegationChange}
+                                        name="dependence"
+                                        id="dependence"
+                                        value={formData?.dependence}
+                                    onChange={handleSelectChange}
                                         disabled={!selectedWilaya} // Disable if no Wilaya is selected
                                       >
                                         <option value="">إخترالمعتمدية</option>
@@ -1672,17 +1685,17 @@ const EditProfilEnseignant = () => {
                                       }}
                                     >
                                       <label
-                                        htmlFor="الولاية"
+                                        htmlFor="state"
                                         className="form-label"
                                       >
                                         الولاية
                                       </label>
                                       <select
                                         className="form-select text-muted"
-                                        name="الولاية"
-                                        id="الولاية"
-                                        value={selectedWilaya}
-                                        onChange={handleWilayaChange}
+                                        name="state"
+                                        id="state"
+                                        value={formData?.state}
+                                        onChange={handleSelectChange}
                                       >
                                         <option value="">إخترالولاية</option>
                                         {wilayaOptions.map((wilaya, index) => (

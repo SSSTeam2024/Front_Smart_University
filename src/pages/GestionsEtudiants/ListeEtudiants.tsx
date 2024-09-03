@@ -5,14 +5,104 @@ import CountUp from "react-countup";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "Common/TableContainer";
 import {
-  Etudiant,
   useDeleteEtudiantMutation,
   useFetchEtudiantsQuery,
 } from "features/etudiant/etudiant";
 import { format } from "date-fns";
 import userImage from "../../assets/images/userImage.jpg";
 import Swal from "sweetalert2";
+interface FileDetail {
+  name_ar: string;
+  name_fr: string;
+  file?: string;
+  base64String?: string;
+  extension?: string;
+}
+interface Section {
+  _id: string;
+  name_section_fr: string;
+  name_section_ar: string;
+  abreviation: string;
+  departements: string[];
+}
 
+interface NiveauClasse {
+  _id: string;
+  name_niveau_ar: string;
+  name_niveau_fr: string;
+  abreviation: string;
+  sections: Section[]; // Ensure this is defined as an array
+}
+
+interface GroupeClasse {
+  _id: string;
+  nom_classe_fr: string;
+  nom_classe_ar: string;
+  departement: string;
+  niveau_classe: NiveauClasse;
+  matieres: string[];
+}
+
+interface Etudiant {
+  _id: string;
+  nom_fr: string;
+  nom_ar: string;
+  prenom_fr: string;
+  prenom_ar: string;
+  lieu_naissance_fr: string;
+  lieu_naissance_ar: string;
+  date_naissance: string;
+  nationalite: string;
+  etat_civil: string;
+  sexe: string;
+  num_CIN: string;
+  face_1_CIN: string;
+  face_2_CIN: string;
+  fiche_paiement: string;
+  etat_compte: {
+    _id: string;
+    value_etat_etudiant: string;
+    etat_ar: string;
+    etat_fr: string;
+  };
+  groupe_classe: GroupeClasse;
+  state: string;
+  dependence: string;
+  code_postale: string;
+  adress_ar: string;
+  adress_fr: string;
+  num_phone: string;
+  email: string;
+  nom_pere: string;
+  job_pere: string;
+  nom_mere: string;
+  num_phone_tuteur: string;
+  moyen: string;
+  session: string;
+  filiere: string;
+  niveau_scolaire: string;
+  annee_scolaire: string;
+  type_inscription: {
+    _id: string;
+    value_type_inscription: string;
+    type_ar: string;
+    type_fr: string;
+    files_type_inscription: {
+      name_ar: string;
+      name_fr: string;
+    }[];
+  };
+  Face1CINFileBase64String: string;
+  Face1CINFileExtension: string;
+  Face2CINFileBase64String: string;
+  Face2CINFileExtension: string;
+  FichePaiementFileBase64String: string;
+  FichePaiementFileExtension: string;
+  files: FileDetail[];
+  photo_profil: string;
+  PhotoProfilFileExtension: string;
+  PhotoProfilFileBase64String: string;
+}
 const ListEtudiants = () => {
   document.title = "Liste des étudiants | Smart University";
 
@@ -153,12 +243,30 @@ const ListEtudiants = () => {
                   {value}
                 </span>
               );
-            case "Non inscrit":
+            case "Désactivé":
               return (
                 <span className="badge bg-danger-subtle text-danger">
                   {value}
                 </span>
               );
+              case "Non inscrit":
+                return (
+                  <span className="badge bg-warning-subtle text-warning">
+                    {value}
+                  </span>
+                );
+                case "Retrait Inscrit":
+                  return (
+                    <span className="badge bg-info-subtle text-info">
+                      {value}
+                    </span>
+                  );
+                  case "Mutation":
+                    return (
+                      <span className="badge bg-secondary-subtle text-secondary">
+                        {value}
+                      </span>
+                    );
             default:
               return (
                 <span className="badge bg-success-subtle text-info">
@@ -173,14 +281,14 @@ const ListEtudiants = () => {
         Header: "Action",
         disableFilters: true,
         filterable: true,
-        accessor: (students: Etudiant) => {
+        accessor: (etudiant: Etudiant) => {
           return (
             <ul className="hstack gap-2 list-unstyled mb-0">
               <li>
                 <Link
                   to="/profil-etudiant"
                   className="badge bg-info-subtle text-info view-item-btn"
-                  state={students}
+                  state={etudiant}
                 >
                   <i
                     className="ph ph-eye"
@@ -202,7 +310,7 @@ const ListEtudiants = () => {
                 <Link
                   to="/modifierProfilEtudiant"
                   className="badge bg-primary-subtle text-primary edit-item-btn"
-                  state={students}
+                  state={etudiant}
                 >
                   <i
                     className="ph ph-pencil-line"
@@ -238,7 +346,7 @@ const ListEtudiants = () => {
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
-                    onClick={() => AlertDelete(students?._id!)}
+                    onClick={() => AlertDelete(etudiant?._id!)}
                   ></i>
                 </Link>
               </li>

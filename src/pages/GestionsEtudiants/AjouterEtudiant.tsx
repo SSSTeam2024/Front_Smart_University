@@ -23,6 +23,7 @@ import {
 } from "features/typeInscriptionEtudiant/typeInscriptionEtudiant";
 import { useFetchClassesQuery } from "features/classe/classe";
 import { format } from "date-fns";
+
 interface FileDetail {
   name_ar: string;
   name_fr: string;
@@ -30,6 +31,31 @@ interface FileDetail {
   base64String?: string;
   extension?: string;
 }
+interface Section {
+  _id: string;
+  name_section_fr: string;
+  name_section_ar: string;
+  abreviation: string;
+  departements: string[];
+}
+
+interface NiveauClasse {
+  _id: string;
+  name_niveau_ar: string;
+  name_niveau_fr: string;
+  abreviation: string;
+  sections: Section[]; // Ensure this is defined as an array
+}
+
+interface GroupeClasse {
+  _id: string;
+  nom_classe_fr: string;
+  nom_classe_ar: string;
+  departement: string;
+  niveau_classe: NiveauClasse;
+  matieres: string[];
+}
+
 interface Etudiant {
   _id: string;
   nom_fr: string;
@@ -52,16 +78,7 @@ interface Etudiant {
     etat_ar: string;
     etat_fr: string;
   };
-  groupe_classe: {
-    _id: string;
-    nom_classe_fr: string;
-    nom_classe_ar: string;
-    departement: string;
-    niveau_classe: string;
-    section_classe: string;
-    matieres: string[];
-  };
-
+  groupe_classe: GroupeClasse;
   state: string;
   dependence: string;
   code_postale: string;
@@ -83,7 +100,10 @@ interface Etudiant {
     value_type_inscription: string;
     type_ar: string;
     type_fr: string;
-    files_type_inscription: string[]; // Adjusted type here
+    files_type_inscription: {
+      name_ar: string;
+      name_fr: string;
+    }[];
   };
   Face1CINFileBase64String: string;
   Face1CINFileExtension: string;
@@ -462,9 +482,6 @@ const AjouterEtudiant = () => {
   document.title = " Ajouter Etudiant | Application Smart Institute";
   const navigate = useNavigate();
   const [selectedFiles, setselectedFiles] = useState<any>([]);
-  const [seletedCountry, setseletedCountry] = useState<any>({});
-  const [seletedCountry1, setseletedCountry1] = useState<any>({});
-
   const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">("");
   const [selectedDelegation, setSelectedDelegation] = useState<string>("");
   const [fileInputs, setFileInputs] = useState<{ [key: string]: string[] }>({});
@@ -476,7 +493,6 @@ const AjouterEtudiant = () => {
   ) => {
     setSelectedOption(option);
 
-    // Find the selected type_inscription or provide a default empty object
     const selectedInscription = type_inscription.find(
       (inscription) => inscription.type_ar === option
     ) || {
@@ -486,21 +502,26 @@ const AjouterEtudiant = () => {
       type_fr: "",
       files_type_inscription: [],
     };
+
     console.log("selectedInscription", selectedInscription);
-    const files = selectedInscription.files_type_inscription.map(
-      (file) => `${file.name_fr}`
+
+    // Transform the files to match the required format
+    const formattedFiles = selectedInscription.files_type_inscription.map(
+      (file) => ({
+        name_ar: file.name_ar, // Ensure name_ar is correctly assigned
+        name_fr: file.name_fr, // Ensure name_fr is correctly assigned
+      })
     );
 
     // Update fileInputs state to reflect selected files for the option
     setFileInputs((prevState) => ({
       ...prevState,
-      [option]: files,
+      [option]: formattedFiles.map((file) => file.name_fr),
     }));
-    setselectedFiles(files);
-    //     // Convert selectedInscription.files_type_inscription to string[]
 
-    // console.log("files", files);
-    // // Update formData using setFormData
+    setselectedFiles(formattedFiles.map((file) => file.name_fr));
+
+    // Update formData with correctly formatted files
     setFormData((prevData: Etudiant) => ({
       ...prevData,
       type_inscription: {
@@ -508,10 +529,11 @@ const AjouterEtudiant = () => {
         value_type_inscription: selectedInscription.value_type_inscription,
         type_ar: selectedInscription.type_ar,
         type_fr: selectedInscription.type_fr,
-        files_type_inscription: files, // Assign the files array directly
+        files_type_inscription: formattedFiles, // Use the formatted files array here
       },
     }));
   };
+
   // console.log("selectedInscription", selectedOption);
   // change state
   const handleWilayaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -612,9 +634,14 @@ const AjouterEtudiant = () => {
       nom_classe_fr: "",
       nom_classe_ar: "",
       departement: "",
-      niveau_classe: "",
-      section_classe: "",
-      matieres: [],
+      niveau_classe: {
+        _id: "",
+        name_niveau_ar: "",
+        name_niveau_fr: "",
+        abreviation: "",
+        sections: [], // Initialize as an empty array since it expects an array of Section objects
+      },
+      matieres: [], // Initialize as an empty array
     },
     state: "",
     dependence: "",
@@ -637,7 +664,12 @@ const AjouterEtudiant = () => {
       value_type_inscription: "",
       type_ar: "",
       type_fr: "",
-      files_type_inscription: [],
+      files_type_inscription: [
+        {
+          name_ar: "",
+          name_fr: "",
+        },
+      ],
     },
     Face1CINFileBase64String: "",
     Face1CINFileExtension: "",
@@ -673,12 +705,21 @@ const AjouterEtudiant = () => {
             _id: selectedClass._id,
             nom_classe_fr: selectedClass.nom_classe_fr,
             nom_classe_ar: selectedClass.nom_classe_ar,
-            departement: selectedClass.departement.name_fr,
-            niveau_classe: selectedClass.niveau_classe.name_niveau_fr,
-            section_classe: selectedClass.niveau_classe.sections
-              .map((section) => section.name_section_fr)
-              .join(", "),
-            matieres: selectedClass.matieres.map((matiere) => matiere.matiere),
+            // Ensure 'departement' is set as a string, e.g., its '_id' or 'name_fr'
+            departement:
+              typeof selectedClass.departement === "string"
+                ? selectedClass.departement
+                : selectedClass.departement._id, // or selectedClass.departement.name_fr based on your structure
+            niveau_classe: {
+              _id: selectedClass.niveau_classe._id,
+              name_niveau_ar: selectedClass.niveau_classe.name_niveau_ar,
+              name_niveau_fr: selectedClass.niveau_classe.name_niveau_fr,
+              abreviation: selectedClass.niveau_classe.abreviation,
+              sections: selectedClass.niveau_classe.sections, // Array of sections as expected
+            },
+            matieres: selectedClass.matieres.map(
+              (matiere) => (typeof matiere === "string" ? matiere : matiere._id) // Ensure matieres are strings
+            ),
           },
         }));
       }
@@ -1295,7 +1336,7 @@ const AjouterEtudiant = () => {
                                     onChange={handlePDFCIN1Upload}
                                     type="file"
                                     id="Face1CINFileBase64String"
-                                    accept=".pdf"
+                                    accept="*/*"
                                     placeholder="Choose File"
                                     className="text-muted"
 
@@ -1323,7 +1364,7 @@ const AjouterEtudiant = () => {
                                     onChange={handlePDFCIN2Upload}
                                     type="file"
                                     id="Face2CINFileBase64String"
-                                    accept=".pdf"
+                                    accept="*/*"
                                     placeholder="Choose File"
                                     className="text-muted"
 
@@ -1351,7 +1392,7 @@ const AjouterEtudiant = () => {
                                     onChange={handlePDFFichePaiementUpload}
                                     type="file"
                                     id="FichePaiementFileBase64String"
-                                    accept=".pdf"
+                                    accept="*/*"
                                     placeholder="Choose File"
                                     className="text-muted"
 
@@ -1999,7 +2040,7 @@ const AjouterEtudiant = () => {
                           </Card.Header>
                           <Card.Body>
                             <Row>
-                              {formData.groupe_classe.niveau_classe && (
+                            {formData.groupe_classe.niveau_classe && (
                                 <Col lg={4}>
                                   <div className="mb-3">
                                     <Form.Label htmlFor="niveau_classe">
@@ -2009,12 +2050,14 @@ const AjouterEtudiant = () => {
                                       className="form-control-plaintext"
                                       id="niveau_classe"
                                     >
-                                      {formData.groupe_classe.niveau_classe}
+                                      {formData.groupe_classe.niveau_classe
+                                        .name_niveau_fr || ""}{" "}
                                     </p>
                                   </div>
                                 </Col>
                               )}
-                              {formData.groupe_classe.section_classe && (
+                              {formData.groupe_classe.niveau_classe
+                                .sections && (
                                 <Col lg={4}>
                                   <div className="mb-3">
                                     <Form.Label htmlFor="section_classe">
@@ -2024,7 +2067,14 @@ const AjouterEtudiant = () => {
                                       className="form-control-plaintext"
                                       id="section_classe"
                                     >
-                                      {formData.groupe_classe.section_classe}
+                                      {formData.groupe_classe.niveau_classe.sections.map(
+                                        (section) => (
+                                          <span key={section._id}>
+                                            {section.name_section_fr}{" "}
+                                            <br />
+                                          </span>
+                                        )
+                                      )}
                                     </p>
                                   </div>
                                 </Col>

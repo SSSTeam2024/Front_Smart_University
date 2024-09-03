@@ -89,14 +89,15 @@ export const personnelSlice = createApi({
         },
         invalidatesTags: ["Personnel"],
       }),
-        updatePersonnel: builder.mutation<void, Personnel>({
-          query: ({ _id, ...rest }) => ({
-            url: `/update-personnel/${_id}`,
-            method: "PUT",
-            body: rest,
-          }),
-          invalidatesTags: ["Personnel"],
+      updatePersonnel: builder.mutation<void, Personnel>({
+        query: ({ _id, ...rest }) => ({
+          url: `/update-personnel`, // Remove the _id from the URL
+          method: "PUT",
+          body: { _id, ...rest }, // Include _id in the body
         }),
+        invalidatesTags: ["Personnel"],
+      }),
+      
         deletePersonnel: builder.mutation<void, string>({
           query: (_id) => ({
             url: `delete-personnel/${_id}`,
@@ -104,6 +105,15 @@ export const personnelSlice = createApi({
           }),
           invalidatesTags: ["Personnel"],
         }),
+        getPersonnelById: builder.query<Personnel, string>({
+          query: (id) => ({
+            url: `get-personnel`,
+            method: "POST",
+            body: { personnelId: id }, // Adjust this to match your backend requirement
+          }),
+          providesTags: ["Personnel"],
+        }),
+        
     };
   },
 });
@@ -112,5 +122,6 @@ export const {
 useAddPersonnelMutation,
 useFetchPersonnelsQuery,
 useDeletePersonnelMutation,
-useUpdatePersonnelMutation
+useUpdatePersonnelMutation,
+useGetPersonnelByIdQuery
 } = personnelSlice;

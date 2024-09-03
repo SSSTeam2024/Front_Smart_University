@@ -232,6 +232,16 @@ const ProfilEnseignant = () => {
                           </td>
                         </tr>
                         <tr>
+                          <td>Gouvernorat</td>
+                          <td className="fw-medium">{enseignantDetails.state}</td>
+                        </tr>
+                        <tr>
+                          <td>Municipalité </td>
+                          <td className="fw-medium">
+                            {enseignantDetails.dependence}
+                          </td>
+                        </tr>
+                        <tr>
                           <td>Email:</td>
                           <td className="fw-medium">
                             {enseignantDetails.email}

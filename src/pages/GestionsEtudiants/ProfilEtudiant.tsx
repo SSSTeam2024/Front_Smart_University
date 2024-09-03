@@ -23,14 +23,14 @@ import "swiper/css/navigation";
 import "swiper/css/scrollbar";
 import "swiper/css/effect-fade";
 import "swiper/css/effect-flip";
-import { Pagination } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { pdfjs } from "react-pdf";
 import userImage from "../../assets/images/userImage.jpg";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js`;
-
 
 const MyAccount = () => {
   const [clickedFile, setClickedFile] = useState<string | null>(null);
@@ -38,18 +38,18 @@ const MyAccount = () => {
   const location = useLocation();
   const studentDetails = location.state;
 
-  // Define the base paths
-  const basePath = "/files/etudiantFiles/";
-  const face1CINPath = `${basePath}Face1CIN/`;
-  const face2CINPath = `${basePath}Face2CIN/`;
-  const fichePaiementPath = `${basePath}FichePaiement/`;
+
 
   // Construct the full URLs for the images
-  const files = [
-    `${face1CINPath}${studentDetails?.face_1_CIN}`,
-    `${face2CINPath}${studentDetails?.face_2_CIN}`,
-    `${fichePaiementPath}${studentDetails?.fiche_paiement}`,
-  ];
+
+  // console.log("FichePaiement URL:", fichePaiementURL);
+
+  // console.log("Face1CIN URL:", `${face1CINPath}${studentDetails?.face_1_CIN}`);
+  // console.log("Face2CIN URL:", `${face2CINPath}${studentDetails?.face_2_CIN}`);
+  // console.log(
+  //   "FichePaiement URL:",
+  //   `${fichePaiementPath}${studentDetails?.fiche_paiement}`
+  // );
 
   const handleFileClick = (fileSrc: string) => {
     setClickedFile(fileSrc);
@@ -60,26 +60,57 @@ const MyAccount = () => {
     setShowModal(false);
     setClickedFile(null);
   };
-
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const renderFile = (fileSrc: string) => {
     if (fileSrc.endsWith(".pdf")) {
       return (
         <div className="pdf-viewer">
-           <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.12.0/build/pdf.worker.min.js`}>
-            <Viewer fileUrl={fileSrc} />
+          <Worker
+            workerUrl={`https://unpkg.com/pdfjs-dist@3.12.0/build/pdf.worker.min.js`}
+          >
+            <Viewer fileUrl={fileSrc} plugins={[defaultLayoutPluginInstance]} />
           </Worker>
         </div>
       );
     } else {
       return (
         <img
-          className="gallery-img img-fluid mx-auto"
           src={fileSrc}
           alt="Document preview"
+          className="gallery-img img-fluid mx-auto"
         />
       );
     }
   };
+
+  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [showPdfModal, setShowPdfModal] = useState<boolean>(false);
+
+    // Define the base paths
+    const basePath = "http://localhost:5000/files/etudiantFiles/";
+  const face1CINPath = `${basePath}Face1CIN/`;
+  const face2CINPath = `${basePath}Face2CIN/`;
+  const fichePaiementPath = `${basePath}FichePaiement/`;
+
+  const files = [
+    `${face1CINPath}${studentDetails?.face_1_CIN}`,
+    `${face2CINPath}${studentDetails?.face_2_CIN}`,
+    `${fichePaiementPath}${studentDetails?.fiche_paiement}`,
+  ];
+
+  const handleShowPdfModal = (fileUrl: string) => {
+    setPdfUrl(fileUrl);
+    setShowPdfModal(true);
+  };
+
+  const handleClosePdfModal = () => {
+    setShowPdfModal(false);
+    setPdfUrl("");
+  };
+
+  const isImageFile = (url: string) => /\.(jpeg|jpg|gif|png)$/i.test(url);
+  const isPDFFile = (url: string) => /\.pdf$/i.test(url);
+  
 
   const groupeClasseDisplay =
     typeof studentDetails?.groupe_classe! === "object"
@@ -147,9 +178,9 @@ const MyAccount = () => {
           <Tab.Pane eventKey="Profil">
             <Card>
               <Row className="g-0">
-                <Col md={3}>
+                <Col md={2}>
                   <img
-                    className="rounded-start img-fluid h-100 object-cover"
+                    className="rounded-start img-fluid h-70 object-cover m-1"
                     src={
                       studentDetails.photo_profil
                         ? `http://localhost:5000/files/etudiantFiles/PhotoProfil/${studentDetails.photo_profil}`
@@ -161,7 +192,7 @@ const MyAccount = () => {
                     }}
                   />
                 </Col>
-                <Col md={9}>
+                <Col md={10}>
                   <Card.Header>
                     <div className="flex-grow-1 card-title mb-0">
                       <h5>
@@ -485,61 +516,62 @@ const MyAccount = () => {
               
             </Row> */}
             <Row>
-              <Col lg={12}>
-                <Card>
-                  <Card.Body>
-                    <Swiper
-                      slidesPerView={1}
-                      spaceBetween={10}
-                      pagination={{
-                        el: ".swiper-pagination",
-                        clickable: true,
-                      }}
-                      breakpoints={{
-                        640: {
-                          slidesPerView: 2,
-                          spaceBetween: 20,
-                        },
-                        768: {
-                          slidesPerView: 3,
-                          spaceBetween: 40,
-                        },
-                        1024: {
-                          slidesPerView: 4,
-                          spaceBetween: 50,
-                        },
-                      }}
-                      loop={true}
-                      modules={[Pagination]}
-                      className="mySwiper swiper responsive-swiper rounded gallery-light pb-4"
-                    >
-                      <div className="swiper-wrapper">
-                        {files.map((src, index) => (
-                          <SwiperSlide key={index}>
-                            <div className="gallery-container">
-                              <img
-                                src={src}
-                                alt={`Document ${index + 1}`}
-                                className="gallery-img img-fluid mx-auto"
-                                onClick={() => handleFileClick(src)}
-                              />
-                            </div>
-                          </SwiperSlide>
-                        ))}
-                      </div>
-                      <div className="swiper-pagination swiper-pagination-dark"></div>
-                    </Swiper>
-                  </Card.Body>
-                </Card>
-              </Col>
+            <Col lg={12}>
+        <Card>
+          <Card.Body>
+          <Swiper
+            spaceBetween={10}
+            slidesPerView={3}
+            loop={true}
+            navigation={true}
+            pagination={{ clickable: true }}
+            modules={[Pagination, Navigation]}
+          >
+            {files.map((file, index) => (
+              <SwiperSlide key={index}>
+                {isImageFile(file) ? (
+                  <img
+                    src={file}
+                    alt={`File ${index + 1}`}
+                    style={{ width: "100%", height: "300px" }}
+                  />
+                ) : isPDFFile(file) ? (
+                  <button
+                    onClick={() => handleShowPdfModal(file)}
+                    style={{
+                      width: "100%",
+                      height: "300px",
+                      backgroundColor: "#f0f0f0",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    View PDF {index + 1}
+                  </button>
+                ) : (
+                  <p>Unsupported file format</p>
+                )}
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          </Card.Body>
+        </Card>
+      </Col>
+
+      {/* Modal for PDF Viewing */}
+      <Modal show={showPdfModal} onHide={handleClosePdfModal} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Document Viewer</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {pdfUrl ? (
+            <iframe src={pdfUrl} width="100%" height="700px" />
+          ) : (
+            <p>No document to display.</p>
+          )}
+        </Modal.Body>
+      </Modal>
             </Row>
-            {/* Modal */}
-            <Modal show={showModal} onHide={handleCloseModal} size="lg">
-              <Modal.Header closeButton>
-                <Modal.Title>Document Viewer</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>{clickedFile && renderFile(clickedFile)}</Modal.Body>
-            </Modal>
           </Tab.Pane>
 
           <Tab.Pane eventKey="Demandes">

@@ -253,20 +253,16 @@ const ProfilPersonnel = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td> State:</td>
-                          <td className="fw-medium">
-                            {personnelDetails.state}
-                         
-                          </td>
+                          <td>Gouvernorat</td>
+                          <td className="fw-medium">{personnelDetails.state}</td>
                         </tr>
                         <tr>
-                          <td> Dependance:</td>
+                          <td>Municipalité </td>
                           <td className="fw-medium">
                             {personnelDetails.dependence}
-                         
                           </td>
                         </tr>
-
+                  
                         <tr>
                           <td> Adresse:</td>
                           <td className="fw-medium">

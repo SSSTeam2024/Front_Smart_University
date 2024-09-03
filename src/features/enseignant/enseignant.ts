@@ -103,14 +103,14 @@ export const enseignantSlice = createApi({
         },
         invalidatesTags: ["Enseignant"],
       }),
-        updateEnseignantt: builder.mutation<void, Enseignant>({
-          query: ({ _id, ...rest }) => ({
-            url: `/update-enseignant/${_id}`,
-            method: "PUT",
-            body: rest,
-          }),
-          invalidatesTags: ["Enseignant"],
+      updateEnseignant: builder.mutation<void, Enseignant>({
+        query: ({ _id, ...rest }) => ({
+          url: `/update-enseignant`, // Remove the _id from the URL
+          method: "PUT",
+          body: { _id, ...rest }, // Include _id in the body
         }),
+        invalidatesTags: ["Enseignant"],
+      }),
         deleteEnseignant: builder.mutation<void, string>({
           query: (_id) => ({
             url: `delete-enseignant/${_id}`,
@@ -127,5 +127,5 @@ export const {
   useAddEnseignantMutation,
   useFetchEnseignantsQuery,
   useDeleteEnseignantMutation,
-  useUpdateEnseignanttMutation
+  useUpdateEnseignantMutation
 } = enseignantSlice;

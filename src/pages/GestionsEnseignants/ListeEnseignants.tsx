@@ -74,8 +74,8 @@ const ListEnseignants = () => {
         }
       });
   };
-  const activatedEnseignantsCount = data.filter(enseignant => enseignant.etat_compte?.etat_fr === "Compte Activé").length;
-  const deactivatedEnseignantsCount = data.filter(enseignant => enseignant.etat_compte?.etat_fr === "Compte Désactivé").length;
+  const activatedEnseignantsCount = data.filter(enseignant => enseignant.etat_compte?.etat_fr === "Activé").length;
+  const deactivatedEnseignantsCount = data.filter(enseignant => enseignant.etat_compte?.etat_fr === "Désactivé").length;
 
   const columns = useMemo(
     () => [
@@ -149,13 +149,13 @@ const ListEnseignants = () => {
         accessor: (row: any) => row?.etat_compte?.etat_fr || "",
         Cell: ({ value }: { value: string }) => {
           switch (value) {
-            case "Compte Activé":
+            case "Activé":
               return (
                 <span className="badge bg-success-subtle text-success">
                   {value}
                 </span>
               );
-            case "Compte Désactivé":
+            case "Désactivé":
               return (
                 <span className="badge bg-danger-subtle text-danger">
                   {value}

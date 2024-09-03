@@ -459,7 +459,9 @@ const EditProfilPersonnel = () => {
     PhotoProfilFileBase64String: "",
   });
   const [selectedCountry1, setSelectedCountry1] = useState<any>({});
-  const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">("");
+  const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">(
+    personnel?.state! || ""
+  );
   const [selectedDelegation, setSelectedDelegation] = useState<string>("");
   const [selectedDateDelivrance, setSelectedDateDelivrance] =
     useState<Date | null>(null);
@@ -572,6 +574,9 @@ const EditProfilPersonnel = () => {
 
         fetchImageData();
       }
+      if (personnel.state) {
+        setSelectedWilaya(personnel.state as Wilaya);
+      } 
 
       if (personnel.date_delivrance) {
         setSelectedDateDelivrance(new Date(personnel.date_delivrance));
@@ -596,6 +601,66 @@ const EditProfilPersonnel = () => {
       }
     }
   }, [personnel]);
+
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       console.log("Fetching Personnel data...");
+  //       const response = await fetch(
+  //         `http://localhost:5000/api/personnel/get-personnel/${personnel._id}`
+  //       );
+  //       const data = await response.json();
+  //       console.log("Personnel Data:", data);
+
+  //       setFormData(data);
+  //       if (data.date_naissance) {
+  //         setSelectedDate(new Date(data.date_naissance));
+  //       } else {
+  //         setSelectedDate(null);
+  //       }
+       
+  //       if (data.state) {
+  //         setSelectedWilaya(data.state as Wilaya);
+  //       }
+
+  //       if (!data.PhotoProfilFileBase64String && data.photo_profil) {
+  //         console.log("Fetching photo profile from server...");
+  //         const fetchImageData = async () => {
+  //           try {
+  //             const response = await fetch(
+  //               `http://localhost:5000/files/personnelFiles/PhotoProfil/${data.photo_profil}`
+  //             );
+  //             if (!response.ok) throw new Error("Network response was not ok");
+  
+  //             const blob = await response.blob();
+  //             const reader = new FileReader();
+  //             reader.onloadend = () => {
+  //               const base64String = reader.result as string;
+  //               const base64Data = base64String.split(",")[1];
+  //               const extension = data.photo_profil.split(".").pop();
+  //               console.log("Decoded image data:", base64Data, "with extension:", extension);
+  //               setFormData((prev) => ({
+  //                 ...prev,
+  //                 PhotoProfilFileBase64String: base64Data,
+  //                 PhotoProfilFileExtension: extension,
+  //               }));
+  //             };
+  //             reader.readAsDataURL(blob);
+  //           } catch (error) {
+  //             console.error("Error fetching image data:", error);
+  //           }
+  //         };
+  //         fetchImageData();
+  //       }
+
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [personnel._id]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevState) => ({
@@ -759,18 +824,23 @@ const EditProfilPersonnel = () => {
         [name]: value,
       }));
     }
+    if (name === "state") {
+      setSelectedWilaya(value as Wilaya);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        dependence: "",
+        
+      }));
+    }
   };
 
-  function convertToBase64(
-    file: File
-  ): Promise<{ base64Data: string; extension: string }> {
+  const convertToBase64 = (file: File): Promise<{ base64Data: string; extension: string }> => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.onload = () => {
         const base64String = fileReader.result as string;
-        const base64Data = base64String.split(",")[1]; // Extract only the Base64 data
-        // const [, base64Data] = base64String.split(","); // Extract only the Base64 data
-        const extension = file.name.split(".").pop() ?? ""; // Get the file extension
+        const base64Data = base64String.split(",")[1];
+        const extension = file.name.split(".").pop() || "";
         resolve({ base64Data, extension });
       };
       fileReader.onerror = (error) => {
@@ -778,7 +848,8 @@ const EditProfilPersonnel = () => {
       };
       fileReader.readAsDataURL(file);
     });
-  }
+  };
+  
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -789,7 +860,7 @@ const EditProfilPersonnel = () => {
         const { base64Data, extension } = await convertToBase64(file);
         setFormData((prev) => ({
           ...prev,
-          photo_profil: `${base64Data}.${extension}`, // File name with extension
+          photo_profil: `${file.name}`, // Keep the original file name
           PhotoProfilFileBase64String: base64Data,
           PhotoProfilFileExtension: extension,
         }));
@@ -805,29 +876,11 @@ const EditProfilPersonnel = () => {
       nationalite: country.countryName,
     }));
   };
-  // change state
-  const handleWilayaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const wilaya = event.target.value as Wilaya;
-    setSelectedWilaya(wilaya);
-    setFormData({
-      ...formData,
-      state: wilaya,
-      dependence: "",
-    });
-    setSelectedDelegation("");
-  };
-  // change dependance
-  const handleDelegationChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const delegation = event.target.value;
-    setSelectedDelegation(delegation);
-    setFormData({
-      ...formData,
-      dependence: delegation,
-    });
-  };
 
+  const photoProfilSrc =
+    formData.PhotoProfilFileBase64String && formData.PhotoProfilFileExtension
+      ? `data:image/${formData.PhotoProfilFileExtension};base64,${formData.PhotoProfilFileBase64String}`
+      : ""; // Fallback image
 
   return (
     <React.Fragment>
@@ -863,46 +916,46 @@ const EditProfilPersonnel = () => {
                         >
                           <input type="hidden" id="id-field" />
                           <Row>
-                            <div className="text-center mb-3">
-                              <div
-                                className="position-relative d-inline-block"
-                                style={{ marginBottom: "30px" }}
+                          <div className="text-center mb-3">
+                          <div
+                            className="position-relative d-inline-block"
+                            style={{ marginBottom: "30px" }}
+                          >
+                            <div className="position-absolute top-100 start-100 translate-middle">
+                              <label
+                                htmlFor="PhotoProfilFileBase64String"
+                                className="mb-0"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="right"
+                                title="Choisir Photo Personnel"
                               >
-                                <div className="position-absolute top-100 start-100 translate-middle">
-                                  <label
-                                    htmlFor="PhotoProfilFileBase64String"
-                                    className="mb-0"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="right"
-                                    title="Choisir Photo Personnel"
-                                  >
-                                    <span className="avatar-xs d-inline-block">
-                                      <span className="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
-                                        <i className="ri-image-fill"></i>
-                                      </span>
-                                    </span>
-                                  </label>
-                                  <input
-                                    className="d-none"
-                                    type="file"
-                                    name="PhotoProfilFileBase64String"
-                                    id="PhotoProfilFileBase64String"
-                                    accept="image/*"
-                                    onChange={handleFileUpload}
-                                  />
-                                </div>
+                                <span className="avatar-xs d-inline-block">
+                                  <span className="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                    <i className="ri-image-fill"></i>
+                                  </span>
+                                </span>
+                              </label>
+                              <input
+                                className="d-none"
+                                type="file"
+                                name="PhotoProfilFileBase64String"
+                                id="PhotoProfilFileBase64String"
+                                accept="image/*"
+                                onChange={(e) => handleFileUpload(e)}
+                              />
+                            </div>
+                            <div className="avatar-xl">
+                              <div className="avatar-title bg-light rounded-4">
                                 <img
-                                  src={
-                                    formData.PhotoProfilFileBase64String &&
-                                    formData.PhotoProfilFileExtension
-                                      ? `data:image/${formData.PhotoProfilFileExtension};base64,${formData.PhotoProfilFileBase64String}`
-                                      : "https://via.placeholder.com/150" // Placeholder if no image
-                                  }
-                                  alt={formData.prenom_fr || "Personnel Image"}
+                                  src={photoProfilSrc}
+                                  alt={formData.prenom_fr}
+                                  id="PhotoProfilFileBase64String"
                                   className="avatar-xl h-auto rounded-4 object-fit-cover"
                                 />
                               </div>
                             </div>
+                          </div>
+                        </div>
 
                             <Row>
                               <Col lg={3}>
@@ -1651,17 +1704,17 @@ const EditProfilPersonnel = () => {
                                       }}
                                     >
                                       <label
-                                        htmlFor="المعتمدية"
+                                        htmlFor="dependence"
                                         className="form-label"
                                       >
                                         المعتمدية
                                       </label>
                                       <select
                                         className="form-select text-muted"
-                                        name="المعتمدية"
-                                        id="المعتمدية"
-                                        value={selectedDelegation}
-                                        onChange={handleDelegationChange}
+                                        name="dependence"
+                                        id="dependence"
+                                        value={formData?.dependence}
+                                    onChange={handleSelectChange}
                                         disabled={!selectedWilaya} // Disable if no Wilaya is selected
                                       >
                                         <option value="">إخترالمعتمدية</option>
@@ -1688,17 +1741,17 @@ const EditProfilPersonnel = () => {
                                       }}
                                     >
                                       <label
-                                        htmlFor="الولاية"
+                                        htmlFor="state"
                                         className="form-label"
                                       >
                                         الولاية
                                       </label>
                                       <select
                                         className="form-select text-muted"
-                                        name="الولاية"
-                                        id="الولاية"
-                                        value={selectedWilaya}
-                                        onChange={handleWilayaChange}
+                                        name="state"
+                                        id="state"
+                                        value={formData?.state}
+                                        onChange={handleSelectChange}
                                       >
                                         <option value="">إخترالولاية</option>
                                         {wilayaOptions.map((wilaya, index) => (
