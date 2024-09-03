@@ -27,6 +27,16 @@ const ListPersonnels = () => {
     navigate("/AjouterPersonnel");
   }
   const { data = [] } = useFetchPersonnelsQuery();
+  const [filterStatus, setFilterStatus] = useState("All");
+
+  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterStatus(event.target.value);
+  };
+
+  const filteredPersonnels = useMemo(() => {
+    if (filterStatus === "All") return data;
+    return data.filter(personnel => personnel.etat_compte.etat_fr === filterStatus);
+  }, [data, filterStatus]);
   const [personnelCount, setPersonnelCount] = useState(0);
 
   useEffect(() => {
@@ -154,33 +164,17 @@ const ListPersonnels = () => {
         Header: "Activation",
         disableFilters: true,
         filterable: true,
-        accessor: (row: any) => row?.etat_compte?.etat_fr || "",
-        Cell: ({ value }: { value: string }) => {
+        accessor: (row:any) => row?.etat_compte?.etat_fr || "",
+        Cell: ({ value } : { value: string }) => {
           switch (value) {
             case "Activé":
-              return (
-                <span className="badge bg-success-subtle text-success">
-                  {value}
-                </span>
-              );
+              return <span className="badge bg-success-subtle text-success">{value}</span>;
             case "Désactivé":
-              return (
-                <span className="badge bg-danger-subtle text-danger">
-                  {value}
-                </span>
-              );
-              case "Nouveau":
-                return (
-                  <span className="badge bg-secondary-subtle text-secondary">
-                    {value}
-                  </span>
-                );
+              return <span className="badge bg-danger-subtle text-danger">{value}</span>;
+            case "Nouveau":
+              return <span className="badge bg-secondary-subtle text-secondary">{value}</span>;
             default:
-              return (
-                <span className="badge bg-success-subtle text-info">
-                  {value}
-                </span>
-              );
+              return <span className="badge bg-success-subtle text-info">{value}</span>;
           }
         },
       },
@@ -753,11 +747,14 @@ const ListPersonnels = () => {
                         className="form-select"
                         id="idStatus"
                         name="choices-single-default"
+                        value={filterStatus}
+                        onChange={handleFilterChange}
                       >
                         <option defaultValue="All">Status</option>
-                        <option value="All">tous</option>
-                        <option value="Active">Activé</option>
-                        <option value="Inactive">Desactivé</option>
+                        <option value="All">Tous</option>
+                        <option value="Activé">Activé</option>
+                        <option value="Désactivé">Désactivé</option>
+                        <option value="Nouveau">Nouveau</option>
                       </select>
                     </Col>
                     <Col className="col-lg-auto ms-auto">
@@ -784,7 +781,7 @@ const ListPersonnels = () => {
                   >
                     <TableContainer
                       columns={columns || []}
-                      data={data || []}
+                      data={filteredPersonnels || []}
                       // isGlobalFilter={false}
                       iscustomPageSize={false}
                       isBordered={false}

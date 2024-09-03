@@ -107,9 +107,10 @@ const ListEtudiants = () => {
   document.title = "Liste des étudiants | Smart University";
 
   const navigate = useNavigate();
-
   const [modal_AddEnseignantModals, setmodal_AddEnseignantModals] =
     useState<boolean>(false);
+  const [studentCount, setStudentCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   function tog_AddEnseignantModals() {
     navigate("/AjouterEtudiant");
   }
@@ -117,8 +118,43 @@ const ListEtudiants = () => {
     navigate("/AjouterEtudiant");
   }
   const { data = [] } = useFetchEtudiantsQuery();
+  const [filterStatus, setFilterStatus] = useState("All");
+
+  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterStatus(event.target.value);
+  };
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+
+  const filteredStudents = useMemo(() => {
+    let result = data;
+
+    // Filter by status
+    if (filterStatus !== "All") {
+      result = result.filter(
+        (student) => student.etat_compte.etat_fr === filterStatus
+      );
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      result = result.filter((student) =>
+        [
+          student.num_CIN,
+          `${student.prenom_fr} ${student.nom_fr}`,
+          `${student.prenom_ar} ${student.nom_ar}`,
+          student.groupe_classe?.nom_classe_fr,
+          student.sexe,
+          student.etat_compte?.etat_fr,
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, filterStatus, searchQuery]);
+
   console.log("data", data);
-  const [studentCount, setStudentCount] = useState(0);
 
   useEffect(() => {
     if (data) {
@@ -205,7 +241,7 @@ const ListEtudiants = () => {
       },
       {
         Header: "Nom et Prénom",
-        accessor: (row: any) => `${row.prenom_fr} ${row.nom_fr}`,
+        accessor: (row: any) => `${row.prenom_ar} ${row.nom_ar}`,
         disableFilters: true,
         filterable: true,
       },
@@ -249,24 +285,22 @@ const ListEtudiants = () => {
                   {value}
                 </span>
               );
-              case "Non inscrit":
-                return (
-                  <span className="badge bg-warning-subtle text-warning">
-                    {value}
-                  </span>
-                );
-                case "Retrait Inscrit":
-                  return (
-                    <span className="badge bg-info-subtle text-info">
-                      {value}
-                    </span>
-                  );
-                  case "Mutation":
-                    return (
-                      <span className="badge bg-secondary-subtle text-secondary">
-                        {value}
-                      </span>
-                    );
+            case "Non inscrit":
+              return (
+                <span className="badge bg-warning-subtle text-warning">
+                  {value}
+                </span>
+              );
+            case "Retrait Inscrit":
+              return (
+                <span className="badge bg-info-subtle text-info">{value}</span>
+              );
+            case "Mutation":
+              return (
+                <span className="badge bg-secondary-subtle text-secondary">
+                  {value}
+                </span>
+              );
             default:
               return (
                 <span className="badge bg-success-subtle text-info">
@@ -835,6 +869,8 @@ const ListEtudiants = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
@@ -844,11 +880,18 @@ const ListEtudiants = () => {
                         className="form-select"
                         id="idStatus"
                         name="choices-single-default"
+                        value={filterStatus}
+                        onChange={handleFilterChange}
                       >
                         <option defaultValue="All">Status</option>
-                        <option value="All">tous</option>
-                        <option value="Active">Activé</option>
-                        <option value="Inactive">Desactivé</option>
+                        <option value="All">Tous</option>
+                        <option value="Inscrit / Activé">
+                          Inscrit / Activé
+                        </option>
+                        <option value="Désactivé">Désactivé</option>
+                        <option value="Mutation">Mutation</option>
+                        <option value="Retrait Inscrit">Retrait Inscrit</option>
+                        <option value="Non inscrit">Non inscrit</option>
                       </select>
                     </Col>
                     <Col className="col-lg-auto ms-auto">
@@ -875,7 +918,7 @@ const ListEtudiants = () => {
                   >
                     <TableContainer
                       columns={columns || []}
-                      data={data || []}
+                      data={filteredStudents || []}
                       // isGlobalFilter={false}
                       iscustomPageSize={false}
                       isBordered={false}

@@ -98,15 +98,12 @@ const MyAccount = () => {
     `${fichePaiementPath}${studentDetails?.fiche_paiement}`,
   ];
 
-  const handleShowPdfModal = (fileUrl: string) => {
-    setPdfUrl(fileUrl);
+  const handleShowPdfModal = (file:any) => {
+    setPdfUrl(file);
     setShowPdfModal(true);
   };
 
-  const handleClosePdfModal = () => {
-    setShowPdfModal(false);
-    setPdfUrl("");
-  };
+  const handleClosePdfModal = () => setShowPdfModal(false);
 
   const isImageFile = (url: string) => /\.(jpeg|jpg|gif|png)$/i.test(url);
   const isPDFFile = (url: string) => /\.pdf$/i.test(url);
@@ -520,52 +517,70 @@ const MyAccount = () => {
         <Card>
           <Card.Body>
           <Swiper
-            spaceBetween={10}
-            slidesPerView={3}
-            loop={true}
-            navigation={true}
-            pagination={{ clickable: true }}
-            modules={[Pagination, Navigation]}
-          >
-            {files.map((file, index) => (
-              <SwiperSlide key={index}>
-                {isImageFile(file) ? (
-                  <img
-                    src={file}
-                    alt={`File ${index + 1}`}
-                    style={{ width: "100%", height: "300px" }}
-                  />
-                ) : isPDFFile(file) ? (
-                  <button
-                    onClick={() => handleShowPdfModal(file)}
-                    style={{
-                      width: "100%",
-                      height: "300px",
-                      backgroundColor: "#f0f0f0",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    View PDF {index + 1}
-                  </button>
-                ) : (
-                  <p>Unsupported file format</p>
-                )}
-              </SwiperSlide>
-            ))}
-          </Swiper>
+        spaceBetween={10}
+        slidesPerView={3}
+        loop={true}
+        navigation={true}
+        pagination={{ clickable: true }}
+        modules={[Pagination, Navigation]}
+      >
+        {files.map((file, index) => (
+          <SwiperSlide key={index} style={{ position: "relative" }}>
+            {isImageFile(file) ? (
+              <img
+                src={file}
+                alt={`File ${index + 1}`}
+                style={{ width: "100%", height: "300px" }}
+              />
+            ) : isPDFFile(file) ? (
+              <>
+                <iframe
+                  src={file}
+                  width="100%"
+                  height="300px"
+                  style={{ border: "none" }}
+                  title={`PDF ${index + 1}`}
+                />
+                <button
+                  onClick={() => handleShowPdfModal(file)}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    color: "#fff",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "16px",
+                    zIndex: 10,
+                  }}
+                >
+                  View PDF
+                </button>
+              </>
+            ) : (
+              <p>Unsupported file format</p>
+            )}
+          </SwiperSlide>
+        ))}
+      </Swiper>
           </Card.Body>
         </Card>
       </Col>
 
       {/* Modal for PDF Viewing */}
-      <Modal show={showPdfModal} onHide={handleClosePdfModal} size="lg">
+      <Modal  show={showPdfModal} onHide={handleClosePdfModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Document Viewer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {pdfUrl ? (
-            <iframe src={pdfUrl} width="100%" height="700px" />
+             <iframe src={pdfUrl} width="100%" height="700px" />
           ) : (
             <p>No document to display.</p>
           )}

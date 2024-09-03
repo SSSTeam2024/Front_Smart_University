@@ -22,10 +22,7 @@ import {
 } from "features/etudiant/etudiant";
 import { useFetchEtatsEtudiantQuery } from "features/etatEtudiants/etatEtudiant";
 import { useFetchClassesQuery } from "features/classe/classe";
-import {
-  
-  useFetchTypeInscriptionsEtudiantQuery,
-} from "features/typeInscriptionEtudiant/typeInscriptionEtudiant";
+import { useFetchTypeInscriptionsEtudiantQuery } from "features/typeInscriptionEtudiant/typeInscriptionEtudiant";
 type Wilaya =
   | "اريانة"
   | "بن عروس"
@@ -458,7 +455,7 @@ interface Etudiant {
   filiere: string;
   niveau_scolaire: string;
   annee_scolaire: string;
-   type_inscription: TypeInscriptionEtudiant;
+  type_inscription: TypeInscriptionEtudiant;
   Face1CINFileBase64String: string;
   Face1CINFileExtension: string;
   Face2CINFileBase64String: string;
@@ -475,7 +472,7 @@ export interface TypeInscriptionEtudiant {
   value_type_inscription: string;
   type_ar: string;
   type_fr: string;
-  files_type_inscription:FileDetail[];
+  files_type_inscription: FileDetail[];
 }
 const EditProfilEtudiant = () => {
   document.title = " Modifier Profil Etudiant | Application Smart Institute";
@@ -483,10 +480,11 @@ const EditProfilEtudiant = () => {
   const { state: etudiant } = useLocation();
   const [editEtudiant] = useUpdateEtudiantMutation();
   const { data: etat_compte = [] } = useFetchEtatsEtudiantQuery();
-  const { data: typeInscriptionOptions  = [] } =
+  const { data: typeInscriptionOptions = [] } =
     useFetchTypeInscriptionsEtudiantQuery();
   const { data: groupe_classe = [] } = useFetchClassesQuery();
-  const [studentTypeInscription, setStudentTypeInscription] = useState<TypeInscriptionEtudiant | null>(null);
+  const [studentTypeInscription, setStudentTypeInscription] =
+    useState<TypeInscriptionEtudiant | null>(null);
 
   const [selectedCountry1, setSelectedCountry1] = useState<any>({});
   const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">(
@@ -494,7 +492,8 @@ const EditProfilEtudiant = () => {
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedDateBac, setSelectedDateBac] = useState<Date | null>(null);
-  const [typeInscriptionData, setTypeInscriptionData] = useState<TypeInscriptionEtudiant | null>(null);
+  const [typeInscriptionData, setTypeInscriptionData] =
+    useState<TypeInscriptionEtudiant | null>(null);
 
   const [getTypeInscriptionByIdStudent, { data, isLoading, error }] =
     useGetTypeInscriptionByIdStudentMutation();
@@ -742,7 +741,7 @@ const EditProfilEtudiant = () => {
   //         console.log("Type Inscription Data from student:", data.type_inscription);
   //         setTypeInscriptionData(data.type_inscription);
   //       }
-  
+
   //       // Fetch type inscription by student ID
   //       const result = await getTypeInscriptionByIdStudent({
   //         studentId: etudiant._id,
@@ -758,7 +757,7 @@ const EditProfilEtudiant = () => {
   //               `http://localhost:5000/files/etudiantFiles/PhotoProfil/${data.photo_profil}`
   //             );
   //             if (!response.ok) throw new Error("Network response was not ok");
-  
+
   //             const blob = await response.blob();
   //             const reader = new FileReader();
   //             reader.onloadend = () => {
@@ -788,7 +787,7 @@ const EditProfilEtudiant = () => {
   //               `http://localhost:5000/files/etudiantFiles/Face1CIN/${data.face_1_CIN}`
   //             );
   //             if (!response.ok) throw new Error("Network response was not ok");
-  
+
   //             const blob = await response.blob();
   //             const reader = new FileReader();
   //             reader.onloadend = () => {
@@ -817,7 +816,7 @@ const EditProfilEtudiant = () => {
   //               `http://localhost:5000/files/etudiantFiles/Face2CIN/${data.face_2_CIN}`
   //             );
   //             if (!response.ok) throw new Error("Network response was not ok");
-  
+
   //             const blob = await response.blob();
   //             const reader = new FileReader();
   //             reader.onloadend = () => {
@@ -846,7 +845,7 @@ const EditProfilEtudiant = () => {
   //               `http://localhost:5000/files/etudiantFiles/FichePaiement/${data.fiche_paiement}`
   //             );
   //             if (!response.ok) throw new Error("Network response was not ok");
-  
+
   //             const blob = await response.blob();
   //             const reader = new FileReader();
   //             reader.onloadend = () => {
@@ -883,37 +882,47 @@ const EditProfilEtudiant = () => {
         );
         const data = await response.json();
         console.log("Student Data:", data);
-  
+
         // Setting initial data
         setStudentTypeInscription(data.type_inscription);
         setFormData(data);
-  
+
         // Setting Date Values
-        setSelectedDate(data.date_naissance ? new Date(data.date_naissance) : null);
-        setSelectedDateBac(data.annee_scolaire ? new Date(data.annee_scolaire) : null);
+        setSelectedDate(
+          data.date_naissance ? new Date(data.date_naissance) : null
+        );
+        setSelectedDateBac(
+          data.annee_scolaire ? new Date(data.annee_scolaire) : null
+        );
         setSelectedWilaya(data.state as Wilaya);
         setTypeInscriptionData(data.type_inscription);
-  
+
         // Fetch type inscription by student ID
         const result = await getTypeInscriptionByIdStudent({
           studentId: etudiant._id,
         }).unwrap();
         console.log("Fetched Type Inscription Data:", result);
-        if (result?.type_inscription) setTypeInscriptionData(result.type_inscription);
-  
+        if (result?.type_inscription)
+          setTypeInscriptionData(result.type_inscription);
+
         // Function to fetch image data and convert to base64
         const fetchImageData = async (filePath: string, type: string) => {
           try {
             const response = await fetch(filePath);
             if (!response.ok) throw new Error("Network response was not ok");
-  
+
             const blob = await response.blob();
             const reader = new FileReader();
             reader.onloadend = () => {
               const base64String = reader.result as string;
               const base64Data = base64String.split(",")[1];
               const extension = filePath.split(".").pop();
-              console.log(`Decoded ${type} image data:`, base64Data, "with extension:", extension);
+              console.log(
+                `Decoded ${type} image data:`,
+                base64Data,
+                "with extension:",
+                extension
+              );
               setFormData((prev) => ({
                 ...prev,
                 [`${type}FileBase64String`]: base64Data,
@@ -925,7 +934,7 @@ const EditProfilEtudiant = () => {
             console.error(`Error fetching ${type} image data:`, error);
           }
         };
-  
+
         // Conditionally fetch images
         if (!data.PhotoProfilFileBase64String && data.photo_profil) {
           console.log("Fetching photo profile from server...");
@@ -959,53 +968,59 @@ const EditProfilEtudiant = () => {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
   }, [etudiant._id, getTypeInscriptionByIdStudent]);
   useEffect(() => {
-    if (etudiant._id) {
-      console.log(
-        "Triggering type inscription fetch for student ID:",
-        etudiant._id
-      );
-      getTypeInscriptionByIdStudent({
-        studentId: etudiant._id,
-      })
-        .unwrap()
-        .then((result) => {
-          console.log("Result from type inscription fetch:", result);
-          if (result?.type_inscription) {
-            setTypeInscriptionData(result.type_inscription);
-          }
-        })
-        .catch((err) => {
-          console.error("Error fetching type inscription:", err);
-        });
-    }
+    const fetchData = async () => {
+      try {
+        console.log("Fetching student data...");
+        const response = await fetch(
+          `http://localhost:5000/api/etudiant/get-etudiant/${etudiant._id}`
+        );
+        const data = await response.json();
+        console.log("Student Data:", data);
+
+        setTypeInscriptionData(data.type_inscription);
+        setFormData(data);
+
+        const result = await getTypeInscriptionByIdStudent({
+          studentId: etudiant._id,
+        }).unwrap();
+
+        console.log("Fetched Type Inscription Data:", result);
+        if (result?.type_inscription)
+          setTypeInscriptionData(result.type_inscription);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, [etudiant._id, getTypeInscriptionByIdStudent]);
 
-  const handleFileTypeInscriptionUpload = async (event: any, index: number) => {
-    const file = event.target.files[0];
-    if (file) {
-      const { base64Data, extension } = await convertToBase64(file);
-      const newFile = `${base64Data}.${extension}`;
-  
-      const newObj = {
-        name_ar: "",
-        name_fr: selectedFiles[index],
-        file: newFile,
-        base64String: base64Data,
-        extension: extension,
-      };
-  
-      setNewArray((prevArray) => {
-        const updatedArray = [...prevArray];
-        updatedArray[index] = newObj;
-        return updatedArray;
-      });
-    }
-  };
-  
+  // const handleFileTypeInscriptionUpload = async (event: any, index: number) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const { base64Data, extension } = await convertToBase64(file);
+  //     const newFile = `${base64Data}.${extension}`;
+
+  //     const newObj = {
+  //       name_ar: "",
+  //       name_fr: selectedFiles[index],
+  //       file: newFile,
+  //       base64String: base64Data,
+  //       extension: extension,
+  //     };
+
+  //     setNewArray((prevArray) => {
+  //       const updatedArray = [...prevArray];
+  //       updatedArray[index] = newObj;
+  //       return updatedArray;
+  //     });
+  //   }
+  // };
+
   useEffect(() => {
     setFormData((prevData) => ({
       ...prevData,
@@ -1064,20 +1079,21 @@ const EditProfilEtudiant = () => {
     option: string,
     inscription: TypeInscriptionEtudiant
   ) => {
+    // Set the selected type inscription
     setSelectedOption(option);
-  
+
     const formattedFiles = inscription.files_type_inscription.map((file) => ({
       name_ar: file.name_ar,
       name_fr: file.name_fr,
     }));
-  
-    setFileInputs((prevState) => ({
-      ...prevState,
-      [option]: formattedFiles.map((file) => file.name_fr),
-    }));
-  
-    setselectedFiles(formattedFiles.map((file) => file.name_fr));
-  
+
+    // Update the state with the selected type inscription's files
+    setTypeInscriptionData({
+      ...inscription,
+      files_type_inscription: formattedFiles,
+    });
+
+    // Update form data to reflect changes
     setFormData((prevData) => ({
       ...prevData,
       type_inscription: {
@@ -1086,7 +1102,19 @@ const EditProfilEtudiant = () => {
       },
     }));
   };
-  
+
+  // Handle file upload for type inscription
+  const handleFileTypeInscriptionUpload = (event: any, index: any) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Update the selected files state to include the new file
+    setselectedFiles((prevFiles: any) => {
+      const updatedFiles = [...prevFiles];
+      updatedFiles[index] = file;
+      return updatedFiles;
+    });
+  };
 
   const onChange = (e: any) => {
     const { id, value } = e.target;
@@ -1110,7 +1138,6 @@ const EditProfilEtudiant = () => {
       setFormData((prevFormData) => ({
         ...prevFormData,
         dependence: "",
-        
       }));
     }
   };
@@ -1184,7 +1211,7 @@ const EditProfilEtudiant = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-  
+
     if (name === "etat_compte") {
       setFormData((prev) => ({
         ...prev,
@@ -1197,7 +1224,7 @@ const EditProfilEtudiant = () => {
       const selectedGroupeClasse = groupe_classe.find(
         (classe) => classe._id === value
       );
-  
+
       if (selectedGroupeClasse) {
         setFormData((prev) => ({
           ...prev,
@@ -1206,7 +1233,9 @@ const EditProfilEtudiant = () => {
             // Ensure that 'departement' is a string as expected
             departement: selectedGroupeClasse.departement?._id || "",
             // Transform 'matieres' to an array of strings (ids)
-            matieres: selectedGroupeClasse.matieres.map((matiere) => matiere._id),
+            matieres: selectedGroupeClasse.matieres.map(
+              (matiere) => matiere._id
+            ),
           },
         }));
       } else {
@@ -1222,8 +1251,10 @@ const EditProfilEtudiant = () => {
       }));
     }
   };
-  
-  const convertToBase64 = (file: File): Promise<{ base64Data: string; extension: string }> => {
+
+  const convertToBase64 = (
+    file: File
+  ): Promise<{ base64Data: string; extension: string }> => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.onload = () => {
@@ -1238,7 +1269,6 @@ const EditProfilEtudiant = () => {
       fileReader.readAsDataURL(file);
     });
   };
-  
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -1314,7 +1344,7 @@ const EditProfilEtudiant = () => {
       });
     }
   };
-  
+
   const handleCountrySelect = (country: any) => {
     setSelectedCountry1(country);
     setFormData((prevData) => ({
@@ -1744,7 +1774,7 @@ const EditProfilEtudiant = () => {
                                   </label>
                                   <Form.Control
                                     name="Face2CINFileBase64String"
-                                     onChange={handlePDFCIN2Upload}
+                                    onChange={handlePDFCIN2Upload}
                                     type="file"
                                     id="Face2CINFileBase64String"
                                     accept="*/*"
@@ -1772,7 +1802,7 @@ const EditProfilEtudiant = () => {
                                   </label>
                                   <Form.Control
                                     name="FichePaiementFileBase64String"
-                                     onChange={handlePDFFichePaiementUpload}
+                                    onChange={handlePDFFichePaiementUpload}
                                     type="file"
                                     id="FichePaiementFileBase64String"
                                     accept="*/*"
@@ -2293,65 +2323,93 @@ const EditProfilEtudiant = () => {
                                 </div>
                               </Card.Header>
                               <Card.Body>
-                              <Row style={{ direction: "rtl", textAlign: "right" }}>
-  <Col lg={12}>
-    {typeInscriptionOptions.length > 0 ? (
-      typeInscriptionOptions.map((typeInscription: TypeInscriptionEtudiant) => (
-        <div key={typeInscription._id} className="form-switch mb-2">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            role="switch"
-            id={typeInscription.type_ar}
-            checked={
-              studentTypeInscription?.value_type_inscription ===
-              typeInscription.value_type_inscription
-            }
-            onChange={() =>
-              handleCheckboxChange(
-                typeInscription.value_type_inscription,
-                typeInscription
-              )
-            }
-          />
-          <label
-            className="form-check-label"
-            htmlFor={typeInscription.type_ar}
-            style={{ marginRight: "50px" }}
-          >
-            {typeInscription.type_ar}
-          </label>
-        </div>
-      ))
-    ) : (
-      <p>No type inscription options available</p>
-    )}
-  </Col>
-  {studentTypeInscription?.type_ar && (
-    <Row>
-      {fileInputs[studentTypeInscription.type_ar]?.map((fileLabel, index) => (
-        <Col lg={3} key={index}>
-          <div className="mb-3">
-            <label htmlFor={`fileInput${index}`} className="form-label">
-              {fileLabel}
-            </label>
-            <Form.Control
-              name={`fileInput${index}`}
-              type="file"
-              id={`fileInput${index}`}
-              accept=".pdf"
-              placeholder="Choose File"
-              className="text-muted"
-              onChange={(event) => handleFileTypeInscriptionUpload(event, index)}
-            />
-          </div>
-        </Col>
-      ))}
-    </Row>
-  )}
-</Row>
+                                <Row
+                                  style={{
+                                    direction: "rtl",
+                                    textAlign: "right",
+                                  }}
+                                >
+                                  <Col lg={12}>
+                                    {typeInscriptionOptions.length > 0 ? (
+                                      typeInscriptionOptions.map(
+                                        (
+                                          typeInscription: TypeInscriptionEtudiant
+                                        ) => (
+                                          <div
+                                            key={typeInscription._id}
+                                            className="form-switch mb-2"
+                                          >
+                                            {/* Radio input to select type inscription */}
+                                            <input
+                                              className="form-check-input"
+                                              type="radio"
+                                              role="switch"
+                                              id={typeInscription.type_ar}
+                                              checked={
+                                                typeInscriptionData?.value_type_inscription ===
+                                                typeInscription.value_type_inscription
+                                              }
+                                              onChange={() =>
+                                                handleCheckboxChange(
+                                                  typeInscription.value_type_inscription,
+                                                  typeInscription
+                                                )
+                                              }
+                                            />
+                                            <label
+                                              className="form-check-label"
+                                              htmlFor={typeInscription.type_ar}
+                                              style={{ marginRight: "50px" }}
+                                            >
+                                              {typeInscription.type_ar}
+                                            </label>
+                                          </div>
+                                        )
+                                      )
+                                    ) : (
+                                      <p>
+                                        No type inscription options available
+                                      </p>
+                                    )}
+                                  </Col>
 
-
+                                  {/* Conditionally render file inputs based on the selected type inscription */}
+                                  {typeInscriptionData &&
+                                    typeInscriptionData.files_type_inscription && (
+                                      <Row>
+                                        {typeInscriptionData.files_type_inscription.map(
+                                          (file, index) => (
+                                            <Col lg={3} key={index}>
+                                              <div className="mb-3">
+                                                <label
+                                                  htmlFor={`fileInput${index}`}
+                                                  className="form-label"
+                                                >
+                                                  {file.name_ar} /{" "}
+                                                  {file.name_fr}{" "}
+                                                  {/* Display both Arabic and French names */}
+                                                </label>
+                                                <Form.Control
+                                                  name={`fileInput${index}`}
+                                                  type="file"
+                                                  id={`fileInput${index}`}
+                                                  accept=".pdf"
+                                                  placeholder="Choose File"
+                                                  className="text-muted"
+                                                  onChange={(event) =>
+                                                    handleFileTypeInscriptionUpload(
+                                                      event,
+                                                      index
+                                                    )
+                                                  }
+                                                />
+                                              </div>
+                                            </Col>
+                                          )
+                                        )}
+                                      </Row>
+                                    )}
+                                </Row>
                               </Card.Body>
                             </Card>
                           </>
