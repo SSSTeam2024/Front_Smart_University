@@ -76,6 +76,14 @@ export const ficheVoeuxSlice = createApi({
         }),
         invalidatesTags: ["FicheVoeux"],
       }),
+      updateFicheVoeux: builder.mutation<void, FicheVoeux>({
+        query: ({ _id, ...rest }) => ({
+          url: `/edit-fiche-voeux`, // Remove the _id from the URL
+          method: "PUT",
+          body: { _id, ...rest }, // Include _id in the body
+        }),
+        invalidatesTags: ["FicheVoeux"],
+      }),
 
       //   deleteAssignedMatiereFromClasse: builder.mutation<void, { classeId: string; matiereId: string }>({
       //     query: ({ classeId, matiereId }) => ({
@@ -92,5 +100,5 @@ export const ficheVoeuxSlice = createApi({
   },
 });
 
-export const { useAddFicheVoeuxMutation, useFetchFicheVoeuxsQuery, useDeleteFicheVoeuxMutation } =
+export const { useAddFicheVoeuxMutation, useFetchFicheVoeuxsQuery, useDeleteFicheVoeuxMutation, useUpdateFicheVoeuxMutation } =
   ficheVoeuxSlice;

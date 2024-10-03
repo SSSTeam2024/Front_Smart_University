@@ -4,6 +4,8 @@ export interface Personnel {
   _id: string;
   nom_fr: string;
   nom_ar: string;
+  mat_cnrps:string;
+  matricule:string;
   prenom_fr: string;
   prenom_ar: string;
   lieu_naissance_fr: string;

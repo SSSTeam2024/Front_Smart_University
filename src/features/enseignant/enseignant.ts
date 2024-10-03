@@ -4,6 +4,8 @@ export interface Enseignant {
   _id: string;
   nom_fr: string;
   nom_ar: string;
+  matricule:string;
+  mat_cnrps:string;
   prenom_fr: string;
   prenom_ar: string;
   lieu_naissance_fr: string;

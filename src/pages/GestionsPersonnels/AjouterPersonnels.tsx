@@ -418,6 +418,8 @@ const AjouterPersonnels = () => {
     nom_fr: "",
     nom_ar: "",
     prenom_fr: "",
+    mat_cnrps: "",
+    matricule: "",
     prenom_ar: "",
     lieu_naissance_fr: "",
     lieu_naissance_ar: "",
@@ -1022,6 +1024,34 @@ const AjouterPersonnels = () => {
                             <Row
                               style={{ direction: "rtl", textAlign: "right" }}
                             >
+                              <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="matricule">
+                                    Matricule
+                                  </Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    id="matricule"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.matricule}
+                                  />
+                                </div>
+                              </Col>
+                              <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="mat_cnrps">
+                                    Matricule CNRPS
+                                  </Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    id="mat_cnrps"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.mat_cnrps}
+                                  />
+                                </div>
+                              </Col>
                               <Col lg={3}>
                                 <div
                                   className="mb-3"

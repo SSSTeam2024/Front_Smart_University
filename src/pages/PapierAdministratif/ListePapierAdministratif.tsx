@@ -4,56 +4,55 @@ import {
   Card,
   Col,
   Container,
-  Dropdown,
-  Form,
-  Modal,
   Row,
 } from "react-bootstrap";
 import Breadcrumb from "Common/BreadCrumb";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "Common/TableContainer";
-import { sellerList } from "Common/data";
 import Swal from "sweetalert2";
-import {
-  SpecialiteEnseignant,
-  useDeleteSpecialiteEnseignantMutation,
-  useFetchSpecialitesEnseignantQuery,
-} from "features/specialiteEnseignant/specialiteEnseignant";
+import { TypeInscriptionEtudiant,  useDeleteTypeInscriptionEtudiantMutation, useFetchTypeInscriptionsEtudiantQuery } from "features/typeInscriptionEtudiant/typeInscriptionEtudiant";
+import { PapierAdministratif, useDeletePapierAdministratifMutation, useFetchPapierAdministratifQuery } from "features/papierAdministratif/papierAdministratif";
 
-const ListSpecialiteEnseignants = () => {
-  document.title = "Liste spécialités des enseignants | Smart University";
+
+const ListePapierAdministratifs = () => {
+  document.title =
+    "Liste papier administratifs | Smart University";
 
   const navigate = useNavigate();
 
   const [modal_AddParametreModals, setmodal_AddParametreModals] =
     useState<boolean>(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(event.target.value.toLowerCase());
+    };
   function tog_AddParametreModals() {
     setmodal_AddParametreModals(!modal_AddParametreModals);
   }
-  const [searchQuery, setSearchQuery] = useState("");
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value.toLowerCase());
-  };
 
-  function tog_AddSpecialiteEnseignant() {
-    navigate("/parametre/add-specialite-enseignant");
+  function tog_AddPapierAdministratif() {
+    navigate("/ajoutPapierAdministratif");
   }
-  const { data = [] } = useFetchSpecialitesEnseignantQuery();
-  const filteredSpecialiteEnseignants = useMemo(() => {
-    let result = data;
-    if (searchQuery) {
-      result = result.filter((specialiteEnseignant) =>
-        [
-          specialiteEnseignant.specialite_fr,
-          specialiteEnseignant.specialite_ar,
-          specialiteEnseignant.value_specialite_enseignant,
-        ].some((value) => value && value.toLowerCase().includes(searchQuery))
-      );
-    }
+  const { data = [] } = useFetchPapierAdministratifQuery();
+  console.log(data)
+  const [deletePapierAdministratif] = useDeletePapierAdministratifMutation();
+//   const filteredPapierAdministratifs = useMemo(() => {
+//     let result = data;
 
-    return result;
-  }, [data, searchQuery]);
-  const [deleteSpecialiteEnseignant] = useDeleteSpecialiteEnseignantMutation();
+//     // Filter by search query
+//     if (searchQuery) {
+//       result = result.filter((papier) =>
+//         [
+//             papier.name_ar,
+//             papier.nom_fr,
+          
+//         ].some((value) => value && value.toLowerCase().includes(searchQuery))
+//       );
+//     }
+
+//     return result;
+//   }, [data, searchQuery]);
+
 
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
@@ -63,95 +62,121 @@ const ListSpecialiteEnseignants = () => {
     buttonsStyling: false,
   });
   const AlertDelete = async (_id: string) => {
-    swalWithBootstrapButtons
-      .fire({
-        title: "Êtes-vous sûr?",
-        text: "Vous ne pourrez pas revenir en arrière!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Oui, supprimez-le!",
-        cancelButtonText: "Non, annuler!",
-        reverseButtons: true,
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          deleteSpecialiteEnseignant(_id);
-          swalWithBootstrapButtons.fire(
-            "Supprimé!",
-            "Spécialité enseignant a été supprimé.",
-            "success"
-          );
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          swalWithBootstrapButtons.fire(
-            "Annulé",
-            "Spécialité enseignant est en sécurité :)",
-            "error"
-          );
-        }
-      });
+    const result = await swalWithBootstrapButtons.fire({
+      title: "Êtes-vous sûr?",
+      text: "Vous ne pourrez pas revenir en arrière!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, supprimez-le!",
+      cancelButtonText: "Non, annuler!",
+      reverseButtons: true,
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        await deletePapierAdministratif(_id).unwrap();
+        swalWithBootstrapButtons.fire(
+          "Supprimé!",
+          "Papier Administratif a été supprimé.",
+          "success"
+        );
+      } catch (error) {
+        console.error("Failed to delete Papier Administratif:", error);
+        swalWithBootstrapButtons.fire(
+          "Erreur",
+          "Une erreur est survenue lors de la suppression.",
+          "error"
+        );
+      }
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      swalWithBootstrapButtons.fire(
+        "Annulé",
+        "Papier Administratif est en sécurité :)",
+        "error"
+      );
+    }
   };
+  
+
+  // const flattenData = (data: any[]) => {
+  //   return data.flatMap(item =>
+  //     item.files_papier_administratif.map((file: any) => ({
+  //       nom_ar: file.nom_ar,
+  //       nom_fr: file.nom_fr,
+  //       category: file.category
+  //     }))
+  //   );
+  // };
+  
+  // // Assuming `data` is the initial array
+  // const flattenedData = flattenData(data);
+  
+  
 
   const columns = useMemo(
     () => [
       {
         Header: (
           <div className="form-check">
-            {" "}
             <input
               className="form-check-input"
               type="checkbox"
               id="checkAll"
               value="option"
-            />{" "}
+            />
           </div>
         ),
         Cell: (cellProps: any) => {
           return (
             <div className="form-check">
-              {" "}
               <input
                 className="form-check-input"
                 type="checkbox"
                 name="chk_child"
                 defaultValue="option1"
-              />{" "}
+              />
             </div>
           );
         },
         id: "#",
       },
-
       {
-        Header: "Value",
-        accessor: "value_specialite_enseignant",
-        disableFilters: true,
-        filterable: true,
-      },
-
-      {
-        Header: "Spécialité Enseignant",
-        accessor: "specialite_fr",
+        Header: "Nom (AR)",
+        accessor: "nom_ar",
         disableFilters: true,
         filterable: true,
       },
       {
-        Header: "الإختصاص",
-        accessor: "specialite_ar",
+        Header: "Nom (FR)",
+        accessor: "nom_fr",
         disableFilters: true,
         filterable: true,
       },
-
+      {
+        Header: "Category",
+        accessor: (row: any) => {
+          console.log("Row Data:", row);
+          if (row.category) {
+            return row.category.join(", ");
+          } else {
+            return "No category data";
+          }
+        },
+        disableFilters: true,
+        filterable: true,
+      },
+    
       {
         Header: "Action",
         disableFilters: true,
         filterable: true,
-        accessor: (specialiteEnseignant: SpecialiteEnseignant) => {
+        accessor: (papierAdministratif: any) => {
           return (
             <ul className="hstack gap-2 list-unstyled mb-0">
               <li>
                 <Link
-                  to="/parametre/edit-specialite-enseignant"
-                  state={specialiteEnseignant}
+                  to="/parametre/edit-type-inscription-etudiant"
+                  state={papierAdministratif}
                   className="badge bg-primary-subtle text-primary edit-item-btn"
                 >
                   <i
@@ -188,7 +213,7 @@ const ListSpecialiteEnseignants = () => {
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
-                    onClick={() => AlertDelete(specialiteEnseignant?._id!)}
+                    onClick={() => AlertDelete(papierAdministratif?._id!)}
                   ></i>
                 </Link>
               </li>
@@ -199,15 +224,15 @@ const ListSpecialiteEnseignants = () => {
     ],
     []
   );
+  
+  // Use `flattenedData` as the data source for your table
+  
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid={true}>
-          <Breadcrumb
-            title="Paramètres des enseignants"
-            pageTitle="Liste spécialités des enseignants"
-          />
-
+          <Breadcrumb title="Papier Administratifs" pageTitle="Liste des papiers administratifs" />
+         
           <Row id="sellersList">
             <Col lg={12}>
               <Card>
@@ -224,23 +249,22 @@ const ListSpecialiteEnseignants = () => {
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
-                    </Col>
-
+                    </Col> 
                     <Col className="col-lg-auto ms-auto">
                       <div className="hstack gap-2">
                         <Button
                           variant="primary"
                           className="add-btn"
-                          onClick={() => tog_AddSpecialiteEnseignant()}
+                          onClick={() => tog_AddPapierAdministratif()}
                         >
-                          Ajouter spécialité enseignant
+                          Ajouter papier administratif
                         </Button>
+                      
                       </div>
                     </Col>
                   </Row>
                 </Card.Body>
               </Card>
-
               <Card>
                 <Card.Body className="p-0">
                   {/* <div className="table-responsive table-card mb-1"> */}
@@ -248,18 +272,18 @@ const ListSpecialiteEnseignants = () => {
                     className="table align-middle table-nowrap"
                     id="customerTable"
                   >
-                    <TableContainer
-                      columns={columns || []}
-                      data={filteredSpecialiteEnseignants || []}
-                      // isGlobalFilter={false}
-                      iscustomPageSize={false}
-                      isBordered={false}
-                      customPageSize={10}
-                      className="custom-header-css table align-middle table-nowrap"
-                      tableClass="table-centered align-middle table-nowrap mb-0"
-                      theadClass="text-muted table-light"
-                      SearchPlaceholder="Search Products..."
-                    />
+                     <TableContainer
+                columns={(columns || [])}
+                data={(data || [])}
+                // isGlobalFilter={false}
+                iscustomPageSize={false}
+                isBordered={false}
+                customPageSize={10}
+                className="custom-header-css table align-middle table-nowrap"
+                tableClass="table-centered align-middle table-nowrap mb-0"
+                theadClass="text-muted table-light"
+                SearchPlaceholder='Search Products...'
+            />
                   </table>
                   <div className="noresult" style={{ display: "none" }}>
                     <div className="text-center py-4">
@@ -286,4 +310,4 @@ const ListSpecialiteEnseignants = () => {
   );
 };
 
-export default ListSpecialiteEnseignants;
+export default ListePapierAdministratifs;

@@ -16,11 +16,8 @@ import * as XLSX from "xlsx";
 import FileSaver from "file-saver";
 import TableContainer from "Common/TableContainer";
 import Swal from "sweetalert2";
-import {
-  useDeleteMatiereMutation,
-  useFetchMatiereQuery,
-} from "features/matiere/matiere";
-import { FicheVoeux, useDeleteFicheVoeuxMutation, useFetchFicheVoeuxsQuery } from "features/ficheVoeux/ficheVoeux";
+import {  useDeleteFicheVoeuxMutation } from "features/ficheVoeux/ficheVoeux";
+import { DossierAdministratif, useFetchDossierAdministratifQuery } from "features/dossierAdministratif/dossierAdministratif";
 
 interface Matiere {
   _id: string;
@@ -32,8 +29,8 @@ interface Matiere {
   nbr_elimination: string;
 }
 
-const ListFicheVoeux = () => {
-  document.title = "Liste fiches des voeux enseignants | Smart University";
+const ListeDossierAdministratif = () => {
+  document.title = "Liste dossiers administratifs | Smart University";
 
   const navigate = useNavigate();
   const [matiere, setMatiere] = useState<Matiere[]>([]);
@@ -54,12 +51,17 @@ const ListFicheVoeux = () => {
     XLSX.writeFile(workbook, "Matieres.xlsx");
   };
 
-  function tog_AddMatiere() {
-    navigate("/gestion-fiche-voeux/add-fiche-voeux");
+  function tog_AddDossierAdministratif() {
+    navigate("/AjouterDossierAdministartif");
   }
-  const { data = [] } = useFetchFicheVoeuxsQuery();
+  const { data = [] } = useFetchDossierAdministratifQuery();
 
-  console.log(data);
+  const enseignantDossiers = data.filter(dossier => {
+    // Check if papers exist and if any paper has a category specific to enseignant
+    return dossier.enseignant // Adjust the condition based on your actual category structure
+  });
+
+  console.log("dossiers data",data);
 
   const [deleteFicheVoeux] = useDeleteFicheVoeuxMutation();
 
@@ -105,34 +107,6 @@ const ListFicheVoeux = () => {
   const columns = useMemo(
     () => [
       {
-        Header: (
-          <div className="form-check">
-            {" "}
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="checkAll"
-              value="option"
-            />{" "}
-          </div>
-        ),
-        Cell: (cellProps: any) => {
-          return (
-            <div className="form-check">
-              {" "}
-              <input
-                className="form-check-input"
-                type="checkbox"
-                name="chk_child"
-                defaultValue="option1"
-              />{" "}
-            </div>
-          );
-        },
-        id: "#",
-      },
-
-      {
         Header: "Enseignants",
         accessor: (row: any) =>
           row.enseignant?.prenom_fr + " " + row.enseignant?.nom_fr || "",
@@ -140,47 +114,56 @@ const ListFicheVoeux = () => {
         filterable: true,
       },
       {
-        Header: "Semestre",
-        accessor: "semestre",
-        disableFilters: true,
-        filterable: true,
-      },
-      {
-        Header: "Voeux ",
-        accessor: (cellProps: any) => {
-          return (
-            <ul className="hstack gap-2 list-unstyled mb-0">
-              <li>
-                <Link
-                  to="#"
-                  data-bs-toggle="offcanvas"
-                  className="badge bg-warning-subtle text-body view-item-btn"
-                  onClick={() => {
-                    setShowFicheClasseDetails(cellProps);
-                    setShowFicheClasse(!showFicheClasse);
-                  }}
-                >
-                  {cellProps?.fiche_voeux_classes?.length! || 0}
-                </Link>
-              </li>
-            </ul>
-          );
+        Header: "Papier Administratif",
+        accessor: (row) => {
+         // console.log("Row data:", row);
+         return row.papers ? row.papers.length : 0;
         },
         disableFilters: true,
         filterable: true,
       },
-
+      
+      {
+        Header: "Date de création",
+        accessor: "createdAt",
+        Cell: ({ value }: any) => new Date(value).toLocaleDateString("fr-FR"),
+        disableFilters: true,
+        filterable: true,
+      }
+,      
       {
         Header: "Action",
         disableFilters: true,
         filterable: true,
-        accessor: (ficheVoeux: FicheVoeux) => {
+        accessor: (dossierAdministratif: DossierAdministratif) => {
           return (
             <ul className="hstack gap-2 list-unstyled mb-0">
+               <li>
+                <Link
+                  to="/detailsDossierAdministratif"
+                  className="badge bg-info-subtle text-info view-item-btn"
+                  state={dossierAdministratif}
+                >
+                  <i
+                    className="ph ph-eye"
+                    style={{
+                      transition: "transform 0.3s ease-in-out",
+                      cursor: "pointer",
+                      fontSize: "1.5em",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.4)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
+                  ></i>
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/gestion-fiche-voeux/edit-fiche-voeux"
-                  state={ficheVoeux}
+                  state={dossierAdministratif}
                   className="badge bg-primary-subtle text-primary edit-item-btn"
                 >
                   <i
@@ -217,7 +200,7 @@ const ListFicheVoeux = () => {
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
-                    onClick={() => AlertDelete(ficheVoeux?._id!)}
+                   // onClick={() => AlertDelete(dossierAdministratif?._id!)}
                   ></i>
                 </Link>
               </li>
@@ -306,9 +289,9 @@ const ListFicheVoeux = () => {
                         <Button
                           variant="primary"
                           className="add-btn"
-                          onClick={() => tog_AddMatiere()}
+                          onClick={() => tog_AddDossierAdministratif()}
                         >
-                          Ajouter fiche voeux
+                          Ajouter dossier administratif
                         </Button>
                         {/* <Button
                           variant="primary"
@@ -538,7 +521,7 @@ const ListFicheVoeux = () => {
                   >
                     <TableContainer
                       columns={columns || []}
-                      data={data || []}
+                      data={enseignantDossiers || []}
                       // isGlobalFilter={false}
                       iscustomPageSize={false}
                       isBordered={false}
@@ -570,79 +553,9 @@ const ListFicheVoeux = () => {
           </Row>
         </Container>
       </div>
-      <Offcanvas
-        show={showFicheClasse}
-        onHide={() => setShowFicheClasse(!showFicheClasse)}
-        placement="end"
-      >
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Fiche Voeux</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <div>{showFicheClasseDetails?.semestre!}</div>
-          {showFicheClasseDetails?.fiche_voeux_classes?.map((voeux: any) => (
-            <div className="mt-3">
-              <div className="table-responsive">
-                <table className="table table-borderless">
-                  <tbody>
-                    <tr>
-                      <td>
-                        <span className="text-muted">Classe</span>
-                      </td>
-                      <td>
-                        <span className="fw-medium">
-                          {voeux?.classe?.nom_classe_fr!}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <span className="text-muted">Matières</span>
-                      </td>
-                      <td>
-                        <ul>
-                          {voeux?.matieres?.map((matiere: any) => (
-                            <li>
-                              <span className="fw-medium">
-                                {matiere?.matiere + " " + matiere?.type}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <span className="text-muted">Jours</span>
-                      </td>
-                      <td>
-                        <ul>
-                          {voeux?.jours?.map((jour: any) => (
-                            <li>
-                              <span className="fw-medium">{jour}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <span className="text-muted">Temps</span>
-                      </td>
-                      <td>
-                        <span className="fw-medium">{voeux?.temps}</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <hr style={{ color: "#000", height: "3px" }} />
-              </div>
-            </div>
-          ))}
-        </Offcanvas.Body>
-      </Offcanvas>
+
     </React.Fragment>
   );
 };
 
-export default ListFicheVoeux;
+export default ListeDossierAdministratif;

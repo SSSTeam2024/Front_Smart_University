@@ -24,6 +24,7 @@ const Navdata = () => {
   const [isEnseignant, setIsEnseignant] = useState(false);
   const [isPersonnel, setIsPersonnel] = useState(false);
   const [isActualite, setIsActualite] = useState(false);
+  const [isAdministratifFolder, setIsAdministratifFolder] = useState(false);
   // Multi Level
   const [isLevel1, setIsLevel1] = useState(false);
   const [isLevel2, setIsLevel2] = useState(false);
@@ -32,6 +33,7 @@ const Navdata = () => {
   const [isLevel5, setIsLevel5] = useState(false);
   const [isLevel6, setIsLevel6] = useState(false);
   const [isLevel7, setIsLevel7] = useState(false);
+  const [isLevel8, setIsLevel8] = useState(false);
 
   const [iscurrentState, setIscurrentState] = useState("Dashboard");
 
@@ -109,6 +111,9 @@ const Navdata = () => {
     if (iscurrentState !== "Personnel") {
       setIsPersonnel(false);
     }
+    if (iscurrentState !== "DossierAdministratif") {
+      setIsAdministratifFolder(false);
+    }
   }, [
     iscurrentState,
     isEcommerce,
@@ -125,6 +130,8 @@ const Navdata = () => {
     isEtudiant,
     isEnseignant,
     isPersonnel,
+    isAdministratifFolder
+
   ]);
 
   let routes = [
@@ -168,7 +175,13 @@ const Navdata = () => {
    "/emploi",
    "/gestion-emplois/liste-emplois",
    "/gestion-emplois-classe/liste-emplois-classe",
-   "/emploi-classe"
+   "/emploi-classe",
+  "/ajoutPapierAdministratif",
+  "/papierAdministratif",
+  "/listePapierAdministratif",
+  "/AjouterDossierAdministartif",
+  "/listeDossierAdministartif",
+  "/listeDossierAdministartifPersonnel"
   
 
   ];
@@ -246,161 +259,354 @@ const Navdata = () => {
           parentId: "Gestion-enseignant",
           icon: "bi bi-person-lines-fill",
         },
+        {
+          id: "DossierAdministratif",
+          label: "Dossiers Administratifs",
+          icon: "bi bi-folder2-open",
+          parentId: "DossierAdministratif",
+          link: "/listeDossierAdministartif",
+        },
+        
       ],
     },
-    //gestion personnel
-    {
-      id: "Gestion-Personnel",
-      label: "Gestion Personnels",
-      link: "/Gestion Personnels",
-      icon: "bi bi-person-fill-gear",
-      click: function (e: any) {
-        e.preventDefault();
-        setIsPersonnel(!isPersonnel);
-        setIscurrentState("Personnel");
-        updateIconSidebar(e);
+  //gestion personnel
+  {
+    id: "Gestion-Personnel",
+    label: "Gestion Personnels",
+    link: "/Gestion Personnels",
+    icon: "bi bi-person-fill-gear",
+    click: function (e: any) {
+      e.preventDefault();
+      setIsPersonnel(!isPersonnel);
+      setIscurrentState("Personnel");
+      updateIconSidebar(e);
+    },
+    stateVariables: isPersonnel,
+    subItems: [
+      {
+        id: "AjouterPersonnel",
+        label: "Ajouter un Personnel",
+        link: "/AjouterPersonnel",
+        parentId: "Gestion-Personnel",
+        icon: "bi bi-person-fill-add",
       },
-      stateVariables: isPersonnel,
-      subItems: [
-        {
-          id: "AjouterPersonnel",
-          label: "Ajouter un Personnel",
-          link: "/AjouterPersonnel",
-          parentId: "Gestion-Personnel",
-          icon: "bi bi-person-fill-add",
-        },
-        {
-          id: "GestionPersonnel",
-          label: "Liste Des Personnels",
-          link: "/ListePersonnels",
-          parentId: "Gestion-Personnel",
-          icon: "bi bi-person-lines-fill",
-        },
-      ],
-    },
-    {
-      id: "parametre",
-      label: "Paramètres Comptes",
-      icon: "bi bi-sliders",
-      link: "/#",
-      click: function (e: any) {
-        e.preventDefault();
-        setIsParametre(!isParametre);
-        setIscurrentState("Parametre");
-        updateIconSidebar(e);
+      {
+        id: "GestionPersonnel",
+        label: "Liste Des Personnels",
+        link: "/ListePersonnels",
+        parentId: "Gestion-Personnel",
+        icon: "bi bi-person-lines-fill",
       },
-      stateVariables: isParametre,
-      subItems: [
-        {
-          id: "Etudiants",
-          label: "Etudiants",
-          icon: "bi bi-mortarboard-fill",
-          link: "/parametre/parametre-etudiants",
-          isChildItem: true,
-          click: function (e: any) {
-            e.preventDefault();
-            setIsLevel1(!isLevel1);
-          },
-          stateVariables: isLevel1,
-          childItems: [
-            {
-              id: 1,
-              label: "Etat",
-              link: "/parametre/etat-etudiants",
-              icon: "bi bi-person-fill-exclamation",
-            },
-            {
-              id: 2,
-              label: "Inscription",
-              link: "/parametre/inscription-etudiants",
-              icon: "bi bi-person-plus-fill",
-            },
-          ],
-        },
-        {
-          id: "Enseignants",
-          label: "Enseignants",
-          icon: "bi bi-briefcase-fill",
-          link: "/parametre/parametre-enseignants",
-          isChildItem: true,
-          click: function (e: any) {
-            e.preventDefault();
-            setIsLevel2(!isLevel2);
-          },
-          stateVariables: isLevel2,
-          childItems: [
-            {
-              id: 1,
-              label: "Etat",
-              link: "/parametre/etat-enseignants",
-              icon: "bi bi-person-fill-exclamation",
-            },
-            {
-              id: 2,
-              label: "Grade",
-              link: "/parametre/grade-enseignants",
-              icon: "bi bi-award-fill",
-            },
-            {
-              id: 1,
-              label: "Poste",
-              link: "/parametre/poste-enseignants",
-              icon: "bi bi-book",
-            },
-            {
-              id: 2,
-              label: "Spécialité",
-              link: "/parametre/specialite-enseignants",
-              icon: "bi bi-briefcase-fill",
-            },
-          ],
-        },
-        {
-          id: "Personnels",
-          label: "Personnels",
-          icon: "bi bi-person-workspace",
-          link: "/parametre/parametre-personnels",
-          isChildItem: true,
-          click: function (e: any) {
-            e.preventDefault();
-            setIsLevel3(!isLevel3);
-          },
-          stateVariables: isLevel3,
-          childItems: [
-            {
-              id: 1,
-              label: "Etat",
-              link: "/parametre/etat-personnels",
-              icon: "bi bi-person-fill-exclamation",
-            },
-            {
-              id: 2,
-              label: "Grade",
-              link: "/parametre/grade-personnels",
-              icon: "bi bi-award-fill",
-            },
-            {
-              id: 3,
-              label: "Poste",
-              link: "/parametre/poste-personnels",
-              icon: "bi bi-book",
-            },
-            {
-              id: 4,
-              label: "Catégorie",
-              link: "/parametre/categorie-personnels",
-              icon: "bi bi-grid",
-            },
-            {
-              id: 4,
-              label: "Service",
-              link: "/parametre/service-personnels",
-              icon: "bi bi-gear",
-            },
-          ],
-        },
-      ],
+      {
+        id: "DossierAdministratif",
+        label: "Dossiers Administratifs",
+        icon: "bi bi-folder2-open",
+        parentId: "DossierAdministratif",
+        link: "/listeDossierAdministartifPersonnel",
+      },
+    ],
+  },
+  {
+    id: "parametre",
+    label: "Paramètres Comptes",
+    icon: "bi bi-sliders",
+    link: "/#",
+    click: function (e: any) {
+      e.preventDefault();
+      setIsParametre(!isParametre);
+      setIscurrentState("Parametre");
+      updateIconSidebar(e);
     },
+    stateVariables: isParametre,
+    subItems: [
+      {
+        id: "Etudiants",
+        label: "Etudiants",
+        icon: "bi bi-mortarboard-fill",
+        link: "/parametre/parametre-etudiants",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel1(!isLevel1);
+        },
+        stateVariables: isLevel1,
+        childItems: [
+          {
+            id: 1,
+            label: "Etat",
+            link: "/parametre/etat-etudiants",
+            icon: "bi bi-person-fill-exclamation",
+          },
+          {
+            id: 2,
+            label: "Inscription",
+            link: "/parametre/inscription-etudiants",
+            icon: "bi bi-person-plus-fill",
+          },
+        ],
+      },
+      {
+        id: "Enseignants",
+        label: "Enseignants",
+        icon: "bi bi-briefcase-fill",
+        link: "/parametre/parametre-enseignants",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel2(!isLevel2);
+        },
+        stateVariables: isLevel2,
+        childItems: [
+          {
+            id: 1,
+            label: "Etat",
+            link: "/parametre/etat-enseignants",
+            icon: "bi bi-person-fill-exclamation",
+          },
+          {
+            id: 2,
+            label: "Grade",
+            link: "/parametre/grade-enseignants",
+            icon: "bi bi-award-fill",
+          },
+          {
+            id: 1,
+            label: "Poste",
+            link: "/parametre/poste-enseignants",
+            icon: "bi bi-book",
+          },
+          {
+            id: 2,
+            label: "Spécialité",
+            link: "/parametre/specialite-enseignants",
+            icon: "bi bi-briefcase-fill",
+          },
+        ],
+      },
+      {
+        id: "Personnels",
+        label: "Personnels",
+        icon: "bi bi-person-workspace",
+        link: "/parametre/parametre-personnels",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel3(!isLevel3);
+        },
+        stateVariables: isLevel3,
+        childItems: [
+          {
+            id: 1,
+            label: "Etat",
+            link: "/parametre/etat-personnels",
+            icon: "bi bi-person-fill-exclamation",
+          },
+          {
+            id: 2,
+            label: "Grade",
+            link: "/parametre/grade-personnels",
+            icon: "bi bi-award-fill",
+          },
+          {
+            id: 3,
+            label: "Poste",
+            link: "/parametre/poste-personnels",
+            icon: "bi bi-book",
+          },
+          {
+            id: 4,
+            label: "Catégorie",
+            link: "/parametre/categorie-personnels",
+            icon: "bi bi-grid",
+          },
+          {
+            id: 4,
+            label: "Service",
+            link: "/parametre/service-personnels",
+            icon: "bi bi-gear",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "departement",
+    label: "Gestion Département",
+    icon: "bi bi-house-gear-fill",
+    link: "/departement",
+    click: function (e: any) {
+      e.preventDefault();
+      setIsDeaprtement(!isDeaprtement);
+      setIscurrentState("Departement");
+      updateIconSidebar(e);
+    },
+    stateVariables: isDeaprtement,
+    subItems: [
+      {
+        id: "matieres",
+        label: "Matières",
+        icon: "bi bi-journals",
+        link: "/departement/gestion-matieres",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel1(!isLevel1);
+        },
+        stateVariables: isLevel1,
+        childItems: [
+          {
+            id: 1,
+            label: "Liste Des Matières",
+            link: "/departement/gestion-matieres/liste-matieres",
+            icon: "bi bi-journal-text",
+          },
+        ],
+      },
+      {
+        id: "salles",
+        label: "Gestions Des Salles",
+        icon: "bi bi-door-closed-fill",
+        link: "/departement/gestion-salles",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel2(!isLevel2);
+        },
+        stateVariables: isLevel2,
+        childItems: [
+          {
+            id: 1,
+            label: "Liste Des Salles",
+            link: "/departement/gestion-salles/liste-salles",
+            icon: "bi bi-person-fill-exclamation",
+          },
+          // { id: 1, label: "Ajouter Une Salle", link: "/gestion-salles/Ajout-salle",  icon: "bi bi-person-plus-fill"},
+        ],
+      },
+      {
+        id: "classes",
+        label: "Classes",
+        icon: "bi bi-people-fill",
+        link: "/departement/gestion-classes",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel3(!isLevel3);
+        },
+        stateVariables: isLevel3,
+        childItems: [
+          {
+            id: 1,
+            label: "Liste des classes",
+            link: "/departement/gestion-classes/liste-classes",
+            icon: "bi bi-people-fill",
+          },
+          {
+            id: 1,
+            label: "Listes des niveaux",
+            link: "/departement/gestion-classes/liste-niveau",
+            icon: "bi bi-sliders2-vertical",
+          },
+          {
+            id: 1,
+            label: "listes des séctions",
+            link: "/departement/gestion-classes/liste-section",
+            icon: "bi bi-diagram-3-fill",
+          },
+        ],
+      },
+      {
+        id: "departements",
+        label: "Départements",
+        icon: "bi bi-house-gear-fill",
+        link: "/departements",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel4(!isLevel4);
+        },
+        stateVariables: isLevel4,
+        childItems: [
+          {
+            id: 1,
+            label: "Liste Des Départements",
+            link: "/gestion-departements/liste-departements",
+            icon: "bi bi-diagram-3-fill",
+          },
+          // { id: 1, label: "Ajouter Un Département", link: "/gestion-departements/Ajout-departement",  icon: "bi bi-person-plus-fill"},
+        ],
+      },
+      {
+        id: "emplois-enseignants",
+        label: "Emplois de Temps Enseignants",
+        icon: "bi bi-calendar-week-fill",
+        link: "/emploi",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel5(!isLevel5);
+        },
+        stateVariables: isLevel5,
+        childItems: [
+          {
+            id: 1,
+            label: "Liste Des Emplois",
+            link: "/gestion-emplois/liste-emplois",
+            icon: "bi bi-list-task",
+          },
+          // { id: 1, label: "Ajouter Un Département", link: "/gestion-departements/Ajout-departement",  icon: "bi bi-person-plus-fill"},
+        ],
+      },
+      {
+        id: "emplois-classes",
+        label: "Emplois de Temps Classes",
+        icon: "bi bi-calendar-week-fill",
+        link: "/emploi-classe",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel6(!isLevel6);
+        },
+        stateVariables: isLevel6,
+        childItems: [
+          {
+            id: 1,
+            label: "Liste Des Emplois",
+            link: "/gestion-emplois-classe/liste-emplois-classe",
+            icon: "bi bi-list-task",
+          },
+          // { id: 1, label: "Ajouter Un Département", link: "/gestion-departements/Ajout-departement",  icon: "bi bi-person-plus-fill"},
+        ],
+      },
+      {
+        id: "ficheVoeux",
+        label: "Fiches des Voeux Enseignants",
+        icon: "bi bi-postcard-heart",
+        link: "/Fiches-voeux",
+        isChildItem: true,
+        click: function (e: any) {
+          e.preventDefault();
+          setIsLevel7(!isLevel7);
+        },
+        stateVariables: isLevel7,
+        childItems: [
+          {
+            id: 1,
+            label: "Liste Des Voeux",
+            link: "/gestion-fiche-voeux/liste-fiche-voeux",
+            icon: "bi bi-list-task",
+          },
+          // {
+          //   id: 1,
+          //   label: "Liste Des Emplois",
+          //   link: "/gestion-fiche-voeux/add-fiche-voeux",
+          //   icon: "bi bi-list-task",
+          // },
+        ],
+      },
+  
+    ],
+  },
     {
       id: "departement",
       label: "Gestion Département",
@@ -579,6 +785,11 @@ const Navdata = () => {
     
       ],
     },
+
+
+
+    
+  
 
     //avis etudiants
     {
@@ -799,6 +1010,37 @@ const Navdata = () => {
       icon: "bi bi-link-45deg",
       link: "/permissions",
     },
+    
+    {
+      id: "papier-administratif",
+      label: "Papier Administratif",
+      icon: "bi bi-envelope-paper",
+      link: "/papierAdministratif",
+      click: function (e: any) {
+        e.preventDefault();
+        setIsOrder(!isOrder);
+        setIscurrentState("Orders");
+        updateIconSidebar(e);
+      },
+      stateVariables: isOrder,
+      subItems: [
+        {
+          id: "ListePapier",
+          label: "Liste Papier Administratif",
+          link: "/listePapierAdministratif",
+          parentId: "listePapier",
+          icon: "bi bi-list",
+        },
+        {
+          id: "AjoutPapier",
+          label: "Ajouter Papier Administratif",
+          link: "/ajoutPapierAdministratif",
+          parentId: "ajoutPapier",
+          icon: "bi bi-file-earmark-plus",
+        },
+      ],
+    },
+
   ];
 
   const filteredMenuItems = filterMenuItems(menuItems, routes);

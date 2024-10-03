@@ -29,7 +29,26 @@ const ListGradeEnseignants = () => {
   function tog_AddGradeEnseignant() {
     navigate("/parametre/add-grade-enseignant");
   }
+  const [searchQuery, setSearchQuery] = useState("");
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
   const { data = [] } = useFetchGradesEnseignantQuery();
+
+  const filteredGradeEnseignants = useMemo(() => {
+    let result = data;
+    if (searchQuery) {
+      result = result.filter((gradeEnseignant) =>
+        [
+          gradeEnseignant.grade_ar,
+          gradeEnseignant.grade_fr,
+          gradeEnseignant.value_grade_enseignant,
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, searchQuery]);
   const [deleteGradeEnseignant] = useDeleteGradeEnseignantMutation();
 
   const swalWithBootstrapButtons = Swal.mixin({
@@ -198,21 +217,11 @@ const ListGradeEnseignants = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
-                    </Col>
-                    <Col className="col-lg-auto">
-                      <select
-                        className="form-select"
-                        id="idStatus"
-                        name="choices-single-default"
-                      >
-                        <option defaultValue="All">Status</option>
-                        <option value="All">tous</option>
-                        <option value="Active">Activé</option>
-                        <option value="Inactive">Desactivé</option>
-                      </select>
                     </Col>
                   
                     <Col className="col-lg-auto ms-auto">
@@ -231,84 +240,6 @@ const ListGradeEnseignants = () => {
                 </Card.Body>
               </Card>
 
-              {/* <Modal
-                className="fade modal-fullscreen"
-                show={modal_AddParametreModals}
-                onHide={() => {
-                  tog_AddGradeEnseignant();
-                }}
-                centered
-              >
-                <Modal.Header className="px-4 pt-4" closeButton>
-                  <h5 className="modal-title" id="exampleModalLabel">
-                    Ajouter Grade Enseignant
-                  </h5>
-                </Modal.Header>
-                <Form className="tablelist-form">
-                  <Modal.Body className="p-4">
-                    <div
-                      id="alert-error-msg"
-                      className="d-none alert alert-danger py-2"
-                    ></div>
-                    <input type="hidden" id="id-field" />
-
-                    <div className="mb-3">
-                      <Form.Label htmlFor="seller-name-field">
-                        Valeur
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="seller-name-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <Form.Label htmlFor="item-stock-field">
-                        Grade Enseignant
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="item-stock-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-
-                    <div
-                      className="mb-3"
-                      style={{
-                        direction: "rtl",
-                        textAlign: "right",
-                      }}
-                    >
-                      <Form.Label htmlFor="phone-field">الرتبة</Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="phone-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-                  </Modal.Body>
-                  <div className="modal-footer">
-                    <div className="hstack gap-2 justify-content-end">
-                      <Button
-                        className="btn-ghost-danger"
-                        onClick={() => {
-                          tog_AddParametreModals();
-                        }}
-                      >
-                        Fermer
-                      </Button>
-                      <Button variant="success" id="add-btn">
-                        Ajouter
-                      </Button>
-                    </div>
-                  </div>
-                </Form>
-              </Modal> */}
-
               <Card>
                 <Card.Body className="p-0">
                   {/* <div className="table-responsive table-card mb-1"> */}
@@ -318,7 +249,7 @@ const ListGradeEnseignants = () => {
                   >
                     <TableContainer
                       columns={columns || []}
-                      data={data || []}
+                      data={filteredGradeEnseignants || []}
                       // isGlobalFilter={false}
                       iscustomPageSize={false}
                       isBordered={false}

@@ -876,7 +876,7 @@ const EditProfilEtudiant = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching student data...");
+       // console.log("Fetching student data...");
         const response = await fetch(
           `http://localhost:5000/api/etudiant/get-etudiant/${etudiant._id}`
         );
@@ -901,7 +901,7 @@ const EditProfilEtudiant = () => {
         const result = await getTypeInscriptionByIdStudent({
           studentId: etudiant._id,
         }).unwrap();
-        console.log("Fetched Type Inscription Data:", result);
+        //console.log("Fetched Type Inscription Data:", result);
         if (result?.type_inscription)
           setTypeInscriptionData(result.type_inscription);
 
@@ -917,12 +917,12 @@ const EditProfilEtudiant = () => {
               const base64String = reader.result as string;
               const base64Data = base64String.split(",")[1];
               const extension = filePath.split(".").pop();
-              console.log(
-                `Decoded ${type} image data:`,
-                base64Data,
-                "with extension:",
-                extension
-              );
+              // console.log(
+              //   `Decoded ${type} image data:`,
+              //   base64Data,
+              //   "with extension:",
+              //   extension
+              // );
               setFormData((prev) => ({
                 ...prev,
                 [`${type}FileBase64String`]: base64Data,
@@ -937,31 +937,10 @@ const EditProfilEtudiant = () => {
 
         // Conditionally fetch images
         if (!data.PhotoProfilFileBase64String && data.photo_profil) {
-          console.log("Fetching photo profile from server...");
+          //console.log("Fetching photo profile from server...");
           await fetchImageData(
             `http://localhost:5000/files/etudiantFiles/PhotoProfil/${data.photo_profil}`,
             "PhotoProfil"
-          );
-        }
-        if (!data.Face1CINFileBase64String && data.face_1_CIN) {
-          console.log("Fetching photo cin 1 from server...");
-          await fetchImageData(
-            `http://localhost:5000/files/etudiantFiles/Face1CIN/${data.face_1_CIN}`,
-            "Face1CIN"
-          );
-        }
-        if (!data.Face2CINFileBase64String && data.face_2_CIN) {
-          console.log("Fetching photo cin 2 from server...");
-          await fetchImageData(
-            `http://localhost:5000/files/etudiantFiles/Face2CIN/${data.face_2_CIN}`,
-            "Face2CIN"
-          );
-        }
-        if (!data.FichePaiementFileBase64String && data.fiche_paiement) {
-          console.log("Fetching fiche paiement from server...");
-          await fetchImageData(
-            `http://localhost:5000/files/etudiantFiles/FichePaiement/${data.fiche_paiement}`,
-            "FichePaiement"
           );
         }
       } catch (error) {
@@ -970,16 +949,16 @@ const EditProfilEtudiant = () => {
     };
 
     fetchData();
-  }, [etudiant._id, getTypeInscriptionByIdStudent]);
+  }, [etudiant?._id, getTypeInscriptionByIdStudent]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching student data...");
+       // console.log("Fetching student data...");
         const response = await fetch(
           `http://localhost:5000/api/etudiant/get-etudiant/${etudiant._id}`
         );
         const data = await response.json();
-        console.log("Student Data:", data);
+        //console.log("Student Data:", data);
 
         setTypeInscriptionData(data.type_inscription);
         setFormData(data);
@@ -988,7 +967,7 @@ const EditProfilEtudiant = () => {
           studentId: etudiant._id,
         }).unwrap();
 
-        console.log("Fetched Type Inscription Data:", result);
+        //console.log("Fetched Type Inscription Data:", result);
         if (result?.type_inscription)
           setTypeInscriptionData(result.type_inscription);
       } catch (error) {
@@ -997,29 +976,7 @@ const EditProfilEtudiant = () => {
     };
 
     fetchData();
-  }, [etudiant._id, getTypeInscriptionByIdStudent]);
-
-  // const handleFileTypeInscriptionUpload = async (event: any, index: number) => {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     const { base64Data, extension } = await convertToBase64(file);
-  //     const newFile = `${base64Data}.${extension}`;
-
-  //     const newObj = {
-  //       name_ar: "",
-  //       name_fr: selectedFiles[index],
-  //       file: newFile,
-  //       base64String: base64Data,
-  //       extension: extension,
-  //     };
-
-  //     setNewArray((prevArray) => {
-  //       const updatedArray = [...prevArray];
-  //       updatedArray[index] = newObj;
-  //       return updatedArray;
-  //     });
-  //   }
-  // };
+  }, [etudiant?._id, getTypeInscriptionByIdStudent]);
 
   useEffect(() => {
     setFormData((prevData) => ({
@@ -1028,58 +985,10 @@ const EditProfilEtudiant = () => {
     }));
   }, [newArray]);
 
-  // const handleCheckboxChange = (
-  //   option: string,
-  //   type_inscription: TypeInscriptionEtudiant[]
-  // ) => {
-  //   setSelectedOption(option);
-
-  //   // Ensure the default value structure aligns with your defined types
-  //   const selectedInscription: TypeInscriptionEtudiant = type_inscription.find(
-  //     (inscription) => inscription.type_ar === option
-  //   ) || {
-  //     _id: "",
-  //     value_type_inscription: "",
-  //     type_ar: "",
-  //     type_fr: "",
-  //     files_type_inscription: [],
-  //   };
-
-  //   console.log("selectedInscription", selectedInscription);
-
-  //   // Ensure the files are formatted correctly as per type definition
-  //   const formattedFiles: FileDetail[] =
-  //     selectedInscription.files_type_inscription.map((file) => ({
-  //       name_ar: file.name_ar,
-  //       name_fr: file.name_fr,
-  //     }));
-
-  //   setFileInputs((prevState) => ({
-  //     ...prevState,
-  //     [option]: formattedFiles.map((file) => file.name_fr),
-  //   }));
-
-  //   setselectedFiles(formattedFiles.map((file) => file.name_fr));
-
-  //   // Updating formData with correct typing
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     type_inscription: {
-  //       ...prevData.type_inscription,
-  //       _id: selectedInscription._id,
-  //       value_type_inscription: selectedInscription.value_type_inscription,
-  //       type_ar: selectedInscription.type_ar,
-  //       type_fr: selectedInscription.type_fr,
-  //       files_type_inscription: formattedFiles, // Ensure this matches FileDetail[]
-  //     },
-  //   }));
-  // };
-  // Handle checkbox change for TypeInscription
   const handleCheckboxChange = (
     option: string,
     inscription: TypeInscriptionEtudiant
   ) => {
-    // Set the selected type inscription
     setSelectedOption(option);
 
     const formattedFiles = inscription.files_type_inscription.map((file) => ({
@@ -1087,13 +996,11 @@ const EditProfilEtudiant = () => {
       name_fr: file.name_fr,
     }));
 
-    // Update the state with the selected type inscription's files
     setTypeInscriptionData({
       ...inscription,
       files_type_inscription: formattedFiles,
     });
 
-    // Update form data to reflect changes
     setFormData((prevData) => ({
       ...prevData,
       type_inscription: {
@@ -1103,12 +1010,10 @@ const EditProfilEtudiant = () => {
     }));
   };
 
-  // Handle file upload for type inscription
+
   const handleFileTypeInscriptionUpload = (event: any, index: any) => {
     const file = event.target.files[0];
     if (!file) return;
-
-    // Update the selected files state to include the new file
     setselectedFiles((prevFiles: any) => {
       const updatedFiles = [...prevFiles];
       updatedFiles[index] = file;
@@ -1230,9 +1135,7 @@ const EditProfilEtudiant = () => {
           ...prev,
           groupe_classe: {
             ...selectedGroupeClasse,
-            // Ensure that 'departement' is a string as expected
             departement: selectedGroupeClasse.departement?._id || "",
-            // Transform 'matieres' to an array of strings (ids)
             matieres: selectedGroupeClasse.matieres.map(
               (matiere) => matiere._id
             ),
@@ -1279,7 +1182,7 @@ const EditProfilEtudiant = () => {
         const { base64Data, extension } = await convertToBase64(file);
         setFormData((prev) => ({
           ...prev,
-          photo_profil: `${file.name}`, // Keep the original file name
+          photo_profil: `${file.name}`,
           PhotoProfilFileBase64String: base64Data,
           PhotoProfilFileExtension: extension,
         }));
@@ -1297,7 +1200,7 @@ const EditProfilEtudiant = () => {
     if (file) {
       const { base64Data, extension } = await convertToBase64(file);
       const newPDF = base64Data + "." + extension;
-      console.log(extension);
+     // console.log(extension);
       setFormData({
         ...formData,
         face_1_CIN: newPDF,
@@ -1315,7 +1218,7 @@ const EditProfilEtudiant = () => {
     if (file) {
       const { base64Data, extension } = await convertToBase64(file);
       const newPDF = base64Data + "." + extension;
-      console.log(extension);
+      //console.log(extension);
       setFormData({
         ...formData,
         face_2_CIN: newPDF,
@@ -2299,11 +2202,11 @@ const EditProfilEtudiant = () => {
 
                         <Col lg={12}>
                           <>
-                            {/* Debugging log to verify typeInscriptionData */}
+                            {/* Debugging log to verify typeInscriptionData
                             {console.log(
                               "Type Inscription Data during render:",
                               studentTypeInscription
-                            )}
+                            )} */}
 
                             <Card>
                               <Card.Header>

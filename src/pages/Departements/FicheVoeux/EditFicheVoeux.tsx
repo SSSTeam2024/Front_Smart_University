@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -7,39 +7,77 @@ import {
   Form,
   Row,
 } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import {useLocation, useNavigate } from "react-router-dom";
 import "flatpickr/dist/flatpickr.min.css";
 import Swal from "sweetalert2";
 import { Matiere, useFetchMatiereQuery } from "features/matiere/matiere";
-import { useAddFicheVoeuxMutation, useFetchFicheVoeuxsQuery } from "features/ficheVoeux/ficheVoeux";
+import { useFetchFicheVoeuxsQuery, useUpdateFicheVoeuxMutation } from "features/ficheVoeux/ficheVoeux";
 import Select, { MultiValue } from "react-select";
 import { useFetchClassesQuery } from "features/classe/classe";
 import { useFetchEnseignantsQuery } from "features/enseignant/enseignant";
 
-interface MatiereOption {
-  value: string;
+// Define types for days and options
+type Jour = {
+  _id: number;
+  name: string;
+};
+
+type JourOption = {
+  value: number;
   label: string;
-  type: string;
-  semestre: string;
-  code_matiere: string;
-  volume: string;
-  nbr_elimination: string;
+};
+
+// Define the type for the FicheVoeuxClasse
+interface FicheVoeuxClasse {
+  matieres: string[];
+  jours: string[]; // Assuming it's an array of day IDs
+  temps: string;
+  classe: string;
+  allDays: Jour[];
+  selectedJourOptions: JourOption[];
+  selectedJours: number[];
+  joursArray: number[];
+  filtredJours: Jour[];
+  jourOptions: JourOption[];
+  filteredJoursOptions: JourOption[];
+  consernedClasses: any[]; // Replace with specific type if available
+  selectedSubjectOptions: any[];
+  selectedSubjects: any[];
+  filteredSubjectsOptions: any[];
+  filtredSubjects: any[];
 }
 
-const AddFicheVoeux = () => {
-  document.title = " Ajouter fiche de voeux | Application Smart Institute";
+const EditFicheVoeux = () => {
+  document.title = " Modifier  fiche de voeux | Application Smart Institute";
   const navigate = useNavigate();
 
   function tog_retourParametres() {
     navigate("/gestion-fiche-voeux/liste-fiche-voeux");
   }
+  const { state: ficheVoeux } = useLocation();
+  //console.log("ficheVoeux",ficheVoeux)
 
-  const [createFicheVoeux] = useAddFicheVoeuxMutation();
-  // const [selectedJours, setSelectedJours] = useState<any[]>([]);
-
+  const [editFicheVoeux] = useUpdateFicheVoeuxMutation();
   const { data: allTeachers = [] } = useFetchEnseignantsQuery();
   const { data: allVoeux = [] } = useFetchFicheVoeuxsQuery();
-
+  
+  useEffect(() => {
+   // console.log("Setting form data:", ficheVoeux);
+    if (ficheVoeux) {
+      setFormData({
+        _id: ficheVoeux._id,
+        semestre: ficheVoeux.semestre,
+        enseignant:ficheVoeux.enseignant,
+        fiche_voeux_classes: ficheVoeux.fiche_voeux_classes,
+      });
+    }
+  }, [ficheVoeux]);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
+  };
   const teachersWithoutWishCard = allTeachers.filter(teacher => !allVoeux.some(voeux => voeux.enseignant._id === teacher._id));
 
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
@@ -52,7 +90,6 @@ const AddFicheVoeux = () => {
         jours: [""],
         temps: "",
         classe: "",
-        //Temporary data for days selection
         allDays: [],
         selectedJourOptions: [],
         selectedJours: [],
@@ -60,7 +97,6 @@ const AddFicheVoeux = () => {
         filtredJours: [],
         jourOptions: [],
         filteredJoursOptions: [],
-        //Temporary data for subjects selection
         consernedClasses: [],
         selectedSubjectOptions: [],
         selectedSubjects: [],
@@ -92,7 +128,96 @@ const AddFicheVoeux = () => {
     }
   };
 
+  // const handleTeacherChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   console.log('Selected teacher ID:', e.target.value);
+  //   const selectedTeacherId = e.target.value;
+  
+  //   if (selectedTeacherId !== "") {
+  //     setSelectedTeacherId(selectedTeacherId);
+  
+  //     // Define the days for selection
+  //     const allJours = [
+  //       { _id: 0, name: "Lundi" },
+  //       { _id: 1, name: "Mardi" },
+  //       { _id: 2, name: "Mercredi" },
+  //       { _id: 3, name: "Jeudi" },
+  //       { _id: 4, name: "Vendredi" },
+  //       { _id: 5, name: "Samedi" },
+  //     ];
+  
+  //     setFormData((prevState: any) => {
+  //       console.log('Previous state:', prevState);
+  //       const updatedFicheVoeux: FicheVoeuxClasse[] = [
+  //         ...prevState.fiche_voeux_classes,
+  //       ];
+  
+  //       // Ensure correct mapping of all days (`Jour` type)
+  //       const filtredJours: Jour[] = allJours.map((jour) => jour);
+  //       const jourOptions: JourOption[] = filtredJours.map((jour) => ({
+  //         value: jour._id,
+  //         label: jour.name,
+  //       }));
+  
+  //       const filteredJoursOptions = jourOptions.filter(
+  //         (option) =>
+  //           !updatedFicheVoeux[0]?.selectedJours?.some((jour) => jour === option.value)
+  //       );
+  
+  //       // Find the selected teacher
+  //       const selectedTeacher = teachersWithoutWishCard.find(
+  //         (teacher) => teacher._id === selectedTeacherId
+  //       );
+  
+  //       let classes: any[] = [];
+  
+  //       if (selectedTeacher) {
+  //         if (selectedTeacher.departements?.name_fr === "Tous les départements") {
+  //           classes = allClasses;
+  //         } else {
+  //           classes = allClasses.filter(
+  //             (classItem) =>
+  //               classItem.departement._id === selectedTeacher.departements?._id
+  //           );
+  //         }
+  //       }
+  
+  //       // Correctly typed object conforming to `FicheVoeuxClasse`
+  //       updatedFicheVoeux.splice(0, updatedFicheVoeux.length, {
+  //         classe: "",
+  //         jours: [], // Assuming this is a `number[]`, adjust if it's actually `string[]`
+  //         matieres: [],
+  //         temps: "",
+  //         allDays: allJours,
+  //         selectedJourOptions: [],
+  //         selectedJours: [],
+  //         joursArray: [],
+  //         filtredJours,
+  //         jourOptions,
+  //         filteredJoursOptions,
+  //         consernedClasses: classes,
+  //         selectedSubjectOptions: [],
+  //         selectedSubjects: [],
+  //         filteredSubjectsOptions: [],
+  //         filtredSubjects: [],
+  //       });
+  
+  //       const newState = {
+  //         ...prevState,
+  //         fiche_voeux_classes: updatedFicheVoeux,
+  //         enseignant: {
+  //           _id: selectedTeacherId,
+  //         },
+  //         matieres: [],
+  //       };
+      
+  //       console.log('New state:', newState); // Log new state
+  //       return newState;
+  //     });
+  //   }
+  // };
+  
   const handleTeacherChange = (e: any) => {
+    console.log("e.target.value",e.target.value)
     if (e.target.value !== "") {
       setSelectedTeacherId(e.target.value);
       /*---------------- Days selection ---------------- */
@@ -175,16 +300,7 @@ const AddFicheVoeux = () => {
       });
     }
   };
-
-  const errorAlert = (message: string) => {
-    Swal.fire({
-      position: "center",
-      icon: "error",
-      title: message,
-      showConfirmButton: false,
-      timer: 2000,
-    });
-  };
+  
 
   const clearTemporaryDaysData = (element: any) => {
     delete (element as any).allDays;
@@ -225,7 +341,7 @@ const AddFicheVoeux = () => {
       });
 
       console.log("formData submit fiche voeux", formData);
-      await createFicheVoeux(formData).unwrap();
+      await editFicheVoeux(formData).unwrap();
       notify();
       navigate("/gestion-fiche-voeux/liste-fiche-voeux");
     } catch (error: any) {
@@ -294,11 +410,8 @@ const AddFicheVoeux = () => {
   // console.log("allClasses", allClasses);
 
   const { data: allMatieres = [] } = useFetchMatiereQuery();
-
-  const [consernedClasses, setConsernedClasses] = useState<any[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
   const [selectedMatieres, setSelectedMatieres] = useState<Matiere[]>([]);
-  const [filteredOptions, setFiltredOptions] = useState<any[]>([]);
+
 
   const handleSelectChange = (selectedOptions: any, index: number) => {
     setFormData((prevState) => {
@@ -545,7 +658,7 @@ const AddFicheVoeux = () => {
                           role="switch"
                           id="SwitchCheck6"
                           checked={formData.semestre === "S2"}
-                          onChange={toggleSemestre}
+                          onChange={onChange}
                         />
                         <label
                           className="form-check-label"
@@ -560,12 +673,12 @@ const AddFicheVoeux = () => {
                 <Row>
                   <Col lg={2}>
                     <div className="mb-3">
-                      <Form.Label htmlFor="classe">Enseignant</Form.Label>
+                      <Form.Label htmlFor="enseignant">Enseignant</Form.Label>
                       <select
                         className="form-select text-muted"
-                        name="etat_compte"
-                        id="etat_compte"
-                        value={formData?.enseignant?.nom_fr}
+                        name="enseignant"
+                        id="enseignant"
+                        value={formData?.enseignant?._id || ""}
                         onChange={handleTeacherChange}
                       >
                         <option value="">Sélectionner Enseignant</option>
@@ -676,8 +789,6 @@ const AddFicheVoeux = () => {
                         </Col>
                       </Row>
                     ))}
-
-                    
                     <Row>
                       <Col lg={12}>
                         <Button
@@ -718,4 +829,4 @@ const AddFicheVoeux = () => {
   );
 };
 
-export default AddFicheVoeux;
+export default EditFicheVoeux;

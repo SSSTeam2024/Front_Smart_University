@@ -160,7 +160,16 @@ const ProfilEnseignant = () => {
                                 <td className="fw-medium">
                                   <span className="badge badge-label bg-secondary fs-6">
                                     <i className="mdi mdi-circle-medium"></i>{" "}
-                                    2493600925
+                                    {enseignantDetails.matricule ? enseignantDetails.matricule : "Matricule Non disponible"}
+                                  </span>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Matricule CNRPS</td>
+                                <td className="fw-medium">
+                                  <span className="badge badge-label bg-primary fs-6">
+                                    <i className="mdi mdi-circle-medium"></i>{" "}
+                                    {enseignantDetails.mat_cnrps ? enseignantDetails.mat_cnrps : "Matricule CNRPS Non disponible"}
                                   </span>
                                 </td>
                               </tr>
@@ -223,7 +232,6 @@ const ProfilEnseignant = () => {
                           </td>
                         </tr>
 
-
                         <tr>
                           <td> Adresse:</td>
                           <td className="fw-medium">
@@ -233,7 +241,9 @@ const ProfilEnseignant = () => {
                         </tr>
                         <tr>
                           <td>Gouvernorat</td>
-                          <td className="fw-medium">{enseignantDetails.state}</td>
+                          <td className="fw-medium">
+                            {enseignantDetails.state}
+                          </td>
                         </tr>
                         <tr>
                           <td>Municipalité </td>
@@ -397,31 +407,41 @@ const ProfilEnseignant = () => {
                 </Col>
                 <Col lg={6} className="mt-0">
                   <h5 className="text-muted pb-1 pt-2">Conjoint</h5>
-                  <div className="table-responsive">
-                    <Table className="table-borderless table-sm m-0 p-0 ">
-                      <tbody>
-                        <tr>
-                          <td>Nom du conjoint:</td>
-                          <td className="fw-medium">{enseignantDetails.nom_conjoint}</td>
-                        </tr>
-
-                        <tr>
-                          <td>Profession du conjoint:</td>
-                          <td className="fw-medium">{enseignantDetails.job_conjoint
-                          }</td>
-                        </tr>
-                        <tr>
-                          <td>Nombre des enfants:</td>
-                          <td className="fw-medium">{enseignantDetails.nombre_fils}</td>
-                        </tr>
-                     
-                      </tbody>
-                    </Table>
-                  </div>
+                  {enseignantDetails.nom_conjoint ||
+                  enseignantDetails.job_conjoint ||
+                  enseignantDetails.nombre_fils ? (
+                    <div className="table-responsive">
+                      <Table className="table-borderless table-sm m-0 p-0">
+                        <tbody>
+                          <tr>
+                            <td>Nom du conjoint:</td>
+                            <td className="fw-medium">
+                              {enseignantDetails.nom_conjoint}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Profession du conjoint:</td>
+                            <td className="fw-medium">
+                              {enseignantDetails.job_conjoint}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Nombre des enfants:</td>
+                            <td className="fw-medium">
+                              {enseignantDetails.nombre_fils}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <p className="text-muted">
+                      Les détails du conjoint ne sont pas disponibles.
+                    </p>
+                  )}
                 </Col>
               </Row>
               <Row className="p-2">
-             
                 {/* <Col lg={6}>
                   <h5 className="text-muted pb-1 pt-2"> Baccalauréat</h5>
                   <div className="table-responsive">

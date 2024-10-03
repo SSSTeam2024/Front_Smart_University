@@ -174,6 +174,16 @@ import ProfilPersonnel from "pages/GestionsPersonnels/ProfilPersonnel";
 import EditProfilPersonnel from "pages/GestionsPersonnels/EditProfilPersonnel";
 import EditProfilEnseignant from "pages/GestionsEnseignants/EditProfilEnseignant";
 import EditProfilEtudiant from "pages/GestionsEtudiants/EditProfilEtudiant";
+import EditFicheVoeux from "pages/Departements/FicheVoeux/EditFicheVoeux";
+import AddPapierAdministratif from "pages/PapierAdministratif/AddPapierAministratif";
+import ListePapierAdministratifs from "pages/PapierAdministratif/ListePapierAdministratif";
+import ListeDossierAdministratif from "pages/GestionsEnseignants/Dossieradministratif/ListeDossierAdministratif";
+import AddDossieradministratif from "pages/GestionsEnseignants/Dossieradministratif/AddDossieradministratif";
+import ViewDossierAdministratif from "pages/GestionsEnseignants/Dossieradministratif/ViewDossierAdministratif";
+import AddDossieradministratifPersonnels from "pages/GestionsPersonnels/Dossieradministratif/AddDossierAdministratifPersonnels";
+import ListeDossierAdministratifPersonnels from "pages/GestionsPersonnels/Dossieradministratif/ListeDossierAdministratifPersonnels";
+import ViewDossierAdministratifPersonnel from "pages/GestionsPersonnels/Dossieradministratif/ViewDossierAdministratifPersonnel";
+import EditDossierAdministratifPersonnels from "pages/GestionsPersonnels/Dossieradministratif/EditDossierAdministratif";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
@@ -198,8 +208,8 @@ const authProtectedRoutes = [
   { path: "/AjouterEnseignant", component: <AjouterEnseignant /> },
   //Liste Enseignant
   { path: "/ListeEnseignants", component: <ListEnseignants /> },
-    //modifier Enseignant
-    { path: "/modfierProfilEnseignant", component: <EditProfilEnseignant /> },
+  //modifier Enseignant
+  { path: "/modfierProfilEnseignant", component: <EditProfilEnseignant /> },
 
   //Ajouter Personnel
   { path: "/AjouterPersonnel", component: <AjouterPersonnels /> },
@@ -381,45 +391,65 @@ const authProtectedRoutes = [
   },
 
   // Liste Des Salles
-  { path: "/departement/gestion-salles/liste-salles", component: <ListSalles /> },
-    // add Salle
-    { path: "/departement/gestion-salles/add-salle", component: <AddSalle /> },
-    // edit Salle
-    { path: "/departement/gestion-salles/edit-salle", component: <EditSalle /> },
-
+  {
+    path: "/departement/gestion-salles/liste-salles",
+    component: <ListSalles />,
+  },
+  // add Salle
+  { path: "/departement/gestion-salles/add-salle", component: <AddSalle /> },
+  // edit Salle
+  { path: "/departement/gestion-salles/edit-salle", component: <EditSalle /> },
 
   // Liste Des emplois classes
-  { path: "/gestion-emplois-classe/liste-emplois-classe", component: <ListeEmploisClasse /> },
-    // add emplois classes
-    { path: "/gestion-emplois-classe/gestion-emplois-classe", component: <GestionEmploiClasse /> },
+  {
+    path: "/gestion-emplois-classe/liste-emplois-classe",
+    component: <ListeEmploisClasse />,
+  },
+  // add emplois classes
+  {
+    path: "/gestion-emplois-classe/gestion-emplois-classe",
+    component: <GestionEmploiClasse />,
+  },
 
   // Liste Des Departements
   {
     path: "/gestion-departements/liste-departements",
     component: <ListDepartement />,
   },
- // add Des Departements
- {
-  path: "/gestion-departements/departements/add-departement",
-  component: <AddDepartement />,
-},
- // edit Des Departements
- {
-  path: "/gestion-departements/departements/edit-departement",
-  component: <EditDepartement />,
-},
+  // add Des Departements
+  {
+    path: "/gestion-departements/departements/add-departement",
+    component: <AddDepartement />,
+  },
+  // edit Des Departements
+  {
+    path: "/gestion-departements/departements/edit-departement",
+    component: <EditDepartement />,
+  },
 
-
-// add fiche voeux 
-{ path: "/gestion-fiche-voeux/add-fiche-voeux", component: <AddFicheVoeux /> },
+  // add fiche voeux
+  {
+    path: "/gestion-fiche-voeux/add-fiche-voeux",
+    component: <AddFicheVoeux />,
+  },
   // Liste Des fiches des voeux
-  { path: "/gestion-fiche-voeux/liste-fiche-voeux", component: <ListFicheVoeux /> },
+  {
+    path: "/gestion-fiche-voeux/liste-fiche-voeux",
+    component: <ListFicheVoeux />,
+  },
 
-
+  // modifier fiches des voeux
+  {
+    path: "/gestion-fiche-voeux/edit-fiche-voeux",
+    component: <EditFicheVoeux />,
+  },
   // Liste Des classes
-  { path: "/departement/gestion-classes/liste-classes", component: <ListClasses /> },
-    // add classe
-    { path: "/departement/gestion-classes/add-classe", component: <AddClasse /> },
+  {
+    path: "/departement/gestion-classes/liste-classes",
+    component: <ListClasses />,
+  },
+  // add classe
+  { path: "/departement/gestion-classes/add-classe", component: <AddClasse /> },
 
   //liste Niveau
   {
@@ -439,16 +469,16 @@ const authProtectedRoutes = [
     path: "/departement/gestion-classes/liste-section",
     component: <ListSections />,
   },
-    //add section
-    {
-      path: "/departement/gestion-classes/add-section",
-      component: <AddSection />,
-    },
-     //edit section
-     {
-      path: "/departement/gestion-salles/edit-section",
-      component: <EditSection />,
-    },
+  //add section
+  {
+    path: "/departement/gestion-classes/add-section",
+    component: <AddSection />,
+  },
+  //edit section
+  {
+    path: "/departement/gestion-salles/edit-section",
+    component: <EditSection />,
+  },
 
   // Liste espaces de telechargements
   { path: "/espace-telechargement", component: <ListEspaceTelechargement /> },
@@ -535,7 +565,55 @@ const authProtectedRoutes = [
     path: "/GestionEnseignant/AjouterEnseignant",
     component: <AjouterEnseignant />,
   },
+  //add papier administratif
+  {
+    path: "/ajoutPapierAdministratif",
+    component: <AddPapierAdministratif />,
+  },
+    //liste papier administratifs
+    {
+      path: "/listePapierAdministratif",
+      component: <ListePapierAdministratifs />,
+    },
 
+  //add dossier administratif
+  {
+    path: "/AjouterDossierAdministartif",
+    component: <AddDossieradministratif />,
+  },
+ //liste dossier administratifs
+ {
+  path: "/listeDossierAdministartif",
+  component: <ListeDossierAdministratif />,
+},
+ //view dossier administratifs
+ {
+  path: "/detailsDossierAdministratif",
+  component: <ViewDossierAdministratif />,
+},
+
+  //add dossier administratif personnel
+  {
+    path: "/AjouterDossierAdministartifPersonnel",
+    component: <AddDossieradministratifPersonnels />,
+  },
+ //liste dossier administratifs
+ {
+  path: "/listeDossierAdministartifPersonnel",
+  component: <ListeDossierAdministratifPersonnels />,
+},
+ //view dossier administratifs personnel
+ {
+  path: "/detailsDossierAdministratifPersonnel",
+  component: <ViewDossierAdministratifPersonnel />,
+  
+},
+//edit dossier 
+{
+  path: "/editDossierAdministratifPersonnel",
+  component: <EditDossierAdministratifPersonnels />,
+  
+},
   //Product
   { path: "/products-list", component: <ListView /> },
   { path: "/products-grid", component: <GridView /> },

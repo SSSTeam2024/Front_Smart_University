@@ -19,7 +19,11 @@ const ListCategoriePersonnels = () => {
   document.title = "Liste catégories des personnels | Smart University";
 
   const navigate = useNavigate();
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+  
   const [modal_AddParametreModals, setmodal_AddParametreModals] =
     useState<boolean>(false);
   function tog_AddParametreModals() {
@@ -69,6 +73,21 @@ const ListCategoriePersonnels = () => {
       }
     });
   }
+  const filteredCategoriePersonnels = useMemo(() => {
+    let result = data;
+    if (searchQuery) {
+      result = result.filter((categoriePersonnel) =>
+        [
+          categoriePersonnel.categorie_fr,
+          categoriePersonnel.categorie_ar,
+          categoriePersonnel.value,    
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, searchQuery]);
+
 
   const columns = useMemo(
     () => [
@@ -200,11 +219,13 @@ const ListCategoriePersonnels = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
                     </Col>
-                    <Col className="col-lg-auto">
+                    {/* <Col className="col-lg-auto">
                       <select
                         className="form-select"
                         id="idStatus"
@@ -215,7 +236,7 @@ const ListCategoriePersonnels = () => {
                         <option value="Active">Activé</option>
                         <option value="Inactive">Desactivé</option>
                       </select>
-                    </Col>
+                    </Col> */}
 
                     <Col className="col-lg-auto ms-auto">
                       <div className="hstack gap-2">
@@ -310,7 +331,7 @@ const ListCategoriePersonnels = () => {
                   >
                     <TableContainer
                       columns={columns || []}
-                      data={data || []}
+                      data={filteredCategoriePersonnels || []}
                       // isGlobalFilter={false}
                       iscustomPageSize={false}
                       isBordered={false}

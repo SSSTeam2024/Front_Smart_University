@@ -12,7 +12,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "flatpickr/dist/flatpickr.min.css";
 import Swal from "sweetalert2";
 import { useFetchFicheVoeuxsQuery } from "features/ficheVoeux/ficheVoeux";
-import { useFetchEnseignantsQuery } from "features/enseignant/enseignant";
 import "./GestionEmploiClasse.css";
 import SimpleBar from "simplebar-react";
 
@@ -25,7 +24,7 @@ import {
   useGetSeancesByTeacherMutation,
 } from "features/seance/seance";
 import CustomLoaderForButton from "Common/CustomLoaderForButton/CustomLoaderForButton";
-import CustomLoader from "Common/CustomLoader/CustomLoader";
+
 
 const GestionEmploiClasse = () => {
   document.title = " Gestion emploi classe | Application Smart Institute";

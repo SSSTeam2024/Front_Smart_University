@@ -71,6 +71,28 @@ const ListParametresEtudiants = () => {
         }
       });
   };
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+
+
+  const filteredEtatCompteEtudiants = useMemo(() => {
+    let result = data;
+    if (searchQuery) {
+      result = result.filter((etatCompteEtudiant) =>
+        [
+          etatCompteEtudiant.etat_ar,
+          etatCompteEtudiant.etat_fr,
+          etatCompteEtudiant.value_etat_etudiant,    
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, searchQuery]);
 
   const columns = useMemo(
     () => [
@@ -198,11 +220,13 @@ const ListParametresEtudiants = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
                     </Col>
-                    <Col className="col-lg-auto">
+                    {/* <Col className="col-lg-auto">
                       <select
                         className="form-select"
                         id="idStatus"
@@ -213,7 +237,7 @@ const ListParametresEtudiants = () => {
                         <option value="Active">Activé</option>
                         <option value="Inactive">Desactivé</option>
                       </select>
-                    </Col>
+                    </Col> */}
 
                     <Col className="col-lg-auto ms-auto">
                       <div className="hstack gap-2">
@@ -317,7 +341,7 @@ const ListParametresEtudiants = () => {
                   >
                     <TableContainer
                       columns={columns || []}
-                      data={data || []}
+                      data={filteredEtatCompteEtudiants || []}
                       // isGlobalFilter={false}
                       iscustomPageSize={false}
                       isBordered={false}

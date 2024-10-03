@@ -399,6 +399,8 @@ const EditProfilPersonnel = () => {
     nom_fr: "",
     nom_ar: "",
     prenom_fr: "",
+    mat_cnrps: "",
+    matricule: "",
     prenom_ar: "",
     lieu_naissance_fr: "",
     lieu_naissance_ar: "",
@@ -477,6 +479,8 @@ const EditProfilPersonnel = () => {
       setFormData({
         _id: personnel._id || "",
         nom_fr: personnel.nom_fr || "",
+        mat_cnrps: personnel.mat_cnrps || "",
+        matricule: personnel.matricule || "",
         nom_ar: personnel.nom_ar || "",
         prenom_fr: personnel.prenom_fr || "",
         prenom_ar: personnel.prenom_ar || "",
@@ -576,7 +580,7 @@ const EditProfilPersonnel = () => {
       }
       if (personnel.state) {
         setSelectedWilaya(personnel.state as Wilaya);
-      } 
+      }
 
       if (personnel.date_delivrance) {
         setSelectedDateDelivrance(new Date(personnel.date_delivrance));
@@ -602,7 +606,6 @@ const EditProfilPersonnel = () => {
     }
   }, [personnel]);
 
-
   // useEffect(() => {
   //   const fetchData = async () => {
   //     try {
@@ -619,7 +622,7 @@ const EditProfilPersonnel = () => {
   //       } else {
   //         setSelectedDate(null);
   //       }
-       
+
   //       if (data.state) {
   //         setSelectedWilaya(data.state as Wilaya);
   //       }
@@ -632,7 +635,7 @@ const EditProfilPersonnel = () => {
   //               `http://localhost:5000/files/personnelFiles/PhotoProfil/${data.photo_profil}`
   //             );
   //             if (!response.ok) throw new Error("Network response was not ok");
-  
+
   //             const blob = await response.blob();
   //             const reader = new FileReader();
   //             reader.onloadend = () => {
@@ -675,7 +678,7 @@ const EditProfilPersonnel = () => {
       [name]: value,
     }));
   };
-  
+
   const errorAlert = (message: string) => {
     Swal.fire({
       position: "center",
@@ -693,7 +696,7 @@ const EditProfilPersonnel = () => {
       notify();
       navigate("/ListePersonnels");
     } catch (error: any) {
-    console.log(error)
+      console.log(error);
     }
   };
   // change date delivrance
@@ -829,12 +832,13 @@ const EditProfilPersonnel = () => {
       setFormData((prevFormData) => ({
         ...prevFormData,
         dependence: "",
-        
       }));
     }
   };
 
-  const convertToBase64 = (file: File): Promise<{ base64Data: string; extension: string }> => {
+  const convertToBase64 = (
+    file: File
+  ): Promise<{ base64Data: string; extension: string }> => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.onload = () => {
@@ -849,7 +853,6 @@ const EditProfilPersonnel = () => {
       fileReader.readAsDataURL(file);
     });
   };
-  
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -916,46 +919,46 @@ const EditProfilPersonnel = () => {
                         >
                           <input type="hidden" id="id-field" />
                           <Row>
-                          <div className="text-center mb-3">
-                          <div
-                            className="position-relative d-inline-block"
-                            style={{ marginBottom: "30px" }}
-                          >
-                            <div className="position-absolute top-100 start-100 translate-middle">
-                              <label
-                                htmlFor="PhotoProfilFileBase64String"
-                                className="mb-0"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="right"
-                                title="Choisir Photo Personnel"
+                            <div className="text-center mb-3">
+                              <div
+                                className="position-relative d-inline-block"
+                                style={{ marginBottom: "30px" }}
                               >
-                                <span className="avatar-xs d-inline-block">
-                                  <span className="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
-                                    <i className="ri-image-fill"></i>
-                                  </span>
-                                </span>
-                              </label>
-                              <input
-                                className="d-none"
-                                type="file"
-                                name="PhotoProfilFileBase64String"
-                                id="PhotoProfilFileBase64String"
-                                accept="image/*"
-                                onChange={(e) => handleFileUpload(e)}
-                              />
-                            </div>
-                            <div className="avatar-xl">
-                              <div className="avatar-title bg-light rounded-4">
-                                <img
-                                  src={photoProfilSrc}
-                                  alt={formData.prenom_fr}
-                                  id="PhotoProfilFileBase64String"
-                                  className="avatar-xl h-auto rounded-4 object-fit-cover"
-                                />
+                                <div className="position-absolute top-100 start-100 translate-middle">
+                                  <label
+                                    htmlFor="PhotoProfilFileBase64String"
+                                    className="mb-0"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="right"
+                                    title="Choisir Photo Personnel"
+                                  >
+                                    <span className="avatar-xs d-inline-block">
+                                      <span className="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                        <i className="ri-image-fill"></i>
+                                      </span>
+                                    </span>
+                                  </label>
+                                  <input
+                                    className="d-none"
+                                    type="file"
+                                    name="PhotoProfilFileBase64String"
+                                    id="PhotoProfilFileBase64String"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileUpload(e)}
+                                  />
+                                </div>
+                                <div className="avatar-xl">
+                                  <div className="avatar-title bg-light rounded-4">
+                                    <img
+                                      src={photoProfilSrc}
+                                      alt={formData.prenom_fr}
+                                      id="PhotoProfilFileBase64String"
+                                      className="avatar-xl h-auto rounded-4 object-fit-cover"
+                                    />
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
 
                             <Row>
                               <Col lg={3}>
@@ -1271,6 +1274,34 @@ const EditProfilPersonnel = () => {
                                     textAlign: "right",
                                   }}
                                 >
+                                  <Col lg={3}>
+                                    <div className="mb-3">
+                                      <Form.Label htmlFor="matricule">
+                                        Matricule
+                                      </Form.Label>
+                                      <Form.Control
+                                        type="text"
+                                        id="matricule"
+                                        placeholder=""
+                                        onChange={onChange}
+                                        value={formData.matricule}
+                                      />
+                                    </div>
+                                  </Col>
+                                  <Col lg={3}>
+                                    <div className="mb-3">
+                                      <Form.Label htmlFor="mat_cnrps">
+                                        Matricule CNRPS
+                                      </Form.Label>
+                                      <Form.Control
+                                        type="text"
+                                        id="mat_cnrps"
+                                        placeholder=""
+                                        onChange={onChange}
+                                        value={formData.mat_cnrps}
+                                      />
+                                    </div>
+                                  </Col>
                                   <Col lg={3}>
                                     <div
                                       className="mb-3"
@@ -1714,7 +1745,7 @@ const EditProfilPersonnel = () => {
                                         name="dependence"
                                         id="dependence"
                                         value={formData?.dependence}
-                                    onChange={handleSelectChange}
+                                        onChange={handleSelectChange}
                                         disabled={!selectedWilaya} // Disable if no Wilaya is selected
                                       >
                                         <option value="">إخترالمعتمدية</option>

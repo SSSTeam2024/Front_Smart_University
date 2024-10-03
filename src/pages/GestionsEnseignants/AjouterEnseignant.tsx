@@ -397,9 +397,7 @@ interface GradeOptions {
 const AjouterEnseignant = () => {
   document.title = " Ajouter Enseignant | Application Smart Institute";
   const navigate = useNavigate();
-  const [seletedCountry1, setseletedCountry1] = useState<any>({});
 
-  const [selectedOption, setSelectedOption] = useState<string>("");
   const [selectedWilaya, setSelectedWilaya] = useState<Wilaya | "">("");
   const [selectedCountry1, setSelectedCountry1] = useState<any>({});
   const [selectedDelegation, setSelectedDelegation] = useState<string>("");
@@ -429,6 +427,8 @@ const AjouterEnseignant = () => {
   const [formData, setFormData] = useState<Enseignant>({
     _id: "",
     nom_fr: "",
+    matricule:"",
+    mat_cnrps:"",
     nom_ar: "",
     prenom_fr: "",
     prenom_ar: "",
@@ -1084,6 +1084,34 @@ const AjouterEnseignant = () => {
                           </Card.Header>
                           <Card.Body>
                             <Row>
+                            <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="matricule">
+                                    Matricule
+                                  </Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    id="matricule"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.matricule}
+                                  />
+                                </div>
+                              </Col>
+                              <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="mat_cnrps">
+                                    Matricule CNRPS
+                                  </Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    id="mat_cnrps"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.mat_cnrps}
+                                  />
+                                </div>
+                              </Col>
                               <Col lg={3}>
                                 <div
                                   className="mb-3"
@@ -1219,6 +1247,30 @@ const AjouterEnseignant = () => {
                           </Card.Header>
                           <Card.Body>
                             <Row>
+                            <Col lg={3}>
+                                <div
+                                  style={{
+                                    direction: "rtl",
+                                    textAlign: "right",
+                                  }}
+                                >
+                                  <label
+                                    htmlFor="matricule"
+                                    className="form-label"
+                                  >
+                                   رقم التسجيل
+                                  </label>
+                                  <Form.Control
+                                    type="text"
+                                    id="matricule"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.matricule}
+
+                                    // required
+                                  />
+                                </div>
+                              </Col>
                               <Col lg={3}>
                                 <div
                                   className="mb-3"
@@ -1311,6 +1363,7 @@ const AjouterEnseignant = () => {
                                   />
                                 </div>
                               </Col>
+                           
                             </Row>
                           </Card.Body>
                         </Col>

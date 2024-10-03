@@ -1,18 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Row,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import Breadcrumb from "Common/BreadCrumb";
 import CountUp from "react-countup";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "Common/TableContainer";
 import Swal from "sweetalert2";
 import userImage from "../../assets/images/userImage.jpg";
-import { Enseignant, useDeleteEnseignantMutation, useFetchEnseignantsQuery } from "features/enseignant/enseignant";
+import {
+  Enseignant,
+  useDeleteEnseignantMutation,
+  useFetchEnseignantsQuery,
+} from "features/enseignant/enseignant";
 
 const ListEnseignants = () => {
   document.title = "Liste des enseignants | Smart University";
@@ -21,6 +19,7 @@ const ListEnseignants = () => {
 
   const [modal_AddEnseignantModals, setmodal_AddEnseignantModals] =
     useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState("");
   function tog_AddEnseignantModals() {
     navigate("/AjouterEnseignant");
   }
@@ -29,18 +28,45 @@ const ListEnseignants = () => {
     navigate("/AjouterEnseignant");
   }
   const { data = [] } = useFetchEnseignantsQuery();
+  console.log(data);
   const [filterStatus, setFilterStatus] = useState("All");
-
+  const [enseignantCount, setEnseignantCount] = useState(0);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterStatus(event.target.value);
   };
 
   const filteredEnseignants = useMemo(() => {
-    if (filterStatus === "All") return data;
-    return data.filter(enseignant => enseignant.etat_compte.etat_fr === filterStatus);
-  }, [data, filterStatus]);
-  console.log("data",data)
-  const [enseignantCount, setEnseignantCount] = useState(0);
+    let result = data;
+
+    if (filterStatus !== "All") {
+      result = result.filter(
+        (enseignant) => enseignant.etat_compte.etat_fr === filterStatus
+      );
+    }
+
+    if (searchQuery) {
+      result = result.filter((enseignant) =>
+        [
+          enseignant.matricule,
+          `${enseignant.prenom_fr} ${enseignant.nom_fr}`,
+          `${enseignant.prenom_ar} ${enseignant.nom_ar}`,
+          enseignant.grade?.grade_fr,
+          enseignant.departements?.name_fr,
+          enseignant.specilaite?.specialite_fr,
+          enseignant.mat_cnrps,
+          enseignant.poste.poste_fr,
+          enseignant.sexe,
+          enseignant.etat_compte?.etat_fr,
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, filterStatus, searchQuery]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
 
   useEffect(() => {
     if (data) {
@@ -84,8 +110,12 @@ const ListEnseignants = () => {
         }
       });
   };
-  const activatedEnseignantsCount = data.filter(enseignant => enseignant.etat_compte?.etat_fr === "Activé").length;
-  const deactivatedEnseignantsCount = data.filter(enseignant => enseignant.etat_compte?.etat_fr === "Désactivé").length;
+  const activatedEnseignantsCount = data.filter(
+    (enseignant) => enseignant.etat_compte?.etat_fr === "Activé"
+  ).length;
+  const deactivatedEnseignantsCount = data.filter(
+    (enseignant) => enseignant.etat_compte?.etat_fr === "Désactivé"
+  ).length;
 
   const columns = useMemo(
     () => [
@@ -97,15 +127,15 @@ const ListEnseignants = () => {
           return (
             <div className="d-flex align-items-center gap-2">
               <div className="flex-shrink-0">
-              <img
-            src={`http://localhost:5000/files/enseignantFiles/PhotoProfil/${enseignants.photo_profil}`}
-            alt="etudiant-img"
-            id="photo_profil"
-            className="avatar-xs rounded-circle user-profile-img"
-            onError={(e) => {
-              e.currentTarget.src = userImage;
-            }}
-          />
+                <img
+                  src={`http://localhost:5000/files/enseignantFiles/PhotoProfil/${enseignants.photo_profil}`}
+                  alt="etudiant-img"
+                  id="photo_profil"
+                  className="avatar-xs rounded-circle user-profile-img"
+                  onError={(e) => {
+                    e.currentTarget.src = userImage;
+                  }}
+                />
               </div>
               <div className="flex-grow-1 user_name">
                 {enseignants.nom_fr} {enseignants.prenom_fr}
@@ -116,13 +146,19 @@ const ListEnseignants = () => {
       },
       {
         Header: "Matricule",
-        accessor: "_id",
+        accessor: (row: Enseignant) => row.matricule || "---",
         disableFilters: true,
         filterable: true,
       },
+      // {
+      //   Header: "Matricule CNRPS",
+      //   accessor: (row: Enseignant) => row.mat_cnrps || "---",
+      //   disableFilters: true,
+      //   filterable: true,
+      // },
       {
         Header: "Nom et Prénom",
-        accessor: (row:any) => `${row.prenom_fr} ${row.nom_fr}`,
+        accessor: (row: any) => `${row.prenom_ar} ${row.nom_ar}`,
         disableFilters: true,
         filterable: true,
       },
@@ -130,6 +166,12 @@ const ListEnseignants = () => {
       {
         Header: "Spécialité",
         accessor: (row: any) => row?.specilaite?.specialite_fr || "",
+        disableFilters: true,
+        filterable: true,
+      },
+      {
+        Header: "Poste",
+        accessor: (row: any) => row?.poste?.poste_fr || "",
         disableFilters: true,
         filterable: true,
       },
@@ -155,21 +197,37 @@ const ListEnseignants = () => {
         Header: "Activation",
         disableFilters: true,
         filterable: true,
-        accessor: (row:any) => row?.etat_compte?.etat_fr || "",
-        Cell: ({ value } : { value: string }) => {
+        accessor: (row: any) => row?.etat_compte?.etat_fr || "",
+        Cell: ({ value }: { value: string }) => {
           switch (value) {
             case "Activé":
-              return <span className="badge bg-success-subtle text-success">{value}</span>;
+              return (
+                <span className="badge bg-success-subtle text-success">
+                  {value}
+                </span>
+              );
             case "Désactivé":
-              return <span className="badge bg-danger-subtle text-danger">{value}</span>;
+              return (
+                <span className="badge bg-danger-subtle text-danger">
+                  {value}
+                </span>
+              );
             case "Nouveau":
-              return <span className="badge bg-secondary-subtle text-secondary">{value}</span>;
+              return (
+                <span className="badge bg-secondary-subtle text-secondary">
+                  {value}
+                </span>
+              );
             default:
-              return <span className="badge bg-success-subtle text-info">{value}</span>;
+              return (
+                <span className="badge bg-success-subtle text-info">
+                  {value}
+                </span>
+              );
           }
         },
       },
-      
+
       {
         Header: "Action",
         disableFilters: true,
@@ -196,7 +254,6 @@ const ListEnseignants = () => {
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
-                    
                   ></i>
                 </Link>
               </li>
@@ -400,10 +457,10 @@ const ListEnseignants = () => {
                 <Card.Body className="p-4 z-1 position-relative">
                   <h4 className="fs-22 fw-semibold mb-3">
                     <CountUp
-                       start={0}
-                       end={enseignantCount} 
-                       duration={3}
-                       decimals={0}
+                      start={0}
+                      end={enseignantCount}
+                      duration={3}
+                      decimals={0}
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">
@@ -704,10 +761,10 @@ const ListEnseignants = () => {
                 <Card.Body className="p-4 z-1 position-relative">
                   <h4 className="fs-22 fw-semibold mb-3">
                     <CountUp
-                       start={0}
-                       end={deactivatedEnseignantsCount}
-                       duration={3}
-                       decimals={0}
+                      start={0}
+                      end={deactivatedEnseignantsCount}
+                      duration={3}
+                      decimals={0}
                     />
                   </h4>
                   <p className="mb-0 fw-medium text-uppercase fs-14">
@@ -729,12 +786,14 @@ const ListEnseignants = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
                     </Col>
                     <Col className="col-lg-auto">
-                    <select
+                      <select
                         className="form-select"
                         id="idStatus"
                         name="choices-single-default"

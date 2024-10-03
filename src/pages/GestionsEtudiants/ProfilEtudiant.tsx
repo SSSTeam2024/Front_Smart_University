@@ -29,6 +29,8 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { pdfjs } from "react-pdf";
 import userImage from "../../assets/images/userImage.jpg";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.5.141/pdf.worker.min.js`;
 
@@ -148,6 +150,43 @@ const MyAccount = () => {
 
   console.log("studentdetails", studentDetails);
 
+  const handleExportPDF = () => {
+    const input = document.getElementById("profil-content");
+    
+    if (input) {
+      // Ensure all images are loaded
+      const images = input.getElementsByTagName('img');
+      const promises = [];
+  
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        if (!img.complete) {
+          promises.push(new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+          }));
+        }
+      }
+  
+      // Wait for all images to load before capturing the canvas
+      Promise.all(promises)
+        .then(() => {
+          html2canvas(input, { useCORS: true }).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "mm", "a4");
+            const imgWidth = 210;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+            const filename = `${studentDetails?.prenom_fr}_${studentDetails?.nom_fr}_details.pdf`;
+            pdf.save(filename);
+          });
+        })
+        .catch((error) => console.error("Error loading images: ", error));
+    } else {
+      console.error("Element with id 'profil-content' not found.");
+    }
+  };
+  
   return (
     <React.Fragment>
       <Tab.Container defaultActiveKey="Profil">
@@ -165,19 +204,23 @@ const MyAccount = () => {
           </Nav>
 
           <div className="flex-shrink-0">
-            <Link to="/settings" className="btn btn-success">
+            <Link to="/modifierProfilEtudiant" className="btn btn-success m-1">
               Modifier le profil
             </Link>
+            <Button variant="primary" onClick={handleExportPDF}>
+              Exporter en PDF
+            </Button>
           </div>
         </div>
 
-        <Tab.Content className="text-muted">
+        <Tab.Content className="text-muted" id="profil-content">
           <Tab.Pane eventKey="Profil">
             <Card>
               <Row className="g-0">
                 <Col md={2}>
+               
                   <img
-                    className="rounded-start img-fluid h-70 object-cover m-1"
+                    className="rounded-start img-fluid h-80 object-cover"
                     src={
                       studentDetails.photo_profil
                         ? `http://localhost:5000/files/etudiantFiles/PhotoProfil/${studentDetails.photo_profil}`

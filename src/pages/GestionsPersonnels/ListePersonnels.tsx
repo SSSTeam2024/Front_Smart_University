@@ -19,6 +19,8 @@ const ListPersonnels = () => {
 
   const [modal_AddEnseignantModals, setmodal_AddEnseignantModals] =
     useState<boolean>(false);
+    const [personnelCount, setPersonnelCount] = useState(0);
+    const [searchQuery, setSearchQuery] = useState("");
   function tog_AddEnseignantModals() {
     navigate("/AjouterPersonnel");
   }
@@ -32,12 +34,42 @@ const ListPersonnels = () => {
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterStatus(event.target.value);
   };
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+
 
   const filteredPersonnels = useMemo(() => {
-    if (filterStatus === "All") return data;
-    return data.filter(personnel => personnel.etat_compte.etat_fr === filterStatus);
-  }, [data, filterStatus]);
-  const [personnelCount, setPersonnelCount] = useState(0);
+    let result = data;
+
+    // Filter by status
+    if (filterStatus !== "All") {
+      result = result.filter(
+        (personnel) => personnel.etat_compte.etat_fr === filterStatus
+      );
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      result = result.filter((personnel) =>
+        [
+          personnel._id,
+          `${personnel.prenom_fr} ${personnel.nom_fr}`,
+          `${personnel.prenom_ar} ${personnel.nom_ar}`,
+          personnel.grade?.grade_fr,
+          personnel.service?.service_fr,
+          personnel.poste?.poste_fr,
+          personnel.grade?.grade_fr,
+          personnel.categorie?.categorie_fr,
+          personnel.num_phone1,
+          personnel.sexe,
+          personnel.etat_compte?.etat_fr,
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, filterStatus, searchQuery]);
 
   useEffect(() => {
     if (data) {
@@ -118,13 +150,19 @@ const ListPersonnels = () => {
       },
       {
         Header: "Matricule",
-        accessor: "_id",
+        accessor: (row: Personnel) => row.matricule || "---",
+        disableFilters: true,
+        filterable: true,
+      },
+      {
+        Header: "Matricule CNRPS",
+        accessor: (row: Personnel) => row.mat_cnrps || "---",
         disableFilters: true,
         filterable: true,
       },
       {
         Header: "Nom et Prénom",
-        accessor: (row: any) => `${row.prenom_fr} ${row.nom_fr}`,
+        accessor: (row: any) => `${row.prenom_ar} ${row.nom_ar}`,
         disableFilters: true,
         filterable: true,
       },
@@ -171,8 +209,14 @@ const ListPersonnels = () => {
               return <span className="badge bg-success-subtle text-success">{value}</span>;
             case "Désactivé":
               return <span className="badge bg-danger-subtle text-danger">{value}</span>;
-            case "Nouveau":
+            case "Contractuel":
               return <span className="badge bg-secondary-subtle text-secondary">{value}</span>;
+              case "Retraite":
+                return <span className="badge bg-warning-subtle text-warning">{value}</span>;
+                case "Fin Contrat":
+                  return <span className="badge bg-primary-subtle text-primary">{value}</span>;
+                  case "Coopération":
+                    return <span className="badge bg-info-subtle text-info">{value}</span>;
             default:
               return <span className="badge bg-success-subtle text-info">{value}</span>;
           }
@@ -738,6 +782,8 @@ const ListPersonnels = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>

@@ -12,27 +12,43 @@ import Breadcrumb from "Common/BreadCrumb";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "Common/TableContainer";
 import Swal from "sweetalert2";
-import { PosteEnseignant, useDeletePosteEnseignantMutation, useFetchPostesEnseignantQuery } from "features/posteEnseignant/posteEnseignant";
-
-
+import {
+  PosteEnseignant,
+  useDeletePosteEnseignantMutation,
+  useFetchPostesEnseignantQuery,
+} from "features/posteEnseignant/posteEnseignant";
 
 const ListePostEnseignants = () => {
-  document.title =
-    "Liste postes des enseignants | Smart University";
+  document.title = "Liste postes des enseignants | Smart University";
 
   const navigate = useNavigate();
 
   const [modal_AddParametreModals, setmodal_AddParametreModals] =
     useState<boolean>(false);
-  function tog_AddParametreModals() {
-    setmodal_AddParametreModals(!modal_AddParametreModals);
-  }
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
 
   function tog_AddPosteEnseignant() {
     navigate("/parametre/add-poste-enseignants");
   }
   const { data = [] } = useFetchPostesEnseignantQuery();
+  const filteredPosteEnseignants = useMemo(() => {
+    let result = data;
+    if (searchQuery) {
+      result = result.filter((posteEnseignant) =>
+        [
+          posteEnseignant.poste_ar,
+          posteEnseignant.poste_fr,
+          posteEnseignant.value_poste_enseignant,
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, searchQuery]);
+
   const [deletePosteEnseignant] = useDeletePosteEnseignantMutation();
 
   const swalWithBootstrapButtons = Swal.mixin({
@@ -43,132 +59,151 @@ const ListePostEnseignants = () => {
     buttonsStyling: false,
   });
   const AlertDelete = async (_id: string) => {
-  
     swalWithBootstrapButtons
-    .fire({
-      title: "Êtes-vous sûr?",
-      text: "Vous ne pourrez pas revenir en arrière!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Oui, supprimez-le!",
-      cancelButtonText: "Non, annuler!",
-      reverseButtons: true,
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        deletePosteEnseignant(_id);
-        swalWithBootstrapButtons.fire(
-          "Supprimé!",
-          "Poste enseignant a été supprimé.",
-          "success"
-        );
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        swalWithBootstrapButtons.fire(
-          "Annulé",
-          "Poste enseignant est en sécurité :)",
-          "error"
-        );
-      }
-    });
-  }
-
+      .fire({
+        title: "Êtes-vous sûr?",
+        text: "Vous ne pourrez pas revenir en arrière!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Oui, supprimez-le!",
+        cancelButtonText: "Non, annuler!",
+        reverseButtons: true,
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          deletePosteEnseignant(_id);
+          swalWithBootstrapButtons.fire(
+            "Supprimé!",
+            "Poste enseignant a été supprimé.",
+            "success"
+          );
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          swalWithBootstrapButtons.fire(
+            "Annulé",
+            "Poste enseignant est en sécurité :)",
+            "error"
+          );
+        }
+      });
+  };
 
   const columns = useMemo(
     () => [
-        {
-            Header: (<div className="form-check"> <input className="form-check-input" type="checkbox" id="checkAll" value="option" /> </div>),
-            Cell: (cellProps: any) => {
-                return (<div className="form-check"> <input className="form-check-input" type="checkbox" name="chk_child" defaultValue="option1" /> </div>);
-            },
-            id: '#',
+      {
+        Header: (
+          <div className="form-check">
+            {" "}
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="checkAll"
+              value="option"
+            />{" "}
+          </div>
+        ),
+        Cell: (cellProps: any) => {
+          return (
+            <div className="form-check">
+              {" "}
+              <input
+                className="form-check-input"
+                type="checkbox"
+                name="chk_child"
+                defaultValue="option1"
+              />{" "}
+            </div>
+          );
         },
-      
-        {
-            Header: "Value",
-            accessor: "value_poste_enseignant",
-            disableFilters: true,
-            filterable: true,
+        id: "#",
+      },
+
+      {
+        Header: "Value",
+        accessor: "value_poste_enseignant",
+        disableFilters: true,
+        filterable: true,
+      },
+
+      {
+        Header: "Poste Enseignant",
+        accessor: "poste_fr",
+        disableFilters: true,
+        filterable: true,
+      },
+      {
+        Header: "الخطة الوظيفية",
+        accessor: "poste_ar",
+        disableFilters: true,
+        filterable: true,
+      },
+
+      {
+        Header: "Action",
+        disableFilters: true,
+        filterable: true,
+        accessor: (posteEnseignant: PosteEnseignant) => {
+          return (
+            <ul className="hstack gap-2 list-unstyled mb-0">
+              <li>
+                <Link
+                  to="/parametre/edit-poste-enseignant"
+                  state={posteEnseignant}
+                  className="badge bg-primary-subtle text-primary edit-item-btn"
+                >
+                  <i
+                    className="ph ph-pencil-line"
+                    style={{
+                      transition: "transform 0.3s ease-in-out",
+                      cursor: "pointer",
+                      fontSize: "1.5em",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.2)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
+                  ></i>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="#"
+                  className="badge bg-danger-subtle text-danger remove-item-btn"
+                >
+                  <i
+                    className="ph ph-trash"
+                    style={{
+                      transition: "transform 0.3s ease-in-out",
+                      cursor: "pointer",
+                      fontSize: "1.5em",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.2)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
+                    onClick={() => AlertDelete(posteEnseignant?._id!)}
+                  ></i>
+                </Link>
+              </li>
+            </ul>
+          );
         },
-       
-        {
-            Header: "Poste Enseignant",
-            accessor: "poste_fr",
-            disableFilters: true,
-            filterable: true,
-        },
-        {
-            Header: "الخطة الوظيفية",
-            accessor: "poste_ar",
-            disableFilters: true,
-            filterable: true,
-        },
-      
-        {
-            Header: "Action",
-            disableFilters: true,
-            filterable: true,
-            accessor: (posteEnseignant: PosteEnseignant) => {
-                return (
-                    <ul className="hstack gap-2 list-unstyled mb-0">
-                      <li>
-                        <Link
-                         to="/parametre/edit-poste-enseignant"
-                         state={posteEnseignant}
-                          className="badge bg-primary-subtle text-primary edit-item-btn"
-                    
-                        >
-                          <i
-                            className="ph ph-pencil-line"
-                            style={{
-                              transition: "transform 0.3s ease-in-out",
-                              cursor: "pointer",
-                              fontSize: "1.5em",
-                            }}
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.transform = "scale(1.2)")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.transform = "scale(1)")
-                            }
-                          ></i>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="badge bg-danger-subtle text-danger remove-item-btn"
-                        >
-                          <i
-                            className="ph ph-trash"
-                            style={{
-                              transition: "transform 0.3s ease-in-out",
-                              cursor: "pointer",
-                              fontSize: "1.5em",
-                            }}
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.transform = "scale(1.2)")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.transform = "scale(1)")
-                            }
-                            onClick={() => AlertDelete(posteEnseignant?._id!)}
-                            
-                          ></i>
-                        </Link>
-                      </li>
-                    </ul>
-                  );
-            },
-        },
+      },
     ],
     []
-);
+  );
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid={true}>
-          <Breadcrumb title="Paramètres des enseignants" pageTitle="Liste postes des enseignants" />
-          
+          <Breadcrumb
+            title="Paramètres des enseignants"
+            pageTitle="Liste postes des enseignants"
+          />
+
           <Row id="sellersList">
             <Col lg={12}>
               <Card>
@@ -180,21 +215,11 @@ const ListePostEnseignants = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
-                    </Col>
-                    <Col className="col-lg-auto">
-                      <select
-                        className="form-select"
-                        id="idStatus"
-                        name="choices-single-default"
-                      >
-                        <option defaultValue="All">Status</option>
-                        <option value="All">tous</option>
-                        <option value="Active">Activé</option>
-                        <option value="Inactive">Desactivé</option>
-                      </select>
                     </Col>
                     <Col className="col-lg-auto ms-auto">
                       <div className="hstack gap-2">
@@ -210,85 +235,6 @@ const ListePostEnseignants = () => {
                   </Row>
                 </Card.Body>
               </Card>
-
-              {/* <Modal
-                className="fade modal-fullscreen"
-                show={modal_AddParametreModals}
-                onHide={() => {
-                  tog_AddParametreModals();
-                }}
-                centered
-              >
-                <Modal.Header className="px-4 pt-4" closeButton>
-                  <h5 className="modal-title" id="exampleModalLabel">
-                    Ajouter Poste Enseignant
-                  </h5>
-                </Modal.Header>
-                <Form className="tablelist-form">
-                  <Modal.Body className="p-4">
-                    <div
-                      id="alert-error-msg"
-                      className="d-none alert alert-danger py-2"
-                    ></div>
-                    <input type="hidden" id="id-field" />
-
-                    <div className="mb-3">
-                      <Form.Label htmlFor="seller-name-field">
-                        Valeur
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="seller-name-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <Form.Label htmlFor="item-stock-field">
-                        Poste Enseignant
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="item-stock-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-
-                    <div
-                      className="mb-3"
-                      style={{
-                        direction: "rtl",
-                        textAlign: "right",
-                      }}
-                    >
-                      <Form.Label htmlFor="phone-field">الخطة الوظيفية</Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="phone-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-                  </Modal.Body>
-                  <div className="modal-footer">
-                    <div className="hstack gap-2 justify-content-end">
-                      <Button
-                        className="btn-ghost-danger"
-                        onClick={() => {
-                          tog_AddParametreModals();
-                        }}
-                      >
-                        Fermer
-                      </Button>
-                      <Button variant="success" id="add-btn">
-                        Ajouter
-                      </Button>
-                    </div>
-                  </div>
-                </Form>
-              </Modal> */}
-
               <Card>
                 <Card.Body className="p-0">
                   {/* <div className="table-responsive table-card mb-1"> */}
@@ -297,17 +243,17 @@ const ListePostEnseignants = () => {
                     id="customerTable"
                   >
                     <TableContainer
-                columns={(columns || [])}
-                data={(data || [])}
-                // isGlobalFilter={false}
-                iscustomPageSize={false}
-                isBordered={false}
-                customPageSize={10}
-                className="custom-header-css table align-middle table-nowrap"
-                tableClass="table-centered align-middle table-nowrap mb-0"
-                theadClass="text-muted table-light"
-                SearchPlaceholder='Search Products...'
-            />
+                      columns={columns || []}
+                      data={filteredPosteEnseignants || []}
+                      // isGlobalFilter={false}
+                      iscustomPageSize={false}
+                      isBordered={false}
+                      customPageSize={10}
+                      className="custom-header-css table align-middle table-nowrap"
+                      tableClass="table-centered align-middle table-nowrap mb-0"
+                      theadClass="text-muted table-light"
+                      SearchPlaceholder="Search Products..."
+                    />
                   </table>
                   <div className="noresult" style={{ display: "none" }}>
                     <div className="text-center py-4">
@@ -335,8 +281,3 @@ const ListePostEnseignants = () => {
 };
 
 export default ListePostEnseignants;
-
-
-
-
-    

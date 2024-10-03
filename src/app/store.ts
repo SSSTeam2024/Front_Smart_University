@@ -32,6 +32,8 @@ import { personnelSlice } from "features/personnel/personnel";
 import { ficheVoeuxSlice } from "features/ficheVoeux/ficheVoeux";
 import { seanceSlice } from "features/seance/seance";
 import { disponibiliteSalleSlice } from "features/disponibiliteSalle/disponibiliteSalle";
+import { papierAdministratifSlice } from "features/papierAdministratif/papierAdministratif";
+import { dossierAdministratifSlice } from "features/dossierAdministratif/dossierAdministratif";
 
 
 
@@ -61,6 +63,8 @@ export const store = configureStore({
     [ficheVoeuxSlice.reducerPath]: ficheVoeuxSlice.reducer,
     [seanceSlice.reducerPath]: seanceSlice.reducer,
     [disponibiliteSalleSlice.reducerPath]: disponibiliteSalleSlice.reducer,
+    [papierAdministratifSlice.reducerPath]: papierAdministratifSlice.reducer,
+    [dossierAdministratifSlice.reducerPath]: dossierAdministratifSlice.reducer,
 
     auth: authSlice,
     Layout: LayoutReducer,
@@ -94,6 +98,8 @@ export const store = configureStore({
       ficheVoeuxSlice.middleware,
       seanceSlice.middleware,
       disponibiliteSalleSlice.middleware,
+      papierAdministratifSlice.middleware,
+      dossierAdministratifSlice.middleware 
     ]);
   },
 });

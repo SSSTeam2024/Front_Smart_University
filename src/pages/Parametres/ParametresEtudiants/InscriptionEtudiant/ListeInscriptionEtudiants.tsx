@@ -21,6 +21,10 @@ const ListeInscriptionEtudiants = () => {
 
   const [modal_AddParametreModals, setmodal_AddParametreModals] =
     useState<boolean>(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(event.target.value.toLowerCase());
+    };
   function tog_AddParametreModals() {
     setmodal_AddParametreModals(!modal_AddParametreModals);
   }
@@ -30,6 +34,24 @@ const ListeInscriptionEtudiants = () => {
   }
   const { data = [] } = useFetchTypeInscriptionsEtudiantQuery();
   const [deleteTypeInscriptionEtudiant] = useDeleteTypeInscriptionEtudiantMutation();
+  const filteredTypeInscriptions = useMemo(() => {
+    let result = data;
+
+    // Filter by search query
+    if (searchQuery) {
+      result = result.filter((typeInscription) =>
+        [
+          typeInscription.type_ar,
+          typeInscription.type_fr,
+          typeInscription.value_type_inscription,
+          
+        ].some((value) => value && value.toLowerCase().includes(searchQuery))
+      );
+    }
+
+    return result;
+  }, [data, searchQuery]);
+
 
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
@@ -177,11 +199,13 @@ const ListeInscriptionEtudiants = () => {
                           type="text"
                           className="form-control search"
                           placeholder="Chercher..."
+                          value={searchQuery}
+                          onChange={handleSearchChange}
                         />
                         <i className="ri-search-line search-icon"></i>
                       </div>
                     </Col>
-                    <Col className="col-lg-auto">
+                    {/* <Col className="col-lg-auto">
                       <select
                         className="form-select"
                         id="idStatus"
@@ -192,7 +216,7 @@ const ListeInscriptionEtudiants = () => {
                         <option value="Active">Activé</option>
                         <option value="Inactive">Desactivé</option>
                       </select>
-                    </Col>
+                    </Col> */}
                   
                     <Col className="col-lg-auto ms-auto">
                       <div className="hstack gap-2">
@@ -299,7 +323,7 @@ const ListeInscriptionEtudiants = () => {
                   >
                      <TableContainer
                 columns={(columns || [])}
-                data={(data || [])}
+                data={(filteredTypeInscriptions || [])}
                 // isGlobalFilter={false}
                 iscustomPageSize={false}
                 isBordered={false}

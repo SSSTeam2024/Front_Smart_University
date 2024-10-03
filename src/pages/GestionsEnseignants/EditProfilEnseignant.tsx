@@ -399,6 +399,8 @@ const EditProfilEnseignant = () => {
     _id: "",
     nom_fr: "",
     nom_ar: "",
+    matricule:"",
+    mat_cnrps:"",
     prenom_fr: "",
     prenom_ar: "",
     lieu_naissance_fr: "",
@@ -502,6 +504,8 @@ const EditProfilEnseignant = () => {
       setFormData({
         _id: enseignant._id || "",
         nom_fr: enseignant.nom_fr || "",
+        matricule:enseignant.matricule || "" ,
+        mat_cnrps:enseignant.mat_cnrps || "" ,
         nom_ar: enseignant.nom_ar || "",
         prenom_fr: enseignant.prenom_fr || "",
         prenom_ar: enseignant.prenom_ar || "",
@@ -1314,6 +1318,34 @@ const EditProfilEnseignant = () => {
                           </Card.Header>
                           <Card.Body>
                             <Row>
+                            <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="matricule">
+                                    Matricule
+                                  </Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    id="matricule"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.matricule}
+                                  />
+                                </div>
+                              </Col>
+                              <Col lg={3}>
+                                <div className="mb-3">
+                                  <Form.Label htmlFor="mat_cnrps">
+                                    Matricule CNRPS
+                                  </Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    id="mat_cnrps"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.mat_cnrps}
+                                  />
+                                </div>
+                              </Col>
                               <Col lg={3}>
                                 <div
                                   className="mb-3"
@@ -1449,6 +1481,30 @@ const EditProfilEnseignant = () => {
                               </Card.Header>
                               <Card.Body>
                                 <Row>
+                                <Col lg={3}>
+                                <div
+                                  style={{
+                                    direction: "rtl",
+                                    textAlign: "right",
+                                  }}
+                                >
+                                  <label
+                                    htmlFor="matricule"
+                                    className="form-label"
+                                  >
+                                   رقم التسجيل
+                                  </label>
+                                  <Form.Control
+                                    type="text"
+                                    id="matricule"
+                                    placeholder=""
+                                    onChange={onChange}
+                                    value={formData.matricule}
+
+                                    // required
+                                  />
+                                </div>
+                              </Col>
                                   <Col lg={3}>
                                     <div
                                       className="mb-3"

@@ -55,10 +55,10 @@ const ProfilPersonnel = () => {
   };
   const location = useLocation();
   const personnelDetails = location.state;
-  console.log("personnelDetails",personnelDetails);
+  console.log("personnelDetails", personnelDetails);
 
-    //Poste personnel
-    const postePersonnelFR =
+  //Poste personnel
+  const postePersonnelFR =
     typeof personnelDetails?.poste! === "object"
       ? personnelDetails?.poste?.poste_fr!
       : personnelDetails?.poste!;
@@ -134,8 +134,8 @@ const ProfilPersonnel = () => {
             <Card>
               <Row className="g-0">
                 <Col md={2}>
-                <img
-                    className="rounded-start img-fluid h-70 object-cover"
+                  <img
+                    className="rounded-start img-fluid h-60 object-cover"
                     src={
                       personnelDetails.photo_profil
                         ? `http://localhost:5000/files/personnelFiles/PhotoProfil/${personnelDetails.photo_profil}`
@@ -185,12 +185,21 @@ const ProfilPersonnel = () => {
                         <div className="table-responsive">
                           <Table className="table-borderless table-sm m-0 p-0 ">
                             <tbody>
-                              <tr>
+                            <tr>
                                 <td>Matricule</td>
                                 <td className="fw-medium">
                                   <span className="badge badge-label bg-secondary fs-6">
                                     <i className="mdi mdi-circle-medium"></i>{" "}
-                                    2493600925
+                                    {personnelDetails.matricule ? personnelDetails.matricule : "Matricule Non disponible"}
+                                  </span>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Matricule CNRPS</td>
+                                <td className="fw-medium">
+                                  <span className="badge badge-label bg-danger fs-6">
+                                    <i className="mdi mdi-circle-medium"></i>{" "}
+                                    {personnelDetails.mat_cnrps ? personnelDetails.mat_cnrps : "Matricule CNRPS Non disponible"}
                                   </span>
                                 </td>
                               </tr>
@@ -222,9 +231,7 @@ const ProfilPersonnel = () => {
                       <tbody>
                         <tr>
                           <td>Genre:</td>
-                          <td className="fw-medium">
-                            {personnelDetails.sexe}
-                          </td>
+                          <td className="fw-medium">{personnelDetails.sexe}</td>
                         </tr>
 
                         <tr>
@@ -254,7 +261,9 @@ const ProfilPersonnel = () => {
                         </tr>
                         <tr>
                           <td>Gouvernorat</td>
-                          <td className="fw-medium">{personnelDetails.state}</td>
+                          <td className="fw-medium">
+                            {personnelDetails.state}
+                          </td>
                         </tr>
                         <tr>
                           <td>Municipalité </td>
@@ -262,7 +271,7 @@ const ProfilPersonnel = () => {
                             {personnelDetails.dependence}
                           </td>
                         </tr>
-                  
+
                         <tr>
                           <td> Adresse:</td>
                           <td className="fw-medium">
@@ -339,38 +348,47 @@ const ProfilPersonnel = () => {
                             {personnelDetails.date_delivrance}
                           </td>
                         </tr>
-                     
                       </tbody>
                     </Table>
                   </div>
                 </Col>
                 <Col lg={6} className="mt-0">
                   <h5 className="text-muted pb-1 pt-2">Conjoint</h5>
-                  <div className="table-responsive">
-                    <Table className="table-borderless table-sm m-0 p-0 ">
-                      <tbody>
-                        <tr>
-                          <td>Nom du conjoint:</td>
-                          <td className="fw-medium">{personnelDetails.nom_conjoint}</td>
-                        </tr>
-
-                        <tr>
-                          <td>Profession du conjoint:</td>
-                          <td className="fw-medium">{personnelDetails.job_conjoint
-                          }</td>
-                        </tr>
-                        <tr>
-                          <td>Nombre des enfants:</td>
-                          <td className="fw-medium">{personnelDetails.nombre_fils}</td>
-                        </tr>
-                     
-                      </tbody>
-                    </Table>
-                  </div>
+                  {personnelDetails.nom_conjoint ||
+                  personnelDetails.job_conjoint ||
+                  personnelDetails.nombre_fils ? (
+                    <div className="table-responsive">
+                      <Table className="table-borderless table-sm m-0 p-0">
+                        <tbody>
+                          <tr>
+                            <td>Nom du conjoint:</td>
+                            <td className="fw-medium">
+                              {personnelDetails.nom_conjoint}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Profession du conjoint:</td>
+                            <td className="fw-medium">
+                              {personnelDetails.job_conjoint}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>Nombre des enfants:</td>
+                            <td className="fw-medium">
+                              {personnelDetails.nombre_fils}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <p className="text-muted">
+                      Les détails du conjoint ne sont pas disponibles.
+                    </p>
+                  )}
                 </Col>
               </Row>
               <Row className="p-2">
-             
                 {/* <Col lg={6}>
                   <h5 className="text-muted pb-1 pt-2"> Baccalauréat</h5>
                   <div className="table-responsive">
