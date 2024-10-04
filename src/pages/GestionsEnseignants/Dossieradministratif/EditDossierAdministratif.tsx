@@ -3,13 +3,15 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 import "flatpickr/dist/flatpickr.min.css";
 import Swal from "sweetalert2";
+import {
+  useFetchEnseignantsQuery,
+} from "features/enseignant/enseignant";
 import Flatpickr from "react-flatpickr";
 import { format } from "date-fns";
 import {
   useUpdateDossierAdministratifMutation,
 } from "features/dossierAdministratif/dossierAdministratif";
 import { useFetchPapierAdministratifQuery } from "features/papierAdministratif/papierAdministratif";
-import { useFetchPersonnelsQuery } from "features/personnel/personnel";
 
 export interface PapierAdministratif {
   _id?: string;
@@ -30,7 +32,7 @@ export interface Paper {
 export interface DossierAdministratif {
   _id?: string;
   papers: Paper[];
-  personnel?: {
+  enseignant?: {
     _id: string;
     nom_fr: string;
     nom_ar: string;
@@ -39,17 +41,17 @@ export interface DossierAdministratif {
   };
 }
 
-const EditDossierAdministratifPersonnels = () => {
+const EditDossierAdministratifEnseignants = () => {
   document.title =
     "Modifier dossier Administratif | Application Smart Institute";
   const navigate = useNavigate();
   const { state: dossierAdministratif } = useLocation();
   const [editDossierAdministratif] = useUpdateDossierAdministratifMutation();
   function tog_retourParametres() {
-    navigate("/listeDossierAdministartifPersonnel");
+    navigate("/listeDossierAdministartif");
   }
 
-  const { data: allPersonnels = [] } = useFetchPersonnelsQuery();
+  const { data: allEnseignants = [] } = useFetchEnseignantsQuery();
 
   const { data: allPapierAdministratifs = [] } =
     useFetchPapierAdministratifQuery();
@@ -57,7 +59,7 @@ const EditDossierAdministratifPersonnels = () => {
   const [formData, setFormData] = useState<DossierAdministratif>({
     _id: "",
     papers: [],
-    personnel: {
+    enseignant: {
       _id: "",
       nom_fr: "",
       nom_ar: "",
@@ -69,19 +71,19 @@ const EditDossierAdministratifPersonnels = () => {
     if (dossierAdministratif) {
       setFormData({
         _id: dossierAdministratif._id || "",
-        personnel: {
-          _id: dossierAdministratif.personnel._id || "",
-          nom_fr: dossierAdministratif.personnel.nom_fr || "",
-          nom_ar: dossierAdministratif.personnel.nom_ar || "",
-          prenom_fr: dossierAdministratif.personnel.prenom_fr || "",
-          prenom_ar: dossierAdministratif.personnel.prenom_ar || "",
+        enseignant: {
+          _id: dossierAdministratif.enseignant._id || "",
+          nom_fr: dossierAdministratif.enseignant.nom_fr || "",
+          nom_ar: dossierAdministratif.enseignant.nom_ar || "",
+          prenom_fr: dossierAdministratif.enseignant.prenom_fr || "",
+          prenom_ar: dossierAdministratif.enseignant.prenom_ar || "",
         },
         papers: dossierAdministratif.papers || [],
       });
     }
   }, [dossierAdministratif]);
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("personnel");
+  const [selectedCategory, setSelectedCategory] = useState<string>("enseignant");
 
   const filterByCategory = (category: string) => {
     return allPapierAdministratifs.filter((paper) =>
@@ -89,6 +91,7 @@ const EditDossierAdministratifPersonnels = () => {
     );
   };
 
+  // Get filtered papers based on the selected category
   const filteredPapers = filterByCategory(selectedCategory);
 
   const handlePapierChange = (
@@ -127,25 +130,25 @@ const EditDossierAdministratifPersonnels = () => {
     }
   };
 
-  const handlePersonnelChange = (
+  const handleEnseignantChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    const selectedPersonnelId = event.target.value;
-    console.log("Selected Personnel ID:", selectedPersonnelId);
-    const doesSelectedPersonnelExist = allPersonnels.some(
-      (personnel) =>
-        personnel._id.trim().toLowerCase() ===
-        selectedPersonnelId.trim().toLowerCase()
+    const selectedEnseignantId = event.target.value;
+    console.log("Selected enseignant ID:", selectedEnseignantId);
+    const doesSelectedEnseignantExist = allEnseignants.some(
+      (enseignant) =>
+        enseignant._id.trim().toLowerCase() ===
+      selectedEnseignantId.trim().toLowerCase()
     );
-    console.log("Does Selected Personnel Exist:", doesSelectedPersonnelExist);
-    console.log("All Personnels:", allPersonnels);
-    allPersonnels.forEach((personnel, index) => {
-      console.log(`Personnel ${index}:`, personnel);
+    console.log("Does Selected Personnel Exist:", doesSelectedEnseignantExist);
+    console.log("All enseignants:", allEnseignants);
+    allEnseignants.forEach((enseignant, index) => {
+      console.log(`Enseignant ${index}:`, enseignant);
     });
-    const selectedPersonnel = allPersonnels.find(
-      (personnel) =>
-        personnel._id.trim().toLowerCase() ===
-        selectedPersonnelId.trim().toLowerCase()
+    const selectedEnseignant = allEnseignants.find(
+      (enseignant) =>
+        enseignant._id.trim().toLowerCase() ===
+      selectedEnseignantId.trim().toLowerCase()
     ) || {
       _id: "",
       nom_fr: "",
@@ -153,12 +156,12 @@ const EditDossierAdministratifPersonnels = () => {
       prenom_fr: "",
       prenom_ar: "",
     };
-    console.log("Selected Personnel Object:", selectedPersonnel);
+    console.log("Selected Enseignant Object:", selectedEnseignant);
     setFormData((prevData) => {
       console.log("Previous Form Data:", prevData);
       return {
         ...prevData,
-        personnel: selectedPersonnel,
+        personnel: selectedEnseignant,
       };
     });
   };
@@ -194,33 +197,6 @@ const EditDossierAdministratifPersonnels = () => {
       fileReader.readAsDataURL(file);
     });
   }
-  // const handlePDFUpload = async (event: any, index: number) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     try {
-  //       const { base64Data, extension } = await convertToBase64(file);
-
-  //       // Update formData to store the base64 string and extension separately
-  //       setFormData((prevData) => ({
-  //         ...prevData,
-  //         papers: prevData.papers.map((paper, i) =>
-  //           i === index
-  //             ? {
-  //                 ...paper,
-  //                 FileBase64String: base64Data, // Store the base64 data here
-  //                 FileExtension: extension, // Store the file extension here
-  //                 file: "", // Keep the file field empty until the server handles the upload
-  //               }
-  //             : paper
-  //         ),
-  //       }));
-  //     } catch (error) {
-  //       console.error("Error converting file to Base64:", error);
-  //     }
-  //   }
-  // };
-  
-  
   const handlePDFUpload = async (event: any, index: number) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -246,7 +222,7 @@ const EditDossierAdministratifPersonnels = () => {
       }
     }
   };
-  
+
   const onChange = (e: any, index: number) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -261,10 +237,10 @@ const EditDossierAdministratifPersonnels = () => {
   const onSubmitDossier = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
-      !formData?.personnel?._id ||
-      !isValidObjectId(formData?.personnel?._id)
+      !formData?.enseignant?._id ||
+      !isValidObjectId(formData?.enseignant?._id)
     ) {
-      console.error("Personnel ID is missing or invalid.");
+      console.error("enseignant ID is missing or invalid.");
       return;
     }
 
@@ -278,12 +254,12 @@ const EditDossierAdministratifPersonnels = () => {
         FileBase64String: paper.FileBase64String,
         FileExtension: paper.FileExtension,
       })),
-      personnel: {
-        _id: formData.personnel._id,
-        nom_fr: formData.personnel.nom_fr,
-        nom_ar: formData.personnel.nom_ar,
-        prenom_fr: formData.personnel.prenom_fr,
-        prenom_ar: formData.personnel.prenom_ar,
+      enseignant: {
+        _id: formData.enseignant._id,
+        nom_fr: formData.enseignant.nom_fr,
+        nom_ar: formData.enseignant.nom_ar,
+        prenom_fr: formData.enseignant.prenom_fr,
+        prenom_ar: formData.enseignant.prenom_ar,
       },
     };
 
@@ -302,7 +278,7 @@ const EditDossierAdministratifPersonnels = () => {
     Swal.fire({
       position: "center",
       icon: "success",
-      title: "Dossier personnel a été modifié avec succés",
+      title: "Dossier enseignant a été modifié avec succés",
       showConfirmButton: false,
       timer: 2000,
     });
@@ -352,18 +328,18 @@ const EditDossierAdministratifPersonnels = () => {
                 <Row>
                   <Col lg={2}>
                     <div className="mb-3">
-                      <Form.Label htmlFor="personnel">Personnel</Form.Label>
+                      <Form.Label htmlFor="enseignant">Enseignant</Form.Label>
                       <select
                         className="form-select text-muted"
-                        name="personnel"
-                        id="personnel"
-                        value={formData?.personnel?._id!}
-                        onChange={handlePersonnelChange}
+                        name="enseignant"
+                        id="enseignant"
+                        value={formData?.enseignant?._id!}
+                        onChange={handleEnseignantChange}
                       >
-                        <option value="">Sélectionner Personnel</option>
-                        {allPersonnels.map((personnel) => (
-                          <option key={personnel._id} value={personnel._id}>
-                            {`${personnel.prenom_fr} ${personnel.nom_fr}`}
+                        <option value="">Sélectionner Enseignant</option>
+                        {allEnseignants.map((enseignant) => (
+                          <option key={enseignant._id} value={enseignant._id}>
+                            {`${enseignant.prenom_fr} ${enseignant.nom_fr}`}
                           </option>
                         ))}
                       </select>
@@ -455,7 +431,7 @@ const EditDossierAdministratifPersonnels = () => {
                         <Button
                           className="mt-4"
                           variant="info"
-                          disabled={formData?.personnel?.nom_ar! === ""}
+                          disabled={formData?.enseignant?.nom_ar! === ""}
                           onClick={addNewLine}
                         >
                           <i
@@ -492,4 +468,4 @@ const EditDossierAdministratifPersonnels = () => {
   );
 };
 
-export default EditDossierAdministratifPersonnels;
+export default EditDossierAdministratifEnseignants;

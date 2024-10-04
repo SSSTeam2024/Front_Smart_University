@@ -1,65 +1,26 @@
-import React, { useState, useMemo, useCallback } from "react";
-import { Card, Col, Nav, Row, Tab, Table } from "react-bootstrap";
+import React, {useMemo} from "react";
+import { Card, Col, Nav, Row, Tab } from "react-bootstrap";
 import TableContainer from "Common/TableContainer";
-import { Link, useLocation, useParams } from "react-router-dom";
-import img1 from "assets/images/users/avatar-1.jpg";
-import { DossierAdministratif, useFetchDossierAdministratifQuery } from "features/dossierAdministratif/dossierAdministratif";
+import { Link, useLocation } from "react-router-dom";
+import { DossierAdministratif, Paper, useFetchDossierAdministratifQuery, useRemoveSpecificPaperMutation } from "features/dossierAdministratif/dossierAdministratif";
 import Swal from "sweetalert2";
-import { useDeleteFicheVoeuxMutation } from "features/ficheVoeux/ficheVoeux";
+
 
 const ViewDossierAdministratifPersonnel = () => {
   document.title = "Demande Etudiant | Smart Institute";
-  const [modal_AddUserModals, setmodal_AddUserModals] =
-    useState<boolean>(false);
-  const [isMultiDeleteButton, setIsMultiDeleteButton] =
-    useState<boolean>(false);
-  function tog_AddUserModals() {
-    setmodal_AddUserModals(!modal_AddUserModals);
-  }
   const location = useLocation();
   const dossierAdministratif = location.state;
-console.log("dossierAdministratif",dossierAdministratif)
   const { data: allDossiers = [] } = useFetchDossierAdministratifQuery();
 
   const personnelId = dossierAdministratif?.personnel?._id!;
 
-  console.log("Personnel ID:", personnelId);
 
   const filteredDossiers = allDossiers.filter((dossier) => {
     const currentPersonnelId = dossier?.personnel?._id!;
-
-    console.log("Comparing:", currentPersonnelId, "with", personnelId);
-
     return String(currentPersonnelId).trim() === String(personnelId).trim();
   });
 
-  console.log("filteredDossiers", filteredDossiers);
-
-  // Checked All
-  const checkedAll = useCallback(() => {
-    const checkall = document.getElementById("checkAll") as HTMLInputElement;
-    const ele = document.querySelectorAll(".userCheckBox");
-
-    if (checkall.checked) {
-      ele.forEach((ele: any) => {
-        ele.checked = true;
-      });
-    } else {
-      ele.forEach((ele: any) => {
-        ele.checked = false;
-      });
-    }
-    checkedbox();
-  }, []);
-
-  const checkedbox = () => {
-    const ele = document.querySelectorAll(".userCheckBox:checked");
-    ele.length > 0
-      ? setIsMultiDeleteButton(true)
-      : setIsMultiDeleteButton(false);
-  };
-
-  const [deleteFicheVoeux] = useDeleteFicheVoeuxMutation();
+  const [deleteSpecificPaper] = useRemoveSpecificPaperMutation();
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton: "btn btn-success",
@@ -67,7 +28,7 @@ console.log("dossierAdministratif",dossierAdministratif)
     },
     buttonsStyling: false,
   });
-  const AlertDelete = async (_id: string) => {
+  const AlertDelete = async (dossierId: string, paper: Paper) => {
     swalWithBootstrapButtons
       .fire({
         title: "Êtes-vous sûr?",
@@ -78,23 +39,38 @@ console.log("dossierAdministratif",dossierAdministratif)
         cancelButtonText: "Non, annuler!",
         reverseButtons: true,
       })
-      .then((result) => {
+      .then(async (result) => {
         if (result.isConfirmed) {
-          deleteFicheVoeux(_id);
-          swalWithBootstrapButtons.fire(
-            "Supprimé!",
-            "Fiche Voeux a été supprimé.",
-            "success"
-          );
+          try {
+            // Call the mutation with the dossierId and the specific paper details
+            await deleteSpecificPaper({
+              dossierId,
+              userId: "USER_ID",  // Replace with actual userId logic
+              userType: "personnel",  // Adjust based on your user type logic
+              paperDetails: paper,
+            });
+            swalWithBootstrapButtons.fire(
+              "Supprimé!",
+              "Papier a été supprimé.",
+              "success"
+            );
+          } catch (error) {
+            swalWithBootstrapButtons.fire(
+              "Erreur",
+              "Échec de la suppression du papier.",
+              "error"
+            );
+          }
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           swalWithBootstrapButtons.fire(
             "Annulé",
-            "Fiche Voeux est en sécurité :)",
+            "Papier est en sécurité :)",
             "error"
           );
         }
       });
   };
+  
   const data = useMemo(() => {
     return filteredDossiers.flatMap((dossier) =>
       dossier.papers.map((paper) => ({
@@ -106,8 +82,6 @@ console.log("dossierAdministratif",dossierAdministratif)
     );
   }, [filteredDossiers]);
 
-  
-  // Columns definition
   const columns = useMemo(
     () => [
       {
@@ -128,14 +102,14 @@ console.log("dossierAdministratif",dossierAdministratif)
         disableFilters: true,
         filterable: true,
       },
-       {
+      {
         Header: 'Fichier',
         accessor: 'file',
         disableFilters: true,
         filterable: true,
-        Cell: ({ cell: { value } }: any)=> (
+        Cell: ({ cell: { value } }: { cell: { value: string } }) => (
           <a
-          href={`http://localhost:5000/files/dossierFiles/${value}`}
+            href={`http://localhost:5000/files/dossierFiles/${value}`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -150,10 +124,12 @@ console.log("dossierAdministratif",dossierAdministratif)
         Header: "Action",
         disableFilters: true,
         filterable: true,
-        accessor: (dossierAdministratif: DossierAdministratif) => {
+        Cell: ({ row }: { row: { original: DossierAdministratif } }) => {
+          const dossierId = row.original.dossierId;
+          const paper: Paper = row.original as any;
+  
           return (
             <ul className="hstack gap-2 list-unstyled mb-0">
-           
               <li>
                 <Link
                   to="#"
@@ -172,7 +148,7 @@ console.log("dossierAdministratif",dossierAdministratif)
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
-                   // onClick={() => AlertDelete(dossierAdministratif?.dossierId!)}
+                    onClick={() => AlertDelete(dossierId!, paper)}
                   ></i>
                 </Link>
               </li>
@@ -183,6 +159,9 @@ console.log("dossierAdministratif",dossierAdministratif)
     ],
     []
   );
+  
+  
+
 
   return (
     <React.Fragment>

@@ -184,6 +184,7 @@ import AddDossieradministratifPersonnels from "pages/GestionsPersonnels/Dossiera
 import ListeDossierAdministratifPersonnels from "pages/GestionsPersonnels/Dossieradministratif/ListeDossierAdministratifPersonnels";
 import ViewDossierAdministratifPersonnel from "pages/GestionsPersonnels/Dossieradministratif/ViewDossierAdministratifPersonnel";
 import EditDossierAdministratifPersonnels from "pages/GestionsPersonnels/Dossieradministratif/EditDossierAdministratif";
+import EditDossierAdministratifEnseignants from "pages/GestionsEnseignants/Dossieradministratif/EditDossierAdministratif";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
@@ -612,6 +613,12 @@ const authProtectedRoutes = [
 {
   path: "/editDossierAdministratifPersonnel",
   component: <EditDossierAdministratifPersonnels />,
+  
+},
+//edit dossier enseignant
+{
+  path: "/editDossierAdministratifEnseignant",
+  component: <EditDossierAdministratifEnseignants />,
   
 },
   //Product

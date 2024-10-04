@@ -116,31 +116,6 @@ const ListePapierAdministratifs = () => {
   const columns = useMemo(
     () => [
       {
-        Header: (
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="checkAll"
-              value="option"
-            />
-          </div>
-        ),
-        Cell: (cellProps: any) => {
-          return (
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                name="chk_child"
-                defaultValue="option1"
-              />
-            </div>
-          );
-        },
-        id: "#",
-      },
-      {
         Header: "Nom (AR)",
         accessor: "nom_ar",
         disableFilters: true,

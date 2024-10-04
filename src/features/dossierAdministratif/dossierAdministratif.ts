@@ -70,7 +70,14 @@ export const dossierAdministratifSlice = createApi({
         }),
         invalidatesTags: ["DossierAdministratif"],
       }),
-  
+      removeSpecificPaper: builder.mutation<void, { dossierId: string; userId: string; userType: string; paperDetails: Paper }>({
+        query: ({ dossierId, userId, userType, paperDetails }) => ({
+          url: `/remove-paper`,
+          method: "DELETE",
+          body: { dossierId, userId, userType, ...paperDetails },
+        }),
+        invalidatesTags: ["DossierAdministratif"],
+      }),
     };
   },
 });
@@ -78,5 +85,6 @@ export const dossierAdministratifSlice = createApi({
 export const {
 useAddDossierAdministratifMutation,
 useFetchDossierAdministratifQuery,
-useUpdateDossierAdministratifMutation
+useUpdateDossierAdministratifMutation,
+useRemoveSpecificPaperMutation
 } = dossierAdministratifSlice;

@@ -162,7 +162,7 @@ const ListeDossierAdministratif = () => {
               </li>
               <li>
                 <Link
-                  to="/gestion-fiche-voeux/edit-fiche-voeux"
+                  to="/editDossierAdministratifEnseignant"
                   state={dossierAdministratif}
                   className="badge bg-primary-subtle text-primary edit-item-btn"
                 >
@@ -252,8 +252,8 @@ const ListeDossierAdministratif = () => {
       <div className="page-content">
         <Container fluid={true}>
           <Breadcrumb
-            title="Gestion des départements"
-            pageTitle="Liste des matiéres"
+            title="Gestion des enseignants"
+            pageTitle="Liste des dossiers enseignants"
           />
 
           <Row id="sellersList">
@@ -271,19 +271,7 @@ const ListeDossierAdministratif = () => {
                         <i className="ri-search-line search-icon"></i>
                       </div>
                     </Col>
-                    <Col className="col-lg-auto">
-                      <select
-                        className="form-select"
-                        id="idStatus"
-                        name="choices-single-default"
-                      >
-                        <option defaultValue="All">Status</option>
-                        <option value="All">tous</option>
-                        <option value="Active">Activé</option>
-                        <option value="Inactive">Desactivé</option>
-                      </select>
-                    </Col>
-
+                
                     <Col className="col-lg-auto ms-auto">
                       <div className="hstack gap-3">
                         <Button
@@ -293,225 +281,11 @@ const ListeDossierAdministratif = () => {
                         >
                           Ajouter dossier administratif
                         </Button>
-                        {/* <Button
-                          variant="primary"
-                          className="add-btn"
-                          onClick={() => tog_ImportModals()}
-                          // onClick={exportToExcel}
-                        >
-                          Importer
-                        </Button> */}
                       </div>
                     </Col>
                   </Row>
                 </Card.Body>
               </Card>
-
-              <Modal
-                className="fade modal-fullscreen"
-                show={modal_AddParametreModals}
-                onHide={() => {
-                  tog_AddParametreModals();
-                }}
-                centered
-              >
-                <Modal.Header className="px-4 pt-4" closeButton>
-                  <h5 className="modal-title" id="exampleModalLabel">
-                    Ajouter une matière
-                  </h5>
-                </Modal.Header>
-                <Form className="tablelist-form">
-                  <Modal.Body className="p-4">
-                    <div
-                      id="alert-error-msg"
-                      className="d-none alert alert-danger py-2"
-                    ></div>
-                    <input type="hidden" id="id-field" />
-
-                    <div className="mb-3">
-                      <Form.Label htmlFor="item-stock-field">
-                        Nom matière
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="item-stock-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-                    <Row>
-                      <Col lg={6}>
-                        <div className="mb-3">
-                          <Form.Label htmlFor="civilStatus">
-                            Type matière
-                          </Form.Label>
-                          <select
-                            className="form-select text-muted"
-                            name="civilStatus"
-                            id="civilStatus"
-                          >
-                            <option value="">Cours</option>
-                            <option value="Married">1/2 Cours</option>
-                            <option value="Single">TP/TD</option>
-                            <option value="Divorced">TD</option>
-                            <option value="Widowed">TP</option>
-                            <option value="Widowed">½ TP</option>
-                            <option value="Widowed">½ TD</option>
-                            <option value="Widowed">Cours Intégré</option>
-                          </select>
-                        </div>
-                      </Col>
-
-                      <Col lg={4}>
-                        <div className="mb-3">
-                          <div className="form-check form-switch mt-5">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              role="switch"
-                              id="SwitchCheck1"
-                              defaultChecked
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="SwitchCheck1"
-                            >
-                              S1
-                            </label>
-                          </div>
-                        </div>
-                      </Col>
-
-                      <Col lg={2}>
-                        <div className="mb-3">
-                          <div className="form-check form-switch mt-5">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              role="switch"
-                              id="SwitchCheck2"
-                              defaultChecked
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="SwitchCheck2"
-                            >
-                              S2
-                            </label>
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
-
-                    {/* <div className="mb-3">
-                      <Form.Label htmlFor="civilStatus">Semestre</Form.Label>
-                      <select
-                        className="form-select text-muted"
-                        name="civilStatus"
-                        id="civilStatus"
-                      >
-                        <option value="">Choisir semestre</option>
-                        <option value="Married">S1</option>
-                        <option value="Single">S2</option>
-                      </select>
-                    </div> */}
-
-                    <div className="mb-3">
-                      <Form.Label htmlFor="phone-field">
-                        Volume horaire
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="phone-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <Form.Label htmlFor="phone-field">
-                        Nombre d'élimination
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="phone-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <Form.Label htmlFor="phone-field">
-                        Code matière
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="phone-field"
-                        placeholder=""
-                        required
-                      />
-                    </div>
-                  </Modal.Body>
-                  <div className="modal-footer">
-                    <div className="hstack gap-2 justify-content-end">
-                      <Button
-                        className="btn-ghost-danger"
-                        onClick={() => {
-                          tog_AddParametreModals();
-                        }}
-                      >
-                        Fermer
-                      </Button>
-                      <Button variant="success" id="add-btn">
-                        Ajouter
-                      </Button>
-                    </div>
-                  </div>
-                </Form>
-              </Modal>
-              <Modal
-                className="fade modal-fullscreen"
-                show={modal_ImportModals}
-                onHide={tog_ImportModals}
-                centered
-              >
-                <Modal.Header className="px-4 pt-4" closeButton>
-                  <h5 className="modal-title" id="exampleModalLabel">
-                    Importer matières
-                  </h5>
-                </Modal.Header>
-                <Form className="tablelist-form">
-                  <Modal.Body className="p-4">
-                    Vous pouvez importer plusieurs matières à partir de ce
-                    template{" "}
-                    <a href="#" onClick={createAndDownloadExcel}>
-                      Cliquer ici pour télécharger
-                    </a>
-                    <Form.Group controlId="formFile" className="mt-3">
-                      <Form.Label>Upload Excel File</Form.Label>
-                      <Form.Control
-                        type="file"
-                        accept=".xlsx, .xls"
-                        onChange={handleFileUpload}
-                      />
-                    </Form.Group>
-                    {filePath && <p>File Path: {filePath}</p>}
-                  </Modal.Body>
-                  <div className="modal-footer">
-                    <div className="hstack gap-2 justify-content-end">
-                      <Button
-                        className="btn-ghost-danger"
-                        onClick={tog_ImportModals}
-                      >
-                        Fermer
-                      </Button>
-                      <Button variant="success" id="add-btn">
-                        Importer
-                      </Button>
-                    </div>
-                  </div>
-                </Form>
-              </Modal>
-
               <Card>
                 <Card.Body className="p-0">
                   {/* <div className="table-responsive table-card mb-1"> */}
